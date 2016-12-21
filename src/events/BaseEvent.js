@@ -13,6 +13,7 @@ class BaseEvent {
 
 
     set time(time) {
+        assert(time !== undefined);
         assert(time instanceof Time);
         this._time = time;
     }

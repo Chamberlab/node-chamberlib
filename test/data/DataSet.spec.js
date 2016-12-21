@@ -5,6 +5,7 @@ const chai = require('chai');
 chai.should();
 
 import clab from '../../index';
+import path from 'path';
 
 describe('DataSet', () => {
     it('Creates new dataset with params', () => {
@@ -24,9 +25,12 @@ describe('DataSet', () => {
     it('Reads data from json file', () => {
         let set = new clab.data.DataSet();
 
-        return set.loadJson('/Users/anton/WebstormProjects/nanonotes/sets/nb-rec-mode-1-08_groups-16_units-16_sptrs/nb-rec-mode-1-08_groups-16_units-16_sptrs.json')
+        return set.loadJson(path.join(__dirname, '..', 'assets', 'data.json'))
             .then(function () {
-                set.size.should.equal(16);
+                set.size.should.equal(5);
+                set.should.be.instanceOf(clab.data.DataSet);
+                set.at(0).size.should.equal(100);
+                set.at(0).should.be.instanceOf(clab.data.DataChannel);
             });
     });
 });

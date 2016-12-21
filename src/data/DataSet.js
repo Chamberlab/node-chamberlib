@@ -24,7 +24,6 @@ class DataSet extends BaseCollection {
     }
 
     initWithObject(data) {
-        assert(typeof data === 'object');
         assert(Array.isArray(data));
 
         let _self = this;
