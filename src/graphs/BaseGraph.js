@@ -29,6 +29,7 @@ class BaseGraph {
     jsdomEnv(d3env, layerData, g, drawContent, quantizeData, cb) {
         // TODO: update d3 to version 4
         // TODO: clean up graph config
+
         d3env.width = Math.ceil(Defaults.SECONDS_LENGTH * Defaults.DEFAULT_PPS);
         d3env.height = Defaults.DEFAULT_HEIGHT - Defaults.DEFAULT_MARGIN_Y;
         d3env.d3 = {};

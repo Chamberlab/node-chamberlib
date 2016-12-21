@@ -12,12 +12,21 @@ import cl from '../index';
 
 describe('Sonification Workflow', () => {
     let chance = new Chance(),
-        title = [Date.now(), chance.first().toLowerCase(), chance.word({syllables: 3})].join('-'),
+        title = [Date.now(), chance.word({syllables: 2}), chance.word({syllables: 2})].join('-'),
+        sdir = path.join(__dirname, 'test-sets'),
+        fdir = path.join(sdir, title),
         datafile = path.join(__dirname, 'assets', 'data.json'),
         set = new cl.data.DataSet();
 
+    if (!fs.existsSync(sdir)) {
+        fs.mkdirSync(sdir);
+    }
+    if (!fs.existsSync(fdir)) {
+        fs.mkdirSync(fdir);
+    }
+
     it('loads a json file', () => {
-        return set.loadJson(datafile);
+        return set.loadJson(datafile, title);
     });
 
     it('configure rulesets filtering the data channels', () => {
@@ -35,13 +44,13 @@ describe('Sonification Workflow', () => {
     });
 
     it('plots the resulting data to a line chart', () => {
-        const plotter = new cl.graphs.DataPlotter(set, title);
-        return plotter.generateLineChart();
+        const plotter = new cl.graphs.DataPlotter(set, sdir, title);
+        return plotter.generateChart(cl.graphs.layouts.LineChart);
     });
 
     it('plots the resulting data to a stacked stream chart', () => {
-        const plotter = new cl.graphs.DataPlotter(set, title);
-        return plotter.generateStackedStreamChart();
+        const plotter = new cl.graphs.DataPlotter(set, sdir, title);
+        return plotter.generateChart(cl.graphs.layouts.StackedStreamChart);
     });
 
     it('configure rulesets for musical mapping', () => {
@@ -62,6 +71,6 @@ describe('Sonification Workflow', () => {
 
     it('stores the modified dataset with the other files', () => {
         return Promise.promisify(fs.writeFile)(
-            path.join(__dirname, '..', 'sets', title, title + '.json'), JSON.stringify(set));
+            path.join(__dirname, 'test-sets', title, title + '.json'), JSON.stringify(set));
     });
 });
