@@ -5,6 +5,7 @@ chai.should();
 import clab from '../../index';
 
 describe('Song', () => {
+    /*
     it('Creates new song with params', () => {
         let tcount = 4, bpm = 136, sig = '4/8',
             song = new clab.harmonics.Song(tcount, bpm, sig);
@@ -20,4 +21,5 @@ describe('Song', () => {
 
         song.size.should.equal(1);
     });
+    */
 });

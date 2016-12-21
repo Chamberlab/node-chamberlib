@@ -1,5 +1,7 @@
 import assert from 'assert';
+import Promise from 'bluebird';
 import DataChannel from '../../data/DataChannel';
+import DataEvent from '../../events/DataEvent';
 
 class BaseRule {
     constructor(active = true, autoreset = false) {
@@ -8,14 +10,32 @@ class BaseRule {
     }
 
 
-    evaluate(source) {
+    evaluate(source, processorFunc, ...args) {
+        assert(source instanceof DataChannel);
+        assert(typeof processorFunc === 'function');
+
         if (this.active) {
             this.validate(source);
             if (this._autoreset) {
                 this.reset();
             }
         }
-        return this;
+
+        const _self = this;
+        this._progress = 0.0;
+        return Promise.reduce(source.all, function (history, event, i, len) {
+            _self._progress = i / len;
+            return Promise.resolve(processorFunc(event, history, _self._progress, args))
+                .then(function (res) {
+                    if (res instanceof DataEvent) {
+                        history.push(res);
+                    }
+                    return history;
+                });
+        }, [])
+        .then(function (results) {
+            return new DataChannel(results);
+        });
     }
 
     validate(source) {
@@ -50,6 +70,10 @@ class BaseRule {
 
     set autoreset(v) {
         this._autoreset = v;
+    }
+
+    get progress() {
+        return this._progress;
     }
 }
 

@@ -1,12 +1,15 @@
 import assert from 'assert';
-import DataEvent from './DataEvent';
+import BaseEvent from './BaseEvent';
 import Time from '../quantities/Time';
 import Note from '../harmonics/Note';
 import Chord from '../harmonics/Chord';
 
-class TonalEvent extends DataEvent {
-    constructor(time, value, duration = new Time(0.0)) {
+class TonalEvent extends BaseEvent {
+    constructor(time, value, duration) {
         super(time, value, [Note, Chord]);
+
+        this.time = time;
+        this.value = value;
 
         this.duration = duration;
     }

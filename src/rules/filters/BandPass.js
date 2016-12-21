@@ -8,7 +8,7 @@ class BandPass extends BaseFilter {
     }
 
 
-    filterFunc(event) {
+    processorFunc(event) {
         let inRange = event.value.normalized() >= this.base.normalized() &&
             event.value.normalized() < this.base.normalized() + this.width.normalized();
 

@@ -4,10 +4,13 @@ import Unit from './base/Unit';
 import Dimensions from './base/Dimensions';
 
 class Frequency extends BaseQuantity {
-    constructor(value, unitSuffix = Frequency.defaultUnit.suffix) {
-        assert(Frequency.units.hasOwnProperty(unitSuffix) > -1);
+    constructor(value, unit = Frequency.defaultUnit) {
+        if (typeof unit === 'string') {
+            unit = Frequency.units[unit.toLowerCase()];
+        }
+        assert(Frequency.units.hasOwnProperty(unit.suffix) > -1);
 
-        super(value, Frequency.units[unitSuffix]);
+        super(value, unit);
     }
 
 

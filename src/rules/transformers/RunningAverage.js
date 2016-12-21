@@ -1,7 +1,7 @@
 import BaseTransformer from '../base/BaseTransformer';
 
 class RunningAverage extends BaseTransformer {
-    transformFunc(event) {
+    processorFunc(event) {
         return event;
     }
 }

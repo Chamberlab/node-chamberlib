@@ -11,23 +11,8 @@ class BaseRouter extends BaseRule {
     }
 
 
-    evaluate(source) {
-        super.evaluate(source);
-
-        if (this._active) {
-            // TODO: promise.map ?
-            source.map(function (event) {
-                this.routerFunc(event);
-            });
-        }
-
-        return this;
-    }
-
-    routerFunc(event) {
-        assert(event instanceof DataEvent);
-
-        this.destination.push(event);
+    evaluate(source, processorFunc) {
+        super.evaluate(source, processorFunc);
     }
 
 

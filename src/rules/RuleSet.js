@@ -1,4 +1,5 @@
 import assert from 'assert';
+import Promise from 'bluebird';
 import BaseCollection from '../data/BaseCollection';
 import BaseRule from './base/BaseRule';
 import DataChannel from '../data/DataChannel';
@@ -10,15 +11,28 @@ class RuleSet extends BaseCollection {
 
 
     evaluate(source) {
-        assert(source instanceof DataChannel);
+        assert(source instanceof DataChannel,
+            `Expected source to be DataChannel but got ${source.constructor.name}`);
 
-        let last;
+        const _self = this;
+        _self._progress = 0.0;
 
-        for (let rule of this.all) {
-            last = rule.evaluate(source).results;
-        }
+        return Promise.reduce(_self.all, function (history, rule, i, len) {
+            _self._progress = i / len;
+            return Promise.resolve(rule.evaluate(_self._results || source))
+                .then(function (result) {
+                    history.push({ rule: rule.constructor.name, results: result, errors: []});
+                    return history;
+                });
+        }, [])
+        .then(function (results) {
+            return results;
+        });
+    }
 
-        return this;
+
+    get progress() {
+        return this._progress;
     }
 }
 

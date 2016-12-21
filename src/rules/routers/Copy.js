@@ -3,7 +3,7 @@ import BaseRouter from '../base/BaseRouter';
 import DataEvent from '../../events/DataEvent';
 
 class Copy extends BaseRouter {
-    routerFunc(event) {
+    processorFunc(event) {
         assert(event instanceof DataEvent);
 
         let newEvent = new DataEvent();

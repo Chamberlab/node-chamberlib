@@ -22,7 +22,7 @@ class SortQuantities extends BaseFilter {
         });
     }
 
-    filterFunc(a, b) {
+    processorFunc(a, b) {
         return a[this._property].compare(b[this._property]) * (this._reverse ? -1 : 1);
     }
 }

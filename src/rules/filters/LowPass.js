@@ -3,7 +3,7 @@
 import BaseFilter from '../base/BaseFilter';
 
 class LowPass extends BaseFilter {
-    filterFunc(event) {
+    processorFunc(event) {
         return event.value.normalized() < this.cutoff.normalized();
     }
 }

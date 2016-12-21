@@ -45,7 +45,7 @@ class BaseCollection {
         }
         if (Array.isArray(item)) {
             let _self = this;
-            item.map(function (it) {
+            item = item.map(function (it) {
                 assert(it instanceof _self._childClass);
             });
             this._items = this._items.concat(item);

@@ -49,6 +49,17 @@ class DataSet extends BaseCollection {
             });
         });
     }
+
+    evaluateRuleSets() {
+        let _self = this;
+        return Promise.each(_self.all, function (channel) {
+            return channel.evaluateRuleSet()
+                .then(function (res) {
+                    // TODO: handle errors and stats later on
+                    channel = res[res.length - 1].results;
+                });
+        });
+    }
 }
 
 export default DataSet;

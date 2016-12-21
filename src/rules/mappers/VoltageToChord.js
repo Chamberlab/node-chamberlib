@@ -1,11 +1,13 @@
 import assert from 'assert';
 
-import BaseRouter from '../base/BaseRouter';
+import BaseTransformer from '../base/BaseTransformer';
 import Voltage from '../../quantities/Voltage';
+import Time from '../../quantities/Time';
+import TonalEvent from '../../events/TonalEvent';
 import Chord from '../../harmonics/Chord';
 import Note from '../../harmonics/Note';
 
-class VoltageToChord extends BaseRouter {
+class VoltageToChord extends BaseTransformer {
     constructor(key = 'C') {
         super(Voltage, Chord);
 
@@ -13,10 +15,12 @@ class VoltageToChord extends BaseRouter {
     }
 
     evaluate(source) {
-        super.evaluate(source);
+        super.evaluate(source, this.processorFunc);
+    }
 
-        let names = Chord.getChordNames(this.key);
-        return names;
+    processorFunc(event) {
+        let tone = new TonalEvent(event.time, new Note('C', 4), new Time(1.0, 's'));
+        return tone;
     }
 
 

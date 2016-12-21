@@ -4,10 +4,13 @@ import Unit from './base/Unit';
 import Dimensions from './base/Dimensions';
 
 class Time extends BaseQuantity {
-    constructor(value, unitSuffix = Time.defaultUnit.suffix) {
-        assert(Time.units.hasOwnProperty(unitSuffix));
+    constructor(value, unit = Time.defaultUnit) {
+        if (typeof unit === 'string') {
+            unit = Time.units[unit.toLowerCase()];
+        }
+        assert(Time.units[unit.suffix] instanceof Unit);
 
-        super(value, Time.units[unitSuffix]);
+        super(value, unit);
     }
 
 

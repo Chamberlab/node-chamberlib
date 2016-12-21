@@ -6,18 +6,11 @@ class BaseTransformer extends BaseRule {
     }
 
 
-    evaluate(source) {
-        super.evaluate(source);
-
-        let _self = this;
-        source.all.map(function (event) {
-            return _self.transformFunc(event);
-        });
-
-        return this;
+    evaluate(source, processorFunc) {
+        super.evaluate(source, processorFunc);
     }
 
-    transformFunc(event) {
+    processorFunc(event) {
         return event;
     }
 }

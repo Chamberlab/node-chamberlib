@@ -14,18 +14,8 @@ class BaseFilter extends BaseRule {
     }
 
 
-    evaluate(source) {
-        super.evaluate(source);
-
-        let _self = this;
-        return new DataChannel(source.all.map(function (event) {
-            assert(event instanceof DataEvent);
-            return _self.filterFunc(event);
-        }));
-    }
-
-    filterFunc(event) {
-        return event;
+    evaluate(source, processorFunc, ...args) {
+        return super.evaluate(source, processorFunc, args);
     }
 
 

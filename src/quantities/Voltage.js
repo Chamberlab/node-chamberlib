@@ -4,10 +4,13 @@ import Unit from './base/Unit';
 import Dimensions from './base/Dimensions';
 
 class Voltage extends BaseQuantity {
-    constructor(value, unitSuffix = Voltage.defaultUnit.suffix) {
-        assert(Voltage.units.hasOwnProperty(unitSuffix) > -1);
+    constructor(value, unit = Voltage.defaultUnit) {
+        if (typeof unit === 'string') {
+            unit = Voltage.units[unit.toLowerCase()];
+        }
+        assert(Voltage.units[unit.suffix] instanceof Unit);
 
-        super(value, Voltage.units[unitSuffix]);
+        super(value, unit);
     }
 
     static get units() {
