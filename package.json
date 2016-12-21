@@ -1,0 +1,39 @@
+{
+  "name": "chamberlib",
+  "version": "0.1.0",
+  "description": "Lib for lab.",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha $(find test -path '*.spec.*') --compilers js:babel-core/register --recursive --timeout 10000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dasantonym/node-chamberlib.git"
+  },
+  "author": "Chamberlab / A. Koch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dasantonym/node-chamberlib/issues"
+  },
+  "homepage": "https://github.com/dasantonym/node-chamberlib#readme",
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-plugin-transform-class-properties": "^6.19.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-register": "^6.18.0",
+    "chai": "^3.5.0",
+    "chance": "^1.0.4",
+    "gulp": "^3.9.1",
+    "gulp-jshint": "^2.0.4",
+    "jshint": "^2.9.4",
+    "jshint-stylish": "^2.2.1",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.6"
+  },
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "scalesapi": "^1.1.3",
+    "scribbletune": "^0.8.2",
+    "tonal": "^0.68.0"
+  }
+}
