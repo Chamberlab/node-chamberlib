@@ -1,5 +1,3 @@
-'use strict';
-
 const DIMENSION_UNSPECIFIED = 0;
 const DIMENSION_TEMPORAL = 1;
 const DIMENSION_VOLTAGE = 2;

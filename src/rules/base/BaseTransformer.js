@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseRule from './BaseRule';
 
 class BaseTransformer extends BaseRule {

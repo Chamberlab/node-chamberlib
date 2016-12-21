@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseCollection from '../data/BaseCollection';
 import DataEvent from '../events/DataEvent';
 

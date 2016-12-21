@@ -1,5 +1,3 @@
-'use strict';
-
 import JsonIO from './JsonIO';
 import MidiIO from './MidiIO';
 

@@ -1,5 +1,3 @@
-'use strict';
-
 import assert from 'assert';
 import BaseCollection from '../data/BaseCollection';
 import BaseRule from './base/BaseRule';

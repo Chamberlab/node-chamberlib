@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseQuantity from './BaseQuantity';
 import Unit from './Unit';
 import Dimensions from './Dimensions';

@@ -1,5 +1,3 @@
-'use strict';
-
 import DataChannel from './DataChannel';
 import DataSet from './DataSet';
 

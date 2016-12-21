@@ -1,5 +1,3 @@
-'use strict';
-
 import data from './src/data';
 import events from './src/events';
 import harmonics from './src/harmonics';

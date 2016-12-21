@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseTransformer from '../base/BaseTransformer';
 
 class RunningAverage extends BaseTransformer {

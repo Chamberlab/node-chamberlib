@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseCollection from '../data/BaseCollection';
 import Track from '../harmonics/Track';
 

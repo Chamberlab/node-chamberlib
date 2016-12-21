@@ -1,5 +1,3 @@
-'use strict';
-
 import assert from 'assert';
 import Scale from '../../harmonics/Scale';
 import BaseLUT from './BaseLUT';

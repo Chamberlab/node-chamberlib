@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseFilter from './BaseFilter';
 import BaseRouter from './BaseRouter';
 import BaseRule from './BaseRule';

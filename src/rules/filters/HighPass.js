@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseFilter from '../base/BaseFilter';
 
 class HighPass extends BaseFilter {

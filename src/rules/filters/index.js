@@ -1,5 +1,3 @@
-'use strict';
-
 import BandPass from './BandPass';
 import HighPass from './HighPass';
 import LowPass from './LowPass';

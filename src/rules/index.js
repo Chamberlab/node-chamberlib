@@ -1,5 +1,3 @@
-'use strict';
-
 import RuleSet from './RuleSet';
 
 import base from './base';

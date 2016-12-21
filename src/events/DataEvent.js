@@ -1,5 +1,3 @@
-'use strict';
-
 import BaseEvent from './BaseEvent';
 import Voltage from '../quantities/Voltage';
 import Frequency from '../quantities/Frequency';

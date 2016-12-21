@@ -1,5 +1,3 @@
-'use strict';
-
 import Chord from './Chord';
 import Note from './Note';
 import Scale from './Scale';

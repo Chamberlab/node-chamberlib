@@ -1,5 +1,3 @@
-'use strict';
-
 import assert from 'assert';
 import BaseQuantity from './base/BaseQuantity';
 import Unit from './base/Unit';
