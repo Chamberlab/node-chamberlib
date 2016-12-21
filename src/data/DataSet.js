@@ -17,11 +17,11 @@ class DataSet extends BaseCollection {
         let _self = this;
         return JsonIO.readFile(filepath)
             .then(function (data) {
-                return _self.initWithObject(data);
+                return _self.fromObject(data);
             });
     }
 
-    initWithObject(data) {
+    fromObject(data) {
         assert(Array.isArray(data));
 
         let _self = this;
