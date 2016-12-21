@@ -9,7 +9,6 @@ import clab from '../../index';
 import * as fixtures from '../fixtures';
 
 describe('DataChannel', () => {
-    /*
     it('Creates new empty data channel', () => {
         let channel = new clab.data.DataChannel();
 
@@ -49,5 +48,4 @@ describe('DataChannel', () => {
         channel.push(events);
         channel.size.should.equal(events.length);
     });
-    */
 });

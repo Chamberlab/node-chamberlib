@@ -5,7 +5,6 @@ chai.should();
 import clab from '../../index';
 
 describe('Chord', () => {
-    /*
     it('Creates a chord from string', () => {
         let chord = new clab.harmonics.Chord('Fm7b5');
 
@@ -32,5 +31,4 @@ describe('Chord', () => {
         let names = clab.harmonics.Chord.getChordNames('Major', 'E', 3);
         names.length.should.equal(7);
     });
-    */
 });

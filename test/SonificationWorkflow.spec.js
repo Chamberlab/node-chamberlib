@@ -1,15 +1,23 @@
 import 'babel-core/register';
+import 'babel-polyfill';
+
 const chai = require('chai');
 chai.should();
 
 import Promise from 'bluebird';
+import path from 'path';
+import fs from 'fs';
+import Chance from 'chance';
 import cl from '../index';
 
 describe('Sonification Workflow', () => {
-    let set = new cl.data.DataSet();
+    let chance = new Chance(),
+        title = [Date.now(), chance.first().toLowerCase(), chance.word({syllables: 3})].join('-'),
+        datafile = path.join(__dirname, 'assets', 'data.json'),
+        set = new cl.data.DataSet();
 
     it('loads a json file', () => {
-        return set.loadJson('/Users/anton/PycharmProjects/nanobrains/out/nb-rec-mode-2-01_groups-05_units-05_sptrs.json');
+        return set.loadJson(datafile);
     });
 
     it('configure rulesets filtering the data channels', () => {
@@ -26,8 +34,14 @@ describe('Sonification Workflow', () => {
             });
     });
 
-    it('plots the resulting data to a graph', () => {
+    it('plots the resulting data to a line chart', () => {
+        const plotter = new cl.graphs.DataPlotter(set, title);
+        return plotter.generateLineChart();
+    });
 
+    it('plots the resulting data to a stacked stream chart', () => {
+        const plotter = new cl.graphs.DataPlotter(set, title);
+        return plotter.generateStackedStreamChart();
     });
 
     it('configure rulesets for musical mapping', () => {
@@ -43,6 +57,11 @@ describe('Sonification Workflow', () => {
     });
 
     it('writes all created tonal events to midi file', () => {
-        /* todo.... */
+        /* TODO: do.... */
+    });
+
+    it('stores the modified dataset with the other files', () => {
+        return Promise.promisify(fs.writeFile)(
+            path.join(__dirname, '..', 'sets', title, title + '.json'), JSON.stringify(set));
     });
 });

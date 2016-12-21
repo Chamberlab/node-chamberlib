@@ -6,7 +6,6 @@ import clab from '../../index';
 import * as fixtures from '../fixtures';
 
 describe('RuleSet', () => {
-    /*
     it('Creates an empty ruleset', () => {
         let set = new clab.rules.RuleSet();
 
@@ -33,5 +32,4 @@ describe('RuleSet', () => {
 
         let res = set.evaluate(channel);
     });
-    */
 });
