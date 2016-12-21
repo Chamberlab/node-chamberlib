@@ -1,8 +1,6 @@
 import assert from 'assert';
 
 import BaseRule from './BaseRule';
-import DataChannel from '../../data/DataChannel';
-import DataEvent from '../../events/DataEvent';
 import BaseQuantity from '../../quantities/base/BaseQuantity';
 
 class BaseFilter extends BaseRule {

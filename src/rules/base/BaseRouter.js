@@ -1,7 +1,6 @@
 import assert from 'assert';
 import BaseRule from './BaseRule';
 import DataChannel from '../../data/DataChannel';
-import DataEvent from '../../events/DataEvent';
 
 class BaseRouter extends BaseRule {
     constructor(destination, active = true) {

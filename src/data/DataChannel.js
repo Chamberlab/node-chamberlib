@@ -1,3 +1,4 @@
+import Promise from 'bluebird';
 import BaseCollection from '../data/BaseCollection';
 import DataEvent from '../events/DataEvent';
 import RuleSet from '../rules/RuleSet';
