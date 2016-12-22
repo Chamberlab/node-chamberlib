@@ -1,5 +1,5 @@
 import assert from 'assert';
-import BaseFilter from '../base/BaseFilter';
+import BaseFilter from './BaseFilter';
 import DataChannel from '../../data/DataChannel';
 import BaseQuantity from '../../quantities/base/BaseQuantity';
 

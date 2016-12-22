@@ -1,14 +1,14 @@
 import RuleSet from './RuleSet';
+import BaseRule from './BaseRule';
 
-import base from './base';
 import filters from './filters';
-import mappers from './mappers';
+import routers from './routers';
 import transformers from './transformers';
 
 export default {
     RuleSet,
-    base,
+    BaseRule,
     filters,
-    mappers,
+    routers,
     transformers
 };

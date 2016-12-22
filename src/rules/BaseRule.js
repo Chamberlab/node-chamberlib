@@ -1,7 +1,8 @@
 import assert from 'assert';
 import Promise from 'bluebird';
-import DataChannel from '../../data/DataChannel';
-import DataEvent from '../../events/DataEvent';
+import BaseCollection from '../data/BaseCollection';
+import DataChannel from '../data/DataChannel';
+import BaseEvent from '../events/BaseEvent';
 
 class BaseRule {
     constructor(active = true, autoreset = false) {
@@ -11,7 +12,7 @@ class BaseRule {
 
 
     evaluate(source, processorFunc, ...args) {
-        assert(source instanceof DataChannel);
+        assert(source instanceof BaseCollection);
         assert(typeof processorFunc === 'function');
 
         if (this.active) {
@@ -27,7 +28,7 @@ class BaseRule {
             _self._progress = i / len;
             return Promise.resolve(processorFunc(event, history, _self._progress, args))
                 .then(function (res) {
-                    if (res instanceof DataEvent) {
+                    if (res instanceof BaseEvent) {
                         history.push(res);
                     }
                     return history;
@@ -39,18 +40,18 @@ class BaseRule {
     }
 
     validate(source) {
-        assert(source instanceof DataChannel);
+        assert(source instanceof BaseCollection);
         return this;
     }
 
     reset() {
-        this._results = new DataChannel();
+        this._results = undefined;
         return this;
     }
 
 
     get results() {
-        assert(this._results instanceof DataChannel);
+        assert(this._results instanceof BaseCollection);
         return this._results;
     }
 

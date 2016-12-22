@@ -1,5 +1,5 @@
-import Copy from './Copy';
+import BaseRouter from './BaseRouter';
 
 export default {
-    Copy
+    BaseRouter
 };

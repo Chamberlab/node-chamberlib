@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import BaseTransformer from '../base/BaseTransformer';
+import BaseTransformer from './BaseTransformer';
 import Voltage from '../../quantities/Voltage';
 import Time from '../../quantities/Time';
 import TonalEvent from '../../events/TonalEvent';
@@ -35,7 +35,6 @@ class VoltageToChord extends BaseTransformer {
         assert(val instanceof Note);
         this._key = val;
     }
-
 }
 
 export default VoltageToChord;

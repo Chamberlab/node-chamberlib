@@ -1,4 +1,4 @@
-import BaseFilter from '../base/BaseFilter';
+import BaseFilter from './BaseFilter';
 
 class HighPass extends BaseFilter {
     constructor(cutoff) {

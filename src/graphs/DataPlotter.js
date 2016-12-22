@@ -1,6 +1,3 @@
-import 'babel-core/register';
-import 'babel-polyfill';
-
 import assert from 'assert';
 import path from 'path';
 import fs from 'fs';

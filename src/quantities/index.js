@@ -1,12 +1,11 @@
 import Frequency from './Frequency';
 import Time from './Time';
 import Voltage from './Voltage';
-
-import base from './base';
+import BaseQuantity from './base/BaseQuantity';
 
 export default {
     Frequency,
     Time,
     Voltage,
-    base
+    BaseQuantity
 };

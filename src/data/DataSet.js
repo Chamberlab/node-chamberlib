@@ -7,7 +7,7 @@ import BaseCollection from './BaseCollection';
 import DataEvent from '../events/DataEvent';
 import Time from '../quantities/Time';
 import Voltage from '../quantities/Voltage';
-import JsonIO from '../io/JsonIO';
+import JsonIO from './io/JsonIO';
 
 class DataSet extends BaseCollection {
     constructor(channels, title = undefined) {

@@ -1,6 +1,6 @@
-import BaseTransformer from '../base/BaseTransformer';
+import BaseFilter from '../filters/BaseFilter';
 
-class RunningAverage extends BaseTransformer {
+class RunningAverage extends BaseFilter {
     processorFunc(event) {
         return event;
     }

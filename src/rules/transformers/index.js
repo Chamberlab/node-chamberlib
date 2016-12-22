@@ -1,5 +1,9 @@
+import BaseTransformer from './BaseTransformer';
 import RunningAverage from './RunningAverage';
+import VoltageToChord from './VoltageToChord';
 
 export default {
-    RunningAverage
+    BaseTransformer,
+    RunningAverage,
+    VoltageToChord
 };

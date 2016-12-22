@@ -1,7 +1,7 @@
 import assert from 'assert';
 import Promise from 'bluebird';
 import BaseCollection from '../data/BaseCollection';
-import BaseRule from './base/BaseRule';
+import BaseRule from './BaseRule';
 import DataChannel from '../data/DataChannel';
 
 class RuleSet extends BaseCollection {

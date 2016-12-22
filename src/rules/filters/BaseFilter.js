@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import BaseRule from './BaseRule';
+import BaseRule from '../BaseRule';
 import BaseQuantity from '../../quantities/base/BaseQuantity';
 
 class BaseFilter extends BaseRule {

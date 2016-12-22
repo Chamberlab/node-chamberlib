@@ -1,7 +1,7 @@
 import BaseGraph from './BaseGraph';
-import ColourTable from './ColourTable';
+import ColourTable from '../data/lut/ColourTable';
 import DataPlotter from './DataPlotter';
-import Defaults from './Defaults';
+import Defaults from './layouts/Defaults';
 
 import layouts from './layouts';
 

@@ -1,6 +1,6 @@
 'use strict';
 
-import BaseFilter from '../base/BaseFilter';
+import BaseFilter from './BaseFilter';
 
 class LowPass extends BaseFilter {
     processorFunc(event) {

@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import BaseCollection from '../data/BaseCollection';
+import BaseCollection from './BaseCollection';
 import RuleSet from '../rules/RuleSet';
 import TonalEvent from '../events/TonalEvent';
 

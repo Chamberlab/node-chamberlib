@@ -1,10 +1,7 @@
-import 'babel-core/register';
-import 'babel-polyfill';
-
 import Promise from 'bluebird';
 import BaseGraph from '../BaseGraph';
-import ColourTable from '../ColourTable';
-import Defaults from '../Defaults';
+import ColourTable from '../../data/lut/ColourTable';
+import Defaults from './Defaults';
 
 class StackedStreamChart extends BaseGraph {
     constructor() {

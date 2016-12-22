@@ -1,4 +1,4 @@
-import BaseFilter from '../base/BaseFilter';
+import BaseFilter from './BaseFilter';
 
 class BandPass extends BaseFilter {
     constructor(base, width, replace = undefined) {
