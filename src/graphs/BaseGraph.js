@@ -35,12 +35,7 @@ class BaseGraph {
             '<script src="http://d3js.org/d3.v3.min.js"></script></body></html>',
             done: function (err, window) {
                 window.d3 = d3env.d3.select(window.document);
-
                 d3env.window = window;
-
-                d3env._width = d3env.width;
-                d3env._height = d3env.height;
-
                 d3env.docWidth = d3env.width + d3env.config.margins.left + d3env.config.margins.right;
                 d3env.docHeight = d3env.config.displayDimensions.height;
 

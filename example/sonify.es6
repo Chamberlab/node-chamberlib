@@ -1,5 +1,3 @@
-#!/usr/bin/env babel-node
-
 import Promise from 'bluebird';
 import path from 'path';
 import fs from 'fs';
