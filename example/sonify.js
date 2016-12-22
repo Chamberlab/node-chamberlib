@@ -32,8 +32,7 @@ Promise.coroutine(function* () {
     yield plotter.generateChart(cl.graphs.layouts.LineChart);
     yield plotter.generateChart(cl.graphs.layouts.StackedStreamChart);
 
-    yield Promise.promisify(fs.writeFile)(
-        path.join(__dirname, 'output', title, title + '.json'), JSON.stringify(set));
+    yield cl.data.io.JSONFile.write(path.join(__dirname, 'output', title, title + '.json'), set);
 
     let song = new cl.harmonics.Song(set.size);
 

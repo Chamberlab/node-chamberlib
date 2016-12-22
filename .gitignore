@@ -3,5 +3,5 @@
 *.log
 node_modules
 sets
-bin/output
+ewxample/output
 !.gitkeep

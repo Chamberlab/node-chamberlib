@@ -2,7 +2,7 @@
   "name": "chamberlib",
   "version": "0.1.0",
   "description": "Lib for lab.",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha $(find test -path '*.spec.*') --compilers js:babel-core/register --recursive --no-timeouts"
   },
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/dasantonym/node-chamberlib#readme",
   "devDependencies": {
+    "babel-cli": "^6.18.0",
     "babel-core": "^6.21.0",
     "babel-loader": "^6.2.10",
     "babel-plugin-transform-class-properties": "^6.19.0",

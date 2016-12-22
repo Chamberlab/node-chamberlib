@@ -1,0 +1,21 @@
+{
+  "quantize": true,
+  "path": {
+    "stroke-width": 0.8,
+    "alpha": 0.8
+  },
+  "xAxis": {
+    "show": true,
+    "colour": "#cccccc",
+    "scaleTicks": 10.0,
+    "stroke-width": 0.8,
+    "alpha": 0.8
+  },
+  "yAxis": {
+    "show": true,
+    "colour": "#cccccc",
+    "scaleTicks": 10.0,
+    "stroke-width": 0.8,
+    "alpha": 0.8
+  }
+}

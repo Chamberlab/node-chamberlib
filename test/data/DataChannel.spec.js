@@ -32,7 +32,7 @@ describe('DataChannel', () => {
         while (channel.size < 500) {
             channel.push(fixtures.makeDataEvent(clab.quantities.Voltage));
         }
-
+        let sta = channel.stats;
         channel.size.should.equal(500);
     });
 

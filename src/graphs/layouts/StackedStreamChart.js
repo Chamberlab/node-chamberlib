@@ -1,17 +1,20 @@
 import Promise from 'bluebird';
 import BaseGraph from '../BaseGraph';
 import ColourTable from '../../data/lut/ColourTable';
-import Defaults from './Defaults';
 
 class StackedStreamChart extends BaseGraph {
     constructor() {
         super();
 
-        this._quantize = true;
+        this._quantize = require('../../../config/layouts/StackedStreamChart.json').quantize;
     }
 
     drawContent(d3env, layerData, g) {
         super.drawContent();
+
+        // TODO: fix stacked stream layout
+
+        d3env.layoutConfig = require('../../../config/layouts/StackedStreamChart.json');
 
         let stack = d3env.d3.layout.stack().offset("wiggle"),
             layers = stack(d3env.d3.range(layerData.length).map(function (i) {
@@ -19,11 +22,11 @@ class StackedStreamChart extends BaseGraph {
             }));
 
         let x = d3env.d3.scale.linear()
-            .domain([0, Defaults.SECONDS_LENGTH])
+            .domain([0, d3env.duration])
             .range([0, d3env.width]);
 
         d3env.xAxis = d3env.d3.svg.axis().scale(x)
-            .orient("bottom").ticks(Defaults.SECONDS_LENGTH * 0.1);
+            .orient("bottom").ticks(d3env.duration * 0.1);
 
         let ymax = d3env.d3.max(layers, function (layer) {
                 return d3env.d3.max(layer, function (d) {

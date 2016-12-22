@@ -1,0 +1,14 @@
+{
+  "layerResolutionLimit": 1.0,
+  "pixelsPerSecond": 60,
+  "displayDimensions": {
+    "width": 1920,
+    "height": 1080
+  },
+  "margins": {
+    "left": 640,
+    "top": 40,
+    "right": 640,
+    "bottom": 40
+  }
+}

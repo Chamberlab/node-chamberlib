@@ -7,7 +7,7 @@ import BaseCollection from './BaseCollection';
 import DataEvent from '../events/DataEvent';
 import Time from '../quantities/Time';
 import Voltage from '../quantities/Voltage';
-import JsonIO from './io/JsonIO';
+import JsonIO from './io/JSONFile';
 
 class DataSet extends BaseCollection {
     constructor(channels, title = undefined) {
@@ -18,7 +18,7 @@ class DataSet extends BaseCollection {
     loadJson(filepath, title = undefined) {
         let _self = this;
         _self.title = title || path.basename(filepath, '.json');
-        return JsonIO.readFile(filepath)
+        return JsonIO.read(filepath)
             .then(function (data) {
                 return _self.fromObject(data);
             });

@@ -1,7 +1,7 @@
-import JsonIO from './JsonIO';
-import MidiIO from './MidiIO';
+import JSONFile from './JSONFile';
+import MidiFile from './MidiFile';
 
 export default {
-    JsonIO,
-    MidiIO
+    JSONFile,
+    MidiFile
 };

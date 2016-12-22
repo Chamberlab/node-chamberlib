@@ -1,14 +1,25 @@
 import BaseCollection from './BaseCollection';
 import Track from './Track';
-import MidiIO from './io/MidiIO';
+import MidiFile from './io/MidiFile';
 
 class Song extends BaseCollection {
-    constructor(items) {
+    constructor(items, bpm = 120) {
         super(items, Track);
+
+        this._bpm = bpm;
     }
 
     toMidiFile(filename) {
-        return MidiIO.write(this, filename);
+        return MidiFile.write(this, filename);
+    }
+
+
+    get bpm() {
+        return this._bpm;
+    }
+
+    set bpm(bpm) {
+        this._bpm = bpm;
     }
 }
 
