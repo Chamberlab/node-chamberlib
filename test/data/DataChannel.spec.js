@@ -4,7 +4,7 @@ chai.should();
 import Chance from 'chance';
 const chance = new Chance();
 
-import clab from '../../index';
+import clab from '../../src/index';
 import * as fixtures from '../fixtures';
 
 describe('DataChannel', () => {

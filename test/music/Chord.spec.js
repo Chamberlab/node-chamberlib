@@ -1,7 +1,7 @@
 const chai = require('chai');
 chai.should();
 
-import clab from '../../index';
+import clab from '../../src/index';
 
 describe('Chord', () => {
     it('Creates a chord from string', () => {

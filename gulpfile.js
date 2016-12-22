@@ -12,7 +12,7 @@ gulp.task('lint', () => {
         .pipe(jshint.reporter('fail'));
 });
 
-gulp.task('babel', () => {
+gulp.task('build', ['lint'], () => {
     return gulp.src(['./index.js', './src/**/*.js'])
         .pipe(babel())
         .pipe(gulp.dest('dist'));
@@ -22,5 +22,4 @@ gulp.task('clean', () => {
     return del('./dist');
 });
 
-gulp.task('release', ['clean', 'lint', 'babel']);
 gulp.task('default', ['lint']);

@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import path from 'path';
 import fs from 'fs';
 import Chance from 'chance';
-import cl from '../index';
+import cl from '../dist';
 
 Promise.coroutine(function* () {
     const tstart = Date.now(), chance = new Chance(), set = new cl.data.DataSet(),

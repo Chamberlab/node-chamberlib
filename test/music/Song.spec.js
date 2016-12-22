@@ -1,7 +1,7 @@
 const chai = require('chai');
 chai.should();
 
-import clab from '../../index';
+import clab from '../../src/index';
 
 describe('Song', () => {
     it('Creates new song with params', () => {
