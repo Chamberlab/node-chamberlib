@@ -15,13 +15,13 @@ class Voltage extends BaseQuantity {
 
     static get units() {
         return {
-            'v': new Unit('Volt', 'v', 1.0, Dimensions.DIMENSION_VOLTAGE),
-            'mv': new Unit('MilliVolt', 'mv', 0.001, Dimensions.DIMENSION_VOLTAGE)
+            'v': new Unit('Volt', 'v', 1, Dimensions.DIMENSION_VOLTAGE),
+            'mv': new Unit('MilliVolt', 'mv', 0.001, Dimensions.DIMENSION_VOLTAGE),
         };
     }
 
     static get defaultUnit() {
-        return Voltage.units.mv;
+        return Voltage.units.v;
     }
 }
 

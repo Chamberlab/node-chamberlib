@@ -1,4 +1,6 @@
 import assert from 'assert';
+import DataEvent from '../../events/DataEvent';
+import Time from '../../quantities/Time';
 
 class BaseDB {
     constructor() {
@@ -6,16 +8,12 @@ class BaseDB {
     }
 
     get(key) {
-        assert(typeof key === 'string');
+        assert(key instanceof Time);
     }
 
     put(key, val) {
-        assert(typeof key === 'string');
-        assert(val);
-    }
-
-    create(val) {
-        assert(val);
+        assert(key instanceof Time);
+        assert(val instanceof DataEvent);
     }
 }
 

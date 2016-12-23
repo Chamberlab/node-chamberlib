@@ -36,6 +36,10 @@ class BaseQuantity {
         return `${ this.value.toString()} ${this.suffix}`;
     }
 
+    toObject() {
+        return this.normalized();
+    }
+
 
     //
     //

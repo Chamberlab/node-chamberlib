@@ -10,6 +10,10 @@ class DataEvent extends BaseEvent {
         this.time = time;
         this.value = value;
     }
+
+    toObject() {
+        return { t: this.time.normalized(), v: this.value.normalized() };
+    }
 }
 
 export default DataEvent;

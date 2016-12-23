@@ -19,9 +19,9 @@ class LMDB extends BaseDB {
         this._openTxn = {};
     }
 
-    begin(db) {
+    begin(db, readOnly = true) {
         this._open(db);
-        this._openTxn[db] = this._env.beginTxn();
+        this._openTxn[db] = this._env.beginTxn({ readOnly: readOnly });
     }
 
     commit(db) {
@@ -35,17 +35,15 @@ class LMDB extends BaseDB {
     }
 
     get(db, time) {
-        super.get(time);
-        let key = this._getKey(time);
-        let val = this._openTxn[db].getNumber(this._openDB[db], key);
+        let key = this._getKey(time.toObject()),
+            val = this._openTxn[db].getNumber(this._openDB[db], key);
         return typeof val === 'number' ? new DataEvent(time, new Voltage(val)) : null;
     }
 
-    put(db, time, event) {
-        let key = this._getKey(time);
-        super.put(key, event);
-        let val = event.normalized();
-        this._openTxn[db].putNumber(this._openDB[db], key, val);
+    put(db, event) {
+        let e = event.toObject(),
+            key = this._getKey(e.t);
+        this._openTxn[db].putNumber(this._openDB[db], key, e.v);
     }
 
     _open(dbname, create = true) {
@@ -74,8 +72,8 @@ class LMDB extends BaseDB {
     }
 
     _getKey(time) {
-        time = time.normalized().toFixed(6);
-        return new Array(32 - time.length).fill(0).join() + time;
+        time = time.toFixed(12);
+        return new Array(32 - time.length).fill(0).join('') + time;
     }
 
     closeEnv() {

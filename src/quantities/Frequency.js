@@ -17,7 +17,9 @@ class Frequency extends BaseQuantity {
     static get units() {
         return {
             'hz': new Unit('Hertz', 'hz', 1.0, Dimensions.DIMENSION_FREQUENCY),
-            'khz': new Unit('Kilohertz', 'khz', 1000.0, Dimensions.DIMENSION_FREQUENCY)
+            'khz': new Unit('Kilohertz', 'khz', Math.pow(10, 3), Dimensions.DIMENSION_FREQUENCY),
+            'mhz': new Unit('Megahertz', 'mhz', Math.pow(10, 6), Dimensions.DIMENSION_FREQUENCY),
+            'ghz': new Unit('Gigahertz', 'ghz', Math.pow(10, 9), Dimensions.DIMENSION_FREQUENCY)
         };
     }
 
