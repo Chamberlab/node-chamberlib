@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 class BaseFile {
-    constructor(data = undefined) {
+    constructor() {
         this._pathinfo = {
             root: null,
             dir: null,
@@ -13,17 +13,17 @@ class BaseFile {
             name: null
         };
         this._fullpath = null;
-        this._data = data;
+        this._data = null;
     }
 
-    write(file, mode = 'binary', overwrite = false, createPath = false) {
+    write(file, data, mode = 'binary', overwrite = false, createPath = false) {
         assert(typeof file === 'string');
         assert(typeof data !== 'undefined', 'File has no data.');
 
         // TODO: make this async
 
         this._fullpath = path.resolve(file);
-        this._pathinfo = path.parse();
+        this._pathinfo = path.parse(this.fullpath);
 
         if (!overwrite) {
             assert(!fs.existsSync(path.join(this.dir, this.base)));
@@ -45,7 +45,7 @@ class BaseFile {
         return Promise.promisify(fs.writeFile)(this.fullpath, this.data, mode);
     }
 
-    read(file, stream = undefined) {
+    read(file, stream = false) {
         assert(typeof file === 'string');
         this._fullpath = path.resolve(file);
 
@@ -53,8 +53,8 @@ class BaseFile {
         this._pathinfo = path.parse(file);
 
         let _self = this;
-        if (stream instanceof fs.ReadStream) {
-
+        if (stream) {
+            return fs.createReadStream(this.fullpath);
         } else {
             return Promise.promisify(fs.readFile)(this.fullpath)
                 .then((data) => {
@@ -73,7 +73,7 @@ class BaseFile {
     }
 
     get size() {
-        return this.data.hasOwnProperty('length') ? this.data.length : NaN;
+        return this.data && this.data.hasOwnProperty('length') ? this.data.length : NaN;
     }
 
     get fullpath() {

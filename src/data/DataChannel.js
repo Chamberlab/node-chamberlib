@@ -1,3 +1,4 @@
+import assert from 'assert';
 import Promise from 'bluebird';
 import BaseCollection from '../data/BaseCollection';
 import BaseEvent from '../events/BaseEvent';
@@ -6,8 +7,12 @@ import Voltage from '../quantities/Voltage';
 import RuleSet from '../rules/RuleSet';
 
 class DataChannel extends BaseCollection {
-    constructor(events) {
+    constructor(events, title = undefined) {
         super(events, BaseEvent);
+
+        if (title) {
+            this.title = title;
+        }
 
         this._ruleset = new RuleSet();
     }
@@ -59,6 +64,15 @@ class DataChannel extends BaseCollection {
         s.value.max = new Voltage(s.value.max);
 
         return s;
+    }
+
+    get title() {
+        return this._title;
+    }
+
+    set title(val) {
+        assert(typeof val === 'string');
+        this._title = val;
     }
 }
 

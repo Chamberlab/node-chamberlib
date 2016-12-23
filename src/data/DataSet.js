@@ -16,14 +16,16 @@ class DataSet extends BaseCollection {
     loadJson(filepath, importerClass = undefined, title = undefined) {
         let _self = this;
         _self.title = title || path.basename(filepath, '.json');
+
+        if (importerClass) {
+            return new importerClass().read(filepath)
+                .map(function (channel) {
+                    _self.push(channel);
+                });
+        }
+
         return new JSONFile().read(filepath)
             .then(function (data) {
-                if (importerClass) {
-                    return importerClass.parse(data)
-                        .map(function (channel) {
-                            _self.push(channel);
-                        });
-                }
                 return data;
             });
     }

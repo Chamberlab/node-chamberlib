@@ -8,6 +8,7 @@ class BaseCollection {
         this._childClass = childClass;
 
         if (Array.isArray(items)) {
+            // TODO: this needs a type check
             this._items = this._items.concat(items);
         }
 
