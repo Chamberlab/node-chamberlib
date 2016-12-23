@@ -26,17 +26,17 @@ Promise.coroutine(function* () {
     yield plotter.generateChart(cl.graphs.layouts.LineChart);
     yield plotter.generateChart(cl.graphs.layouts.StackedStreamChart);
 
-    yield cl.data.io.JSONFile.write(path.join(__dirname, 'output', title, title + '.json'), set);
+    yield new cl.data.io.JSONFile().write(path.join(__dirname, 'output', title, title + '.json'), set);
 
     let song = new cl.harmonics.Song(set.size);
 
     set.all.map(function (channel, i) {
         channel.ruleset.push(new cl.rules.transformers.VoltageToChord('C'));
-        channel.ruleset.push(new cl.rules.routers.BaseRouter(song.at[i]));
+        channel.ruleset.push(new cl.rules.routers.BaseRouter(song.at(i)));
     });
 
     song = yield set.evaluateRuleSets();
 
-    song.toMidiFile(path.join(__dirname, 'output', title, title + '.mid'));
+    // song.toMidiFile(path.join(__dirname, 'output', title, title + '.mid'));
     console.log(`Time spent: ${(Date.now() - tstart) * 0.001}s`);
 })();
