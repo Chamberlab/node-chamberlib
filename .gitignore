@@ -2,6 +2,7 @@
 .idea
 *.log
 *.mdb
+*.msgpack
 node_modules
 sets
 example/output

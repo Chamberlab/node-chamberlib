@@ -1,16 +1,19 @@
 import BaseFile from './BaseFile';
+import msgpack from 'msgpack';
 
 class MsgPackFile extends BaseFile {
-    constructor(data) {
+    constructor(data = undefined) {
         super(data);
     }
 
-    write(file, data = undefined) {
-        return super.write(file, data);
+    read(file) {
+        return super.read(file).then((data) => {
+            return msgpack.unpack(data);
+        });
     }
 
-    read(file) {
-        return super.read(file);
+    write(file, data = undefined) {
+        return super.write(file, msgpack.pack(data || this.data));
     }
 }
 
