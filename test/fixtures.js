@@ -19,3 +19,12 @@ export function makeDataEvent(valClass) {
         new valClass(chance.floating({min: -24, max: 24}), chance.pickone(Object.keys(valClass.units)))
     );
 }
+
+export function makeQuantity(valClass) {
+    return new valClass(chance.floating({min: Number.MIN_VALUE, max: Number.MAX_VALUE}), chance.pickone(Object.keys(valClass.units)));
+}
+
+export function makeTime() {
+    // TODO: keys and negative time values - will it sort?!?
+    return new quantities.Time(chance.floating({min: Number.MIN_VALUE, max: Number.MAX_VALUE}), chance.pickone(Object.keys(quantities.Time.units)));
+}

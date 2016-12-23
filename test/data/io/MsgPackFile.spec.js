@@ -16,16 +16,20 @@ describe('MsgPackFile', () => {
         fs.unlinkSync(filepath);
     });
 
-    it('Stores a DataChannel with 1000 DataEvents', () => {
+    it('Stores a DataChannel with 10k DataEvents', () => {
         let file = new clab.data.io.MsgPackFile(),
             channel = fixtures.makeDataChannel(0, clab.quantities.Voltage);
-        while (channel.size < 1000) {
+        while (channel.size < 10000) {
             channel.push(fixtures.makeDataEvent(clab.quantities.Voltage));
         }
+        let tstart = Date.now();
         return file.write(filepath, channel)
             .then(() => {
+                console.log(`MsgPackFile: Stored 10k DataEvents in ${Date.now() - tstart} ms\n`);
                 fs.existsSync(filepath).should.be.true;
-                fs.statSync(filepath).size.should.be.greaterThan(0);
+                let size = fs.statSync(filepath).size;
+                console.log(`MsgPackFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n`);
+                size.should.be.greaterThan(4);
             });
     });
 });

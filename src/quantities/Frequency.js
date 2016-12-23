@@ -1,4 +1,3 @@
-import assert from 'assert';
 import BaseQuantity from './base/BaseQuantity';
 import Unit from './base/Unit';
 import Dimensions from './base/Dimensions';
@@ -8,18 +7,16 @@ class Frequency extends BaseQuantity {
         if (typeof unit === 'string') {
             unit = Frequency.units[unit.toLowerCase()];
         }
-        assert(Frequency.units.hasOwnProperty(unit.suffix) > -1);
-
         super(value, unit);
     }
 
 
     static get units() {
         return {
-            'hz': new Unit('Hertz', 'hz', 1.0, Dimensions.DIMENSION_FREQUENCY),
-            'khz': new Unit('Kilohertz', 'khz', Math.pow(10, 3), Dimensions.DIMENSION_FREQUENCY),
-            'mhz': new Unit('Megahertz', 'mhz', Math.pow(10, 6), Dimensions.DIMENSION_FREQUENCY),
-            'ghz': new Unit('Gigahertz', 'ghz', Math.pow(10, 9), Dimensions.DIMENSION_FREQUENCY)
+            'hz': new Unit('Hertz', 'Hz', 1.0, Dimensions.DIMENSION_FREQUENCY),
+            'khz': new Unit('Kilohertz', 'kHz', Math.pow(10, 3), Dimensions.DIMENSION_FREQUENCY),
+            'mhz': new Unit('Megahertz', 'MHz', Math.pow(10, 6), Dimensions.DIMENSION_FREQUENCY),
+            'ghz': new Unit('Gigahertz', 'GHz', Math.pow(10, 9), Dimensions.DIMENSION_FREQUENCY)
         };
     }
 

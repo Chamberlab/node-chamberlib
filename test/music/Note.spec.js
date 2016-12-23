@@ -31,6 +31,6 @@ describe('Note', () => {
 
         freq.should.be.instanceOf(clab.quantities.Frequency);
         freq.value.should.equal(261.63);
-        freq.unit.suffix.should.equal('hz');
+        freq.unit.suffix.should.equal('Hz');
     });
 });

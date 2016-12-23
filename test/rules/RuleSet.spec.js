@@ -14,7 +14,7 @@ describe('RuleSet', () => {
 
     it('Adds a single filter rule', () => {
         let set = new clab.rules.RuleSet(),
-            rule = new clab.rules.filters.HighPass(new clab.quantities.Voltage(0.5, 'mv'));
+            rule = new clab.rules.filters.HighPass(new clab.quantities.Voltage(0.5, 'mV'));
 
         set.push(rule);
 
@@ -25,7 +25,7 @@ describe('RuleSet', () => {
     it('Evaluates ruleset', () => {
         let channel = fixtures.makeDataChannel(500, clab.quantities.Voltage),
             set = new clab.rules.RuleSet(),
-            rule = new clab.rules.filters.HighPass(new clab.quantities.Voltage(0.5, 'mv'));
+            rule = new clab.rules.filters.HighPass(new clab.quantities.Voltage(0.5, 'mV'));
 
         set.push(rule);
 

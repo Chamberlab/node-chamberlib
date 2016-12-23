@@ -16,11 +16,11 @@ class BaseFile {
         this._data = null;
     }
 
-    write(file, data, mode = 'binary', overwrite = false, createPath = false) {
+    write(file, data, overwrite = false, createPath = false) {
         assert(typeof file === 'string');
         assert(typeof data !== 'undefined', 'File has no data.');
 
-        // TODO: make this async
+        // TODO: make this async, lazy bastard
 
         this._fullpath = path.resolve(file);
         this._pathinfo = path.parse(this.fullpath);
@@ -42,7 +42,13 @@ class BaseFile {
             assert(fs.existsSync(this.dir), `Failed to create path at ${this.dir}`);
         }
 
-        return Promise.promisify(fs.writeFile)(this.fullpath, this.data, mode);
+        let writer = fs.createWriteStream(this.fullpath),
+            p = new Promise(function (resolve, reject) {
+                writer.on('close', resolve);
+                writer.on('error', reject);
+            });
+        writer.end(data);
+        return p;
     }
 
     read(file, stream = false) {

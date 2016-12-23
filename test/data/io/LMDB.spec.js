@@ -62,20 +62,20 @@ describe('LMDB', () => {
         }
     });
 
-    it('Stores 10000 DataEvent objects', () => {
+    it('Stores 10k DataEvent objects', () => {
         let tstart = Date.now(),
             dbname = chance.word({syllables: 3});
 
         lmdb.begin(dbname, false);
-        for (let i = 0; i < 500000; i += 1) {
+        for (let i = 0; i < 10000; i += 1) {
             let event = fixtures.makeDataEvent(clab.quantities.Voltage);
             lmdb.put(dbname, event);
         }
         lmdb.commit(dbname);
-        console.log(`LMDB: Stored 10000 DataEvents in ${Date.now() - tstart} ms`);
+        console.log(`LMDB: Stored 10k DataEvents in ${Date.now() - tstart} ms\n`);
     });
 
-    it('Stores 10000 DataEvent objects, then retrieves them', () => {
+    it('Stores 10k DataEvent objects, then retrieves them', () => {
         let dbname = chance.word({syllables: 3}),
             events = [];
 
@@ -96,6 +96,6 @@ describe('LMDB', () => {
         });
         lmdb.commit(dbname);
 
-        console.log(`LMDB: Retrieved 10000 DataEvents in ${Date.now() - tstart} ms`);
+        console.log(`LMDB: Retrieved 10k DataEvents in ${Date.now() - tstart} ms\n`);
     });
 });
