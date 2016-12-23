@@ -63,39 +63,37 @@ describe('LMDB', () => {
     });
 
     it('Stores 10k DataEvent objects', () => {
-        let tstart = Date.now(),
-            dbname = chance.word({syllables: 3});
+        let dbname = chance.word({syllables: 3}),
+            channel = fixtures.makeDataChannel(10000),
+            tstart = Date.now();
 
         lmdb.begin(dbname, false);
-        for (let i = 0; i < 10000; i += 1) {
-            let event = fixtures.makeDataEvent(clab.quantities.Voltage);
+        channel.all.map((event) => {
             lmdb.put(dbname, event);
-        }
+        });
         lmdb.commit(dbname);
         console.log(`LMDB: Stored 10k DataEvents in ${Date.now() - tstart} ms\n`);
     });
 
     it('Stores 10k DataEvent objects, then retrieves them', () => {
         let dbname = chance.word({syllables: 3}),
-            events = [];
+            channel = fixtures.makeDataChannel(10000);
 
         lmdb.begin(dbname, false);
-        for (let i = 0; i < 10000; i += 1) {
-            let event = fixtures.makeDataEvent(clab.quantities.Voltage);
-            events.push(event);
+        channel.all.map((event) => {
             lmdb.put(dbname, event);
-        }
+        });
         lmdb.commit(dbname);
 
         let tstart = Date.now();
         lmdb.begin(dbname);
-        events.map((event) => {
+        channel.all.map((event) => {
             let res = lmdb.get(dbname, event.time);
             res.time.toObject().should.be.equal(event.time.toObject());
             res.value.toObject().should.be.equal(event.value.toObject());
         });
         lmdb.commit(dbname);
 
-        console.log(`LMDB: Retrieved 10k DataEvents in ${Date.now() - tstart} ms\n`);
+        console.log(`LMDB: Retrieved 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
     });
 });

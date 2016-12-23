@@ -7,7 +7,8 @@ class JSONFile extends BaseFile {
 
     read(file) {
         return super.read(file).then((data) => {
-            return JSON.parse(data);
+            data = JSON.parse(data);
+            return data;
         });
     }
 
