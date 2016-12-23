@@ -1,4 +1,3 @@
-import msgpack from 'msgpack';
 import * as lmdb from 'node-lmdb';
 
 import BaseDB from './BaseDB';
