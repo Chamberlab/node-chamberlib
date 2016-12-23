@@ -22,7 +22,7 @@ describe('DataSet', () => {
     it('Reads data from json file', () => {
         let set = new clab.data.DataSet();
 
-        return set.loadJson(path.join(__dirname, '..', 'assets', 'data.json'))
+        return set.loadJson(path.join(__dirname, '..', 'assets', 'data.json'), clab.data.io.importers.SpiketrainsOE)
             .then(function () {
                 set.size.should.equal(5);
                 set.should.be.instanceOf(clab.data.DataSet);

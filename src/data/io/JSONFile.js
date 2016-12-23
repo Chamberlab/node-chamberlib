@@ -1,15 +1,18 @@
-import fs from 'pn/fs';
+import BaseFile from './BaseFile';
 
-class JSONFile {
-    static read(filepath) {
-        return fs.readFile(filepath)
-            .then((data) => {
-                return JSON.parse(data);
-            });
+class JSONFile extends BaseFile {
+    constructor(data = undefined) {
+        super(data);
     }
 
-    static write(filepath, data) {
-        return fs.writeFile(filepath, JSON.stringify(data));
+    read(file) {
+        return super.read(file).then((data) => {
+            return JSON.parse(data);
+        });
+    }
+
+    write(file, data = undefined) {
+        return super.write(file, JSON.stringify(data || this.data));
     }
 }
 

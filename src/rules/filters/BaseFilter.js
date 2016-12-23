@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import BaseRule from '../BaseRule';
+import DataChannel from '../../data/DataChannel';
 import BaseQuantity from '../../quantities/base/BaseQuantity';
 
 class BaseFilter extends BaseRule {
@@ -13,7 +14,10 @@ class BaseFilter extends BaseRule {
 
 
     evaluate(source, processorFunc, ...args) {
-        return super.evaluate(source, processorFunc, args);
+        return super.evaluate(source, processorFunc, args)
+            .then(function (results) {
+                return new DataChannel(results);
+            });
     }
 
 

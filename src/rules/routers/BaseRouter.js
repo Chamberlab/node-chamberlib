@@ -12,23 +12,23 @@ class BaseRouter extends BaseRule {
 
     evaluate(source, processorFunc) {
         const _self = this;
-        if (typeof processorFunc === 'function') {
-            super.evaluate(source, processorFunc);
-        } else {
-            source.all.map(function (event) {
-                _self.destination.push(event);
+        return super.evaluate(source, processorFunc || this.processorFunc)
+            .then(function (results) {
+                return new _self.destination.constructor(results);
             });
-        }
+    }
+
+    processorFunc(event) {
+        return event;
     }
 
 
     get destination() {
-        assert(this._destination instanceof BaseCollection);
         return this._destination;
     }
 
     set destination(val) {
-        assert(val instanceof BaseCollection || val.prototype instanceof BaseCollection);
+        assert(val && val instanceof BaseCollection);
         this._destination = val;
     }
 }

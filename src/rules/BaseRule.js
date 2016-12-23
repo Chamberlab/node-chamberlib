@@ -1,7 +1,6 @@
 import assert from 'assert';
 import Promise from 'bluebird';
 import BaseCollection from '../data/BaseCollection';
-import DataChannel from '../data/DataChannel';
 import BaseEvent from '../events/BaseEvent';
 
 class BaseRule {
@@ -24,18 +23,20 @@ class BaseRule {
 
         const _self = this;
         this._progress = 0.0;
+        this._results = [];
+
         return Promise.reduce(source.all, function (history, event, i, len) {
             _self._progress = i / len;
             return Promise.resolve(processorFunc(event, history, _self._progress, args))
-                .then(function (res) {
-                    if (res instanceof BaseEvent) {
-                        history.push(res);
+                .then(function (result) {
+                    if (result instanceof BaseEvent) {
+                        _self._results.push(result);
                     }
-                    return history;
+                    return _self._results;
                 });
-        }, [])
+        }, null)
         .then(function (results) {
-            return new DataChannel(results);
+            return results;
         });
     }
 

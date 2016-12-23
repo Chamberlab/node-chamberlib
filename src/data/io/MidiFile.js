@@ -31,21 +31,20 @@ class MidiFile {
                     on: false
                 };
             });
-            layout.push(lt);
+            layout.push(lt.sort((a, b) => {
+                if (a.value.time.normalized() > b.value.time.normalized()) {
+                    return 1;
+                } else if (a.value.time.normalized() < b.value.time.normalized()) {
+                    return -1;
+                }
+                return 0;
+            }));
         });
 
-        layout.sort((a, b) => {
-            if (a.time.normalized() > b.time.normalized()) {
-                return 1;
-            } else if (a.time.normalized() < b.time.normalized()) {
-                return -1;
-            }
-            return 0;
-        }).map((lt) => {
+        layout.map((lt) => {
             let track = new midi.Track(),
                 last_t = 0;
-            lt.all.map((event) => {
-
+            lt.map((event) => {
                 if (event.value instanceof Note) {
                     track.addNote(1, event.value.toMidi());
                 } else if (event.value instanceof Chord) {

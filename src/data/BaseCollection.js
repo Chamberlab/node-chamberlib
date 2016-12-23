@@ -30,7 +30,6 @@ class BaseCollection {
             assert(typeof args[0] === 'number');
             assert(typeof args[0] < this._items.length);
             assert(args[1] instanceof this._childClass);
-
             this._items[args[0]] = args[1];
         }
     }

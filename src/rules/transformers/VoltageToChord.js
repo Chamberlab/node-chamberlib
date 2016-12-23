@@ -1,13 +1,13 @@
 import assert from 'assert';
 
-import BaseTransformer from './BaseTransformer';
+import BaseRule from '../BaseRule';
 import Voltage from '../../quantities/Voltage';
 import Time from '../../quantities/Time';
 import TonalEvent from '../../events/TonalEvent';
 import Chord from '../../harmonics/Chord';
 import Note from '../../harmonics/Note';
 
-class VoltageToChord extends BaseTransformer {
+class VoltageToChord extends BaseRule {
     constructor(key = 'C') {
         super(Voltage, Chord);
 
@@ -19,8 +19,7 @@ class VoltageToChord extends BaseTransformer {
     }
 
     processorFunc(event) {
-        let tone = new TonalEvent(event.time, new Note('C', 4), new Time(1.0, 's'));
-        return tone;
+        return new TonalEvent(event.time, new Note('C', 4), new Time(1.0, 's'));
     }
 
 

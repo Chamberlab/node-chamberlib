@@ -10,14 +10,10 @@ Promise.coroutine(function* () {
         sdir = path.join(__dirname, 'output'), fdir = path.join(sdir, title),
         datafile = path.join(__dirname, '..', 'test', 'assets', 'data.json');
 
-    if (!fs.existsSync(sdir)) {
-        fs.mkdirSync(sdir);
-    }
-    if (!fs.existsSync(fdir)) {
-        fs.mkdirSync(fdir);
-    }
+    if (!fs.existsSync(sdir)) { fs.mkdirSync(sdir); }
+    if (!fs.existsSync(fdir)) { fs.mkdirSync(fdir); }
 
-    yield set.loadJson(datafile, title);
+    yield set.loadJson(datafile, cl.data.io.importers.SpiketrainsOE, title);
 
     set.all.map(function (channel) {
         channel.ruleset.push(new cl.rules.filters.HighPass(new cl.quantities.Voltage(0.04, 'mv')));
@@ -34,12 +30,12 @@ Promise.coroutine(function* () {
 
     let song = new cl.harmonics.Song(set.size);
 
-    set.all.map(function (channel) {
+    set.all.map(function (channel, i) {
         channel.ruleset.push(new cl.rules.transformers.VoltageToChord('C'));
-        channel.ruleset.push(new cl.rules.routers.BaseRouter(song));
+        channel.ruleset.push(new cl.rules.routers.BaseRouter(song.at[i]));
     });
 
-    yield set.evaluateRuleSets();
+    song = yield set.evaluateRuleSets();
 
     song.toMidiFile(path.join(__dirname, 'output', title, title + '.mid'));
     console.log(`Time spent: ${(Date.now() - tstart) * 0.001}s`);
