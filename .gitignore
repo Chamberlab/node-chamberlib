@@ -6,4 +6,5 @@
 node_modules
 sets
 example/output
+data/*
 !.gitkeep
