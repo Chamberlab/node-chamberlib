@@ -2,12 +2,12 @@ import Promise from 'bluebird';
 import path from 'path';
 import fs from 'fs';
 import Chance from 'chance';
-import cl from '../src/index';
+import cl from '../index';
 
 Promise.coroutine(function* () {
     const tstart = Date.now(), chance = new Chance(), set = new cl.data.DataSet(),
         title = [Date.now(), chance.word({syllables: 2}), chance.word({syllables: 2})].join('-'),
-        sdir = path.join(__dirname, 'output'), fdir = path.join(sdir, title),
+        sdir = path.join(__dirname, '..', 'data', 'output'), fdir = path.join(sdir, title),
         datafile = path.join(__dirname, '..', 'test', 'assets', 'data.json');
 
     if (!fs.existsSync(sdir)) { fs.mkdirSync(sdir); }
@@ -26,7 +26,7 @@ Promise.coroutine(function* () {
     yield plotter.generateChart(cl.graphs.layouts.LineChart);
     yield plotter.generateChart(cl.graphs.layouts.StackedStreamChart);
 
-    yield new cl.data.io.JSONFile().write(path.join(__dirname, 'output', title, title + '.json'), set);
+    yield new cl.data.io.JSONFile().write(path.join(sdir, title, title + '.json'), set);
 
     let song = new cl.harmonics.Song(set.size);
 

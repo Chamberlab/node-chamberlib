@@ -4,7 +4,7 @@ chai.should();
 import Chance from 'chance';
 const chance = new Chance();
 
-import clab from '../../src/index';
+import clab from '../../index';
 
 describe('Quantities', () => {
     it('500 randomly selected quantities, each set randomly converted and compared 1000 times', () => {

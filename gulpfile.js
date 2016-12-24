@@ -13,7 +13,7 @@ gulp.task('lint', () => {
 });
 
 gulp.task('build', ['lint'], () => {
-    return gulp.src(['./index.js', './src/**/*.js'])
+    return gulp.src(['./index.js', './src/**/*.js', './bin/**/*.js', './example/**/*.js'])
         .pipe(babel())
         .pipe(gulp.dest('dist'));
 });

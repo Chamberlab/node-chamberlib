@@ -2,7 +2,7 @@ import Promise from 'bluebird';
 import path from 'path';
 import fs from 'fs';
 import transform from 'stream-transform';
-import cl from '../src/index';
+import cl from '../index';
 
 Promise.coroutine(function* () {
     const tstart = Date.now(),

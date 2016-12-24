@@ -7,4 +7,5 @@ node_modules
 sets
 example/output
 data/*
+dist/
 !.gitkeep

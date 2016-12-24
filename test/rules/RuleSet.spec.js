@@ -1,7 +1,7 @@
 const chai = require('chai');
 chai.should();
 
-import clab from '../../src/index';
+import clab from '../../index';
 import * as fixtures from '../fixtures';
 
 describe('RuleSet', () => {

@@ -2,7 +2,7 @@ const chai = require('chai');
 chai.should();
 
 import path from 'path';
-import clab from '../../../../src/index';
+import clab from '../../../../index';
 
 describe('NanobrainsCSV', () => {
     it('Reads and parses a nanobrains file', () => {
