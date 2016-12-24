@@ -23,12 +23,17 @@ Promise.coroutine(function* () {
 
     if (!fs.existsSync(lmdbDir)) { fs.mkdirSync(lmdbDir); }
 
-    const lmdb = new LMDB(lmdbDir, 8 * Math.pow(1024, 3), 128);
+    const lmdb = new LMDB(lmdbDir, 8 * Math.pow(1024, 3));
+
+    const dbname = dataSet.title;
+    lmdb.begin(dbname, false);
 
     yield new Promise(function (resolve, reject) {
         const writeStream = transform(function lmdbTransform(entry, cb) {
-            if (count > 0 && count % 1000 === 0) {
-                console.log(`Processed ${count} entries...`);
+            if (count > 0 && count % 100000 === 0) {
+                console.log(`Time spent importing ${count} events: ${(Date.now() - tstart) * 0.001}s`);
+                lmdb.commit(dbname);
+                lmdb.begin(dbname, false);
             }
             if (count > 2) {
                 let ms = entry.shift();
@@ -36,15 +41,10 @@ Promise.coroutine(function* () {
                     if (count === 3) {
                         dataSet.push(new cl.data.DataChannel([], field));
                     } else {
-                        const dbname = dataSet.at(i).title;
-                        lmdb.begin(dbname, false);
-                        lmdb.put(dbname,
-                            new cl.events.DataEvent(
-                                new cl.quantities.Time(parseFloat(ms), 'ms'),
-                                new cl.quantities.Voltage(parseFloat(field), 'mv')
-                            )
-                        );
-                        lmdb.commit(dbname);
+                        lmdb.put(dbname, dataSet.at(i).title, new cl.events.DataEvent(
+                            new cl.quantities.Time(parseFloat(ms), 'ms'),
+                            new cl.quantities.Voltage(parseFloat(field), 'mv')
+                        ));
                     }
                 });
             }
@@ -53,10 +53,10 @@ Promise.coroutine(function* () {
         }, function (err) {
             if (err) {
                 console.log(err.stack);
+                lmdb.abort(dbname);
                 reject(err);
             }
             resolve();
-
         });
         csv.read(infile, writeStream);
     });
@@ -69,6 +69,6 @@ Promise.coroutine(function* () {
 
 })()
 .catch((err) => {
-    console.log(err.message);
+    console.log(`DataSet import error: ${err.message} code: ${err.code}`);
     process.exit(err.code);
 });

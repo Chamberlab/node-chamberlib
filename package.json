@@ -2,7 +2,7 @@
   "name": "chamberlib",
   "version": "0.1.0",
   "description": "Lib for lab.",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha $(find test -path '*.spec.*') --compilers js:babel-core/register --recursive --no-timeouts"
   },

@@ -26,7 +26,7 @@ class LMDB extends BaseDB {
 
     commit(db) {
         this._openTxn[db].commit();
-        delete this._openTxn[db];
+        this._openTxn[db] = null;
     }
 
     abort(db) {
@@ -40,9 +40,9 @@ class LMDB extends BaseDB {
         return typeof val === 'number' ? new DataEvent(time, new Voltage(val)) : null;
     }
 
-    put(db, event) {
+    put(db, channel, event) {
         let e = event.toObject(),
-            key = this._getKey(e.t);
+            key = this._getKey(e.t, channel);
         this._openTxn[db].putNumber(this._openDB[db], key, e.v);
     }
 
@@ -71,9 +71,13 @@ class LMDB extends BaseDB {
         return this._openDB[dbname];
     }
 
-    _getKey(time) {
+    _getKey(time, channel) {
+        let channelKey;
         time = time.toFixed(12);
-        return new Array(32 - time.length).fill(0).join('') + time;
+        if (typeof channel === 'string') {
+            channelKey = channel.substr(0,16) + new Array(16 - channel.substr(0,16).length).fill('_').join('');
+        }
+        return new Array(32 - time.length).fill(0).join('') + time + '-' + channelKey;
     }
 
     closeEnv() {
