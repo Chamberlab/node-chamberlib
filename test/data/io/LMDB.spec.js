@@ -71,11 +71,11 @@ describe('cl.data.io.LMDB', () => {
             channel = fixtures.makeDataChannel(10000),
             tstart = Date.now();
 
-        lmdb.begin(dbname, false);
+        let txn = lmdb.begin(dbname, false);
         channel.all.map((event) => {
-            lmdb.put(dbname, event);
+            lmdb.put(dbname, txn, event);
         });
-        lmdb.commit(dbname);
+        lmdb.commit(txn);
         console.log(`   LMDB: Stored 10k DataEvents in ${Date.now() - tstart} ms\n`);
     });
 
@@ -83,21 +83,21 @@ describe('cl.data.io.LMDB', () => {
         let dbname = title || chance.word({syllables: 3}),
             channel = fixtures.makeDataChannel(10000);
 
-        lmdb.begin(dbname, false);
+        let txn = lmdb.begin(dbname, false);
         channel.all.map((event) => {
-            lmdb.put(dbname, event);
+            lmdb.put(dbname, txn, event);
         });
-        lmdb.commit(dbname);
+        lmdb.commit(txn);
 
         let tstart = Date.now();
-        lmdb.begin(dbname);
+        txn = lmdb.begin(dbname);
         channel.all.map((event) => {
-            let res = lmdb.get(dbname, event.time);
+            let res = lmdb.get(dbname, txn, event.time);
             res.time.toObject().should.be.equal(event.time.toObject());
             // TODO: fix the rounding errors
             // res.value.toObject().should.be.equal(event.value.toObject());
         });
-        lmdb.commit(dbname);
+        lmdb.abort(txn);
 
         console.log(`   LMDB: Retrieved 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
     });

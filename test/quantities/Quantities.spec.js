@@ -7,14 +7,14 @@ const chance = new Chance();
 import clab from '../../index';
 
 describe('cl.quantities', () => {
-    it('500 randomly selected quantities, each set randomly converted and compared 1000 times', () => {
+    it('100 randomly selected quantities, each set randomly converted and compared 100 times', () => {
         const quantities = [
             clab.quantities.Datasize,
             clab.quantities.Frequency,
             clab.quantities.Time,
             clab.quantities.Voltage
         ];
-        for (let i = 0; i < 500; i += 1) {
+        for (let i = 0; i < 100; i += 1) {
             const valueClass = chance.pickone(quantities),
                 num = chance.floating({min: Math.pow(10, 6) * -1, max: Math.pow(10, 6)});
 
@@ -33,7 +33,7 @@ describe('cl.quantities', () => {
             a.isCompatible(b).should.be.true;
             b.isCompatible(a).should.be.true;
 
-            for (let n = 0; n < 1000; n += 1) {
+            for (let n = 0; n < 100; n += 1) {
                 let unit = valueClass.units[chance.pickone(Object.keys(valueClass.units))];
                 if (chance.bool()) {
                     a.setUnit(unit);

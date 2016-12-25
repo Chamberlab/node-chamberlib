@@ -22,7 +22,7 @@ describe('cl.nodes.storage.LMDBNode', () => {
     });
 
     it('Gets the min/max for all values', () => {
-        let res= lmdb.getValueRanges(dbname)
+        let res= lmdb.getValueRanges(dbname);
         res.min.should.be.instanceOf(Array);
         res.min.length.should.equal(64);
         for (let v of res.min) {
@@ -39,9 +39,10 @@ describe('cl.nodes.storage.LMDBNode', () => {
 
     it('Streams all DataFrames', () => {
         return new Promise((resolve, reject) => {
-            const output = lmdb.createOutput(dbname, 0.0, false);
-            let results = [];
+            const streamId = lmdb.createOutput(dbname, 0.0, false),
+                output = lmdb.outputs[streamId].stream;
 
+            let results = [];
             output.on('data', (data) => {
                 results.push(data);
             });
@@ -64,9 +65,10 @@ describe('cl.nodes.storage.LMDBNode', () => {
 
     it('Streams all DataFrames as single DataEvents', () => {
         return new Promise((resolve, reject) => {
-            const output = lmdb.createOutput(dbname);
-            let results = [];
+            const streamId = lmdb.createOutput(dbname),
+                output = lmdb.outputs[streamId].stream;
 
+            let results = [];
             output.on('data', (data) => {
                 results.push(data);
             });

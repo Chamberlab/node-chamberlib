@@ -3,6 +3,7 @@ import Promise from 'bluebird';
 import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
+import uuid4 from 'uuid4';
 
 import BaseDB from './BaseDB';
 import JSONFile from './JSONFile';
@@ -55,43 +56,47 @@ class LMDB extends BaseDB {
 
     begin(db, readOnly = true) {
         this._open(db);
-        this._openTxn[db] = this._env.beginTxn({ readOnly: readOnly });
+        const uuid = uuid4();
+        this._openTxn[uuid] = this._env.beginTxn({ readOnly: readOnly });
+        return uuid;
     }
 
-    commit(db) {
-        assert(this._openTxn[db], 'No Transaction instance');
-        this._openTxn[db].commit();
-        this._openTxn[db] = null;
+    commit(uuid) {
+        assert(this._openTxn[uuid], `No Transaction instance for ${uuid}`);
+        this._openTxn[uuid].commit();
+        this._openTxn[uuid] = null;
     }
 
-    abort(db) {
-        assert(this._openTxn[db], 'No Transaction instance');
-        this._openTxn[db].abort();
-        this._openTxn[db] = null;
+    abort(uuid) {
+        assert(this._openTxn[uuid], `No Transaction instance for ${uuid}`);
+        this._openTxn[uuid].abort();
+        this._openTxn[uuid] = null;
     }
 
     //
     //
     // Cursors
 
-    cursor(db) {
-        assert(this._openTxn[db], 'No Transaction instance');
-        assert(this._openDB[db], 'No open DB instance');
+    cursor(db, uuid) {
+        assert(this._openTxn[uuid], `No Transaction instance for ${uuid}`);
+        assert(this._openDB[db], `No open DB for ${db}`);
 
-        this._cursors[db] = new lmdb.Cursor(this._openTxn[db], this._openDB[db]);
+        let cursorUUID = uuid4();
+        this._cursors[cursorUUID] = new lmdb.Cursor(this._openTxn[uuid], this._openDB[db]);
+        return cursorUUID;
     }
 
-    closeCursor(db) {
-        if (!this._cursors[db]) {
+    closeCursor(uuid) {
+        if (!this._cursors[uuid]) {
             return;
         }
 
-        this._cursors[db].close();
-        this._cursors[db] = null;
+        this._cursors[uuid].close();
+        this._cursors[uuid] = null;
     }
 
-    getCurrentEvents(db) {
-        let res = this.getCurrentKeyValue(db),
+    getCurrentEvents(db, cursorUUID) {
+        let res = this.getCurrentKeyValue(db, cursorUUID),
             events = [];
         res.val.map((val, i) => {
             events.push(new DataEvent(
@@ -103,8 +108,8 @@ class LMDB extends BaseDB {
         return events;
     }
 
-    getCurrentFrame(db) {
-        let res = this.getCurrentKeyValue(db),
+    getCurrentFrame(db, cursorUUID) {
+        let res = this.getCurrentKeyValue(db, cursorUUID),
             frame = new DataFrame(
                 new Time(res.key, this._meta.DataSet.DataChannels[db].keyUnit),
                 res.val
@@ -112,19 +117,19 @@ class LMDB extends BaseDB {
         return frame;
     }
 
-    getCurrentValue(db) {
-        return this.getCurrentKeyValue(db, true);
+    getCurrentValue(db, cursorUUID) {
+        return this.getCurrentKeyValue(db, cursorUUID, true);
     }
 
-    getCurrentKeyValue(db, discardKey = false) {
-        assert(this._cursors[db], 'No Cursor instance');
+    getCurrentKeyValue(db, cursorUUID, discardKey = false) {
+        assert(this._cursors[cursorUUID], 'No Cursor instance');
 
         const _self = this;
         let res = null;
 
         if (_self._meta.DataSet.DataChannels[db].type.class === 'DataFrame') {
             let arrayClass = _self._getArrayClass(_self._meta.DataSet.DataChannels[db].type.type);
-            _self._cursors[db].getCurrentBinary((_key, _val) => {
+            _self._cursors[cursorUUID].getCurrentBinary((_key, _val) => {
                 if (discardKey) {
                     res = new arrayClass(_val.buffer);
                 } else {
@@ -135,7 +140,7 @@ class LMDB extends BaseDB {
                 }
             });
         } else {
-            _self._cursors[db].getCurrentNumber((_key, _val) => {
+            _self._cursors[cursorUUID].getCurrentNumber((_key, _val) => {
                 if (discardKey) {
                      res = _val;
                 } else {
@@ -154,65 +159,70 @@ class LMDB extends BaseDB {
     //
     // Cursor movements
 
-    gotoFirst(db) {
-        assert(this._cursors[db], 'No Cursor instance');
-        return this._cursors[db].goToFirst();
+    gotoFirst(uuid) {
+        assert(this._cursors[uuid], `No Cursor instance for ${uuid}`);
+        return this._cursors[uuid].goToFirst();
     }
 
-    gotoPrev(db) {
-        assert(this._cursors[db], 'No Cursor instance');
-        return this._cursors[db].goToPrev();
+    gotoPrev(uuid) {
+        assert(this._cursors[uuid], `No Cursor instance for ${uuid}`);
+        return this._cursors[uuid].goToPrev();
     }
 
-    gotoNext(db) {
-        assert(this._cursors[db], 'No Cursor instance');
-        return this._cursors[db].goToNext();
+    gotoNext(uuid) {
+        assert(this._cursors[uuid], `No Cursor instance for ${uuid}`);
+        return this._cursors[uuid].goToNext();
     }
 
-    gotoLast(db) {
-        assert(this._cursors[db], 'No Cursor instance');
-        return this._cursors[db].goToLast();
+    gotoLast(uuid) {
+        assert(this._cursors[uuid], `No Cursor instance for ${uuid}`);
+        return this._cursors[uuid].goToLast();
     }
 
-    gotoKey(db, key) {
-        assert(this._cursors[db], 'No Cursor instance');
-        return this._cursors[db].goToKey(this._checkAndConvertKey(db, key));
+    gotoKey(db, uuid, key) {
+        assert(this._cursors[uuid], `No Cursor instance for ${uuid}`);
+        return this._cursors[uuid].goToKey(this._checkAndConvertKey(db, key));
     }
 
-    gotoRange(db, key) {
-        assert(this._cursors[db], 'No Cursor instance');
-        return this._cursors[db].goToRange(this._checkAndConvertKey(db, key));
+    gotoRange(db, uuid, key) {
+        assert(this._cursors[uuid], `No Cursor instance for ${uuid}`);
+        return this._cursors[uuid].goToRange(this._checkAndConvertKey(db, key));
     }
 
 
     //
     //
-    // CRU(D)
+    // CRU(D?)
 
-    get(db, time) {
-        assert(this._openTxn[db], 'No Transaction instance');
-        assert(this._openDB[db], 'No open DB instance');
+    get(db, uuid, time) {
+        assert(this._openTxn[uuid], `No Transaction instance for ${uuid}`);
+        assert(this._openDB[db], `No open DB instance for ${db}`);
 
         let key = this._getKey(db, time.toObject()),
-            val = this._openTxn[db].getNumber(this._openDB[db], key);
+            val = this._openTxn[uuid].getNumber(this._openDB[db], key);
         return typeof val === 'number' ? new DataEvent(time, new Voltage(val)) : null;
     }
 
-    put(db, event) {
-        assert(this._openTxn[db], 'No Transaction instance');
+    put(db, uuid, event) {
+        assert(this._openTxn[uuid], `No Transaction instance for ${uuid}`);
         assert(this._openDB[db], 'No open DB instance');
         assert(!this._meta.readOnly, 'DB is read-only');
 
         if (event instanceof DataFrame) {
             let key = this._getKey(db, event.time.normalized()),
                 buffer = Buffer.from(event.value.buffer);
-            this._openTxn[db].putBinary(this._openDB[db], key, buffer);
+            this._openTxn[uuid].putBinary(this._openDB[db], key, buffer);
             return;
         }
         let e = event.toObject(),
             key = this._getKey(db, e.t);
-        this._openTxn[db].putNumber(this._openDB[db], key, e.v);
+        this._openTxn[uuid].putNumber(this._openDB[db], key, e.v);
     }
+
+
+    //
+    //
+    // internals
 
     _createDB(db, meta) {
         assert(meta instanceof Object, 'Meta object is required');
@@ -224,11 +234,6 @@ class LMDB extends BaseDB {
                 _self._open(db);
             });
     }
-
-
-    //
-    //
-    // internals
 
     _open(dbname) {
         if (Object.keys(this._openDB) > 0) {

@@ -11,51 +11,70 @@ class LMDBNode extends BaseNode {
         super();
 
         this._lmdb = null;
-        this._db = null;
-        this._output = null;
-        this._eventBuffer = [];
+        this._channels = {};
+        this._outputs = {};
     }
 
     openDataSet(datapath) {
         this._lmdb = new LMDB(datapath);
+        Object.keys(this._lmdb._meta.DataSet.DataChannels).forEach((key) => {
+            let channel = this._lmdb._meta.DataSet.DataChannels[key];
+            channel.isDirty = true;
+            channel.timeRange = null;
+            channel.valueRange = null;
+            channel.eventBuffer = [];
+            this._channels[key] = channel;
+        });
     }
 
-    getTimeRange(db) {
+    getTimeRange(channelKey) {
         assert(this._lmdb !== null);
 
+        let channel = this._channels[channelKey];
+
+        if (channel.timeRange && !channel.isDirty) {
+            return channel.timeRange;
+        }
+
         const _self = this;
-        _self._lmdb.begin(db);
-        _self._lmdb.cursor(db);
+        const txnUUID = _self._lmdb.begin(channelKey);
+        const cursorUUID = _self._lmdb.cursor(channelKey, txnUUID);
 
-        _self._lmdb.gotoFirst(db);
-        let start = _self._lmdb.getCurrentKeyValue(db);
+        _self._lmdb.gotoFirst(cursorUUID);
+        let start = _self._lmdb.getCurrentKeyValue(channelKey, cursorUUID);
 
-        _self._lmdb.gotoLast(db);
-        let end = _self._lmdb.getCurrentKeyValue(db);
+        _self._lmdb.gotoLast(cursorUUID);
+        let end = _self._lmdb.getCurrentKeyValue(channelKey, cursorUUID);
 
         let startTime = new Time(start.key, 'ms'),
             endTime = new Time(end.key, 'ms');
 
-        _self._lmdb.closeCursor(db);
-        _self._lmdb.abort(db);
+        _self._lmdb.closeCursor(cursorUUID);
+        _self._lmdb.abort(txnUUID);
 
-        return { start: startTime, end: endTime };
+        channel.timeRange = { start: startTime, end: endTime };
+        return channel.timeRange;
     }
 
-    getValueRanges(db) {
+    getValueRanges(channelKey) {
         assert(this._lmdb !== null);
 
+        let channel = this._channels[channelKey];
+
+        if (channel.valueRange && !channel.isDirty) {
+            return channel.valueRange;
+        }
+
         const _self = this;
-        _self._lmdb.begin(db);
-        _self._lmdb.cursor(db);
+        const txnUUID = _self._lmdb.begin(channelKey);
+        const cursorUUID = _self._lmdb.cursor(channelKey, txnUUID);
 
-        let frameLength = _self._lmdb.meta.DataSet.DataChannels[db].type.length,
-            units = _self._lmdb.meta.DataSet.DataChannels[db].units,
-            max = new Array(frameLength).fill(Number.MIN_VALUE),
-            min = new Array(frameLength).fill(Number.MAX_VALUE);
+        let units = channel.units,
+            max = new Array(channel.type.length).fill(Number.MIN_VALUE),
+            min = new Array(channel.type.length).fill(Number.MAX_VALUE);
 
-        for (var found = _self._lmdb.gotoFirst(db); found; found = _self._lmdb.gotoNext(db)) {
-            let vals = _self._lmdb.getCurrentValue(db);
+        for (var found = _self._lmdb.gotoFirst(cursorUUID); found; found = _self._lmdb.gotoNext(cursorUUID)) {
+            let vals = _self._lmdb.getCurrentValue(channelKey, cursorUUID);
             for (let i in vals) {
                 if (vals[i] > max[i]) {
                     max[i] = vals[i];
@@ -66,71 +85,94 @@ class LMDBNode extends BaseNode {
             }
         }
 
-        _self._lmdb.closeCursor(db);
-        _self._lmdb.abort(db);
+        _self._lmdb.closeCursor(cursorUUID);
+        _self._lmdb.abort(txnUUID);
 
-        return { min: min.map((val, i) => {
+        channel.valueRange = { min: min.map((val, i) => {
                 return new Voltage(val, units[i]);
             }), max: max.map((val, i) => {
                 return new Voltage(val, units[i]);
             })
         };
+
+        return channel.valueRange;
     }
 
-    createOutput(db, startTime = new Time(0.0), convertFrames = true) {
+    createOutput(channelKey, startTime = new Time(0.0), convertFrames = true) {
         assert(this._lmdb !== null);
-        assert(this._output === null);
-        assert(this._db === null);
-        assert(typeof db === 'string');
 
-        this._db = db;
-        this._output = new EventOutputStream(this);
-        this._convertFrames = convertFrames;
-        this._hasNext = true;
+        assert(typeof channelKey === 'string');
+        assert(this._channels.hasOwnProperty(channelKey));
 
-        this._lmdb.begin(db);
-        this._lmdb.cursor(db);
-        this._db = db;
-        this._lmdb.gotoRange(db, startTime);
+        const _self = this;
+        let output = {
+            db: channelKey,
+            stream: new EventOutputStream(_self),
+            convertFrames: convertFrames,
+            hasNext: true,
+            paused: false,
+            eventBuffer: []
+        };
 
-        this.startOutput();
+        output.txnUUID = this._lmdb.begin(channelKey);
+        output.cursorUUID = this._lmdb.cursor(channelKey, output.txnUUID);
+        this._lmdb.gotoRange(channelKey, output.cursorUUID, startTime);
 
-        return this._output;
+        this._outputs[output.stream.uuid] = output;
+
+        this.startOutput(output.stream.uuid);
+
+        return output.stream.uuid;
     }
 
-    startOutput() {
-        if (this._paused) {
-            this._paused = false;
+    startOutput(uuid) {
+        let output = this._outputs[uuid];
+        assert(output instanceof Object);
+
+        if (output.paused) {
+            output.paused = false;
         }
-        while (!this._paused) {
-            if (this._eventBuffer.length === 0 && this._hasNext) {
-                if (this._convertFrames) {
-                    this._eventBuffer = this._lmdb.getCurrentEvents(this._db);
+        while (!output.paused) {
+            if (output.eventBuffer.length === 0 && output.hasNext) {
+                if (output.convertFrames) {
+                    output.eventBuffer = this._lmdb.getCurrentEvents(output.db, output.cursorUUID);
                 } else {
-                    this._eventBuffer = [this._lmdb.getCurrentFrame(this._db)];
+                    output.eventBuffer = [this._lmdb.getCurrentFrame(output.db, output.cursorUUID)];
                 }
-                if (!this._lmdb.gotoNext(this._db)) {
-                    this._hasNext = false;
+                if (!this._lmdb.gotoNext(output.cursorUUID)) {
+                    output.hasNext = false;
                 }
-            } else if (this._eventBuffer.length === 0 && !this._hasNext) {
-                this.endOutput(this._db);
-            } else if (this._eventBuffer.length > 0) {
-                this._output.addEvent(this._eventBuffer.shift());
+            } else if (output.eventBuffer.length === 0 && !output.hasNext) {
+                this.endOutput(uuid);
+            } else if (output.eventBuffer.length > 0) {
+                output.stream.addEvent(output.eventBuffer.shift());
             }
         }
     }
 
-    pauseOutput() {
-        this._paused = true;
+    pauseOutput(uuid) {
+        let output = this._outputs[uuid];
+        assert(output instanceof Object);
+
+        output.paused = true;
     }
 
-    endOutput() {
-        this._paused = true;
-        this._lmdb.closeCursor(this._db);
-        this._lmdb.abort(this._db);
-        this._db = null;
-        this._output.EOF();
-        this._output = null;
+    endOutput(uuid) {
+        let output = this._outputs[uuid];
+        assert(output instanceof Object);
+
+        output.paused = true;
+        output.stream.EOF();
+
+        this._lmdb.closeCursor(output.cursorUUID);
+        this._lmdb.abort(output.txnUUID);
+
+        output = null;
+        // TODO: clean up properly after ending a stream
+    }
+
+    get outputs() {
+        return this._outputs;
     }
 }
 
