@@ -58,9 +58,9 @@ class DataChannel extends BaseCollection {
         });
 
         s.avg = s.avg / s.items;
-        s.duration = new Time(s.time.max - s.time.min, 'ms');
-        s.time.min = new Time(s.time.min, 'ms');
-        s.time.max = new Time(s.time.max, 'ms');
+        s.duration = new Time(s.time.max - s.time.min);
+        s.time.min = new Time(s.time.min);
+        s.time.max = new Time(s.time.max);
         s.value.min = new Voltage(s.value.min);
         s.value.max = new Voltage(s.value.max);
 

@@ -12,13 +12,12 @@ describe('cl.nodes.output.GraphNode', () => {
     it('Generates a LineChart graph', (cb) => {
         const filePath = path.resolve('./test/assets/' + chance.word({syllables: 3})),
             graph = new cl.nodes.output.GraphNode(filePath),
-            random = new cl.nodes.generators.Random();
+            random = new cl.nodes.generators.Random(200);
         graph.on('done', () => {
-            fs.existsSync(filePath + '-LineChart.svg').should.be.true;
-            fs.existsSync(filePath + '-LineChart.png').should.be.true;
-
-            fs.unlinkSync(filePath + '-LineChart.svg');
-            fs.unlinkSync(filePath + '-LineChart.png');
+            ['.svg', '.png'].forEach((ext) => {
+                fs.existsSync(filePath + '-LineChart' + ext).should.be.true;
+                fs.unlinkSync(filePath + '-LineChart' + ext);
+            });
             cb();
         });
         graph.on('error', (err) => {

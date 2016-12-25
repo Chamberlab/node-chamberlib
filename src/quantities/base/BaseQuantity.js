@@ -22,7 +22,11 @@ class BaseQuantity {
     }
 
     defaultUnit() {
-        return this.normalized() * this.defaultUnit().ratio;
+        return this.normalized() * this.constructor.defaultUnit().ratio;
+    }
+
+    asUnit(suffix) {
+        return this.normalized() * this.constructor.units[suffix.toLowerCase()].ratio;
     }
 
     distanceTo(target) {
