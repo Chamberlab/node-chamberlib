@@ -7,15 +7,15 @@ import Voltage from '../../quantities/Voltage';
 
 class QuantizeTime extends BaseTransformNode {
     constructor(options) {
-        let lastFrameTime = 0.0,
+        let lastFrameTime = new Time(0.0, 'ms'),
             values = [];
         const transformFunction = function (event) {
-            if (event.time.normalized() - lastFrameTime > options.steps) {
-                lastFrameTime = new Time(lastFrameTime.normalized() + 1000.0, 'ms');
-                let value = new Voltage(values.reduce((aggr, val) => {
+            if (event.time.normalized() - lastFrameTime.normalized() > options.steps.normalized()) {
+                lastFrameTime = new Time(lastFrameTime.normalized() + options.steps.normalized());
+                let value = values.reduce((aggr, val) => {
                     return aggr + val;
-                }, 0));
-                const event = new DataEvent(lastFrameTime, new Voltage(value / values.length, 'ms'));
+                }, 0);
+                const event = new DataEvent(lastFrameTime, new Voltage(value / values.length, 'mV'));
                 return Promise.resolve(event);
             } else {
                 values.push(event.value.normalized());

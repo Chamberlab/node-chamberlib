@@ -17,7 +17,8 @@ describe('cl.nodes.transform.QuantizeTime', () => {
             }
         });
         quantizer.stream.on('end', () => {
-            results.length.should.not.equal(150);
+            results.length.should.be.lessThan(150);
+            results.length.should.be.greaterThan(0);
             cb();
         });
         quantizer.stream.on('error', (err) => {
