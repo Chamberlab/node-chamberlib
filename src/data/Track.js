@@ -5,9 +5,10 @@ import RuleSet from '../rules/RuleSet';
 import TonalEvent from '../events/TonalEvent';
 
 class Track extends BaseCollection {
-    constructor(...args) {
-        super(args, TonalEvent);
+    constructor(tracks, title = undefined, uuid = undefined) {
+        super(tracks, TonalEvent, uuid);
 
+        this._title = title;
         this._ruleset = new RuleSet();
     }
 

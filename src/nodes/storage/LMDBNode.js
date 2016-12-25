@@ -19,10 +19,9 @@ class LMDBNode extends BaseNode {
         this._lmdb = new LMDB(datapath);
         Object.keys(this._lmdb._meta.DataSet.DataChannels).forEach((key) => {
             let channel = this._lmdb._meta.DataSet.DataChannels[key];
-            channel.isDirty = true;
+            channel._isDirty = true;
             channel.timeRange = null;
             channel.valueRange = null;
-            channel.eventBuffer = [];
             this._channels[key] = channel;
         });
     }
@@ -32,7 +31,7 @@ class LMDBNode extends BaseNode {
 
         let channel = this._channels[channelKey];
 
-        if (channel.timeRange && !channel.isDirty) {
+        if (channel.timeRange && !channel._isDirty) {
             return channel.timeRange;
         }
 
@@ -61,7 +60,7 @@ class LMDBNode extends BaseNode {
 
         let channel = this._channels[channelKey];
 
-        if (channel.valueRange && !channel.isDirty) {
+        if (channel.valueRange && !channel._isDirty) {
             return channel.valueRange;
         }
 
@@ -120,7 +119,7 @@ class LMDBNode extends BaseNode {
 
         this._outputs[output.stream.uuid] = output;
 
-        this.startOutput(output.stream.uuid);
+        // this.startOutput(output.stream.uuid);
 
         return output.stream.uuid;
     }
@@ -128,6 +127,9 @@ class LMDBNode extends BaseNode {
     startOutput(uuid) {
         let output = this._outputs[uuid];
         assert(output instanceof Object);
+        if (!output.stream.meta) {
+            output.stream.meta = this._channels[output.db];
+        }
 
         if (output.paused) {
             output.paused = false;

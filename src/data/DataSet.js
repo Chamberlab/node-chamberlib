@@ -8,8 +8,8 @@ import RuleSet from '../rules/RuleSet';
 import JSONFile from './io/JSONFile';
 
 class DataSet extends BaseCollection {
-    constructor(channels, title = undefined) {
-        super(channels, DataChannel);
+    constructor(channels, title = undefined, uuid = undefined) {
+        super(channels, DataChannel, uuid);
         this.title = title;
     }
 

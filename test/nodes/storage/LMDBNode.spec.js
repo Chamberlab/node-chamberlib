@@ -42,20 +42,27 @@ describe('cl.nodes.storage.LMDBNode', () => {
             const streamId = lmdb.createOutput(dbname, 0.0, false),
                 output = lmdb.outputs[streamId].stream;
 
-            let results = [];
+            let results = [],
+                meta = null;
             output.on('data', (data) => {
                 results.push(data);
             });
             output.on('end', () => {
-                resolve(results);
+                resolve({ results: results, meta: meta });
             });
             output.on('error', (err) => {
                 reject(err);
             });
+            output.on('meta', (data) => {
+                meta = data;
+            });
+
+            lmdb.startOutput(streamId)
         })
-        .then((results) => {
-            results.length.should.be.equal(50);
-            results.map((res) => {
+        .then((res) => {
+            res.meta.should.be.instanceOf(Object);
+            res.results.length.should.be.equal(50);
+            res.results.map((res) => {
                 res.should.be.instanceOf(cl.events.DataFrame);
                 res.time.should.be.instanceOf(cl.quantities.Time);
                 res.value.should.be.instanceOf(Float32Array);
@@ -68,20 +75,27 @@ describe('cl.nodes.storage.LMDBNode', () => {
             const streamId = lmdb.createOutput(dbname),
                 output = lmdb.outputs[streamId].stream;
 
-            let results = [];
+            let results = [],
+                meta = null;
             output.on('data', (data) => {
                 results.push(data);
             });
             output.on('end', () => {
-                resolve(results);
+                resolve({ results: results, meta: meta });
             });
             output.on('error', (err) => {
                 reject(err);
             });
+            output.on('meta', (data) => {
+                meta = data;
+            });
+
+            lmdb.startOutput(streamId)
         })
-        .then((results) => {
-            results.length.should.be.equal(3200);
-            results.map((res) => {
+        .then((res) => {
+            res.meta.should.be.instanceOf(Object);
+            res.results.length.should.be.equal(3200);
+            res.results.map((res) => {
                 res.should.be.instanceOf(cl.events.DataEvent);
                 res.time.should.be.instanceOf(cl.quantities.Time);
                 res.value.should.be.instanceOf(cl.quantities.Voltage);

@@ -1,9 +1,11 @@
 import assert from 'assert';
+import uuid4 from 'uuid4';
 
 class BaseCollection {
-    constructor(items, childClass) {
+    constructor(items, childClass, uuid) {
         assert(typeof childClass !== 'undefined');
 
+        this._uuid = uuid || uuid4();
         this._items = [];
         this._childClass = childClass;
 
@@ -57,6 +59,10 @@ class BaseCollection {
     //
     //
     // Getters and Setters
+
+    get uuid() {
+        return this._uuid;
+    }
 
     get all() {
         return this._items;

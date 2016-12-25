@@ -3,8 +3,8 @@ import Track from './Track';
 import MidiFile from './io/MidiFile';
 
 class Song extends BaseCollection {
-    constructor(items, bpm = 120) {
-        super(items, Track);
+    constructor(items, bpm = 120, uuid = undefined) {
+        super(items, Track, uuid);
 
         this._bpm = bpm;
     }

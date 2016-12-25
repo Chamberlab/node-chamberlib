@@ -1,4 +1,5 @@
 import stream from 'stream';
+import assert from 'assert';
 import uuid from 'uuid4';
 
 class EventOutputStream extends stream.Readable {
@@ -6,6 +7,7 @@ class EventOutputStream extends stream.Readable {
         super({ objectMode: true });
         this._dataSource = dataSource;
         this._uuid = uuid();
+        this._meta = null;
     }
 
     addEvent(event) {
@@ -24,6 +26,15 @@ class EventOutputStream extends stream.Readable {
 
     get uuid() {
         return this._uuid;
+    }
+
+    get meta() {
+        return this._meta;
+    }
+
+    set meta(val) {
+        this._meta = val;
+        this.emit('meta', this._meta);
     }
 }
 

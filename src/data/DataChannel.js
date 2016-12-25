@@ -1,5 +1,4 @@
 import assert from 'assert';
-import Promise from 'bluebird';
 import BaseCollection from '../data/BaseCollection';
 import BaseEvent from '../events/BaseEvent';
 import Time from '../quantities/Time';
@@ -7,8 +6,8 @@ import Voltage from '../quantities/Voltage';
 import RuleSet from '../rules/RuleSet';
 
 class DataChannel extends BaseCollection {
-    constructor(events, title = undefined) {
-        super(events, BaseEvent);
+    constructor(events, title = undefined, uuid = undefined) {
+        super(events, BaseEvent, uuid);
 
         if (title) {
             this.title = title;
