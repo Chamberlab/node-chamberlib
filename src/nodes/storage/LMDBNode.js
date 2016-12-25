@@ -1,7 +1,5 @@
 import assert from 'assert';
 import Promise from 'bluebird';
-import fs from 'fs';
-import path from 'path';
 
 import BaseNode from '../BaseNode';
 import Time from '../../quantities/Time';
@@ -37,11 +35,6 @@ class LMDBNode extends BaseNode {
 
             return { start: startTime, end: endTime };
         })();
-    }
-
-    getDataBounds(db) {
-        assert(this._lmdb !== null);
-
     }
 }
 

@@ -1,4 +1,5 @@
 import * as lmdb from 'node-lmdb';
+import Promise from 'bluebird';
 import fs from 'fs';
 import path from 'path';
 import assert from 'assert';

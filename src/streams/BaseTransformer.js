@@ -1,3 +1,4 @@
+import Promise from 'bluebird';
 import Transform from 'stream-transform';
 import Emitter from 'tiny-emitter';
 
