@@ -8,6 +8,7 @@ import BaseDB from './BaseDB';
 import JSONFile from './JSONFile';
 import DataEvent from '../../events/DataEvent';
 import DataFrame from '../../events/DataFrame';
+import Time from '../../quantities/Time';
 import Voltage from '../../quantities/Voltage';
 
 class LMDB extends BaseDB {
@@ -81,10 +82,25 @@ class LMDB extends BaseDB {
     }
 
     closeCursor(db) {
-        assert(this._cursors[db], 'No Cursor instance');
+        if (!this._cursors[db]) {
+            return;
+        }
 
         this._cursors[db].close();
         this._cursors[db] = null;
+    }
+
+    getCurrentEvents(db) {
+        let res = this.getCurrentKeyValue(db),
+            events = [];
+        res.val.map((val, i) => {
+            events.push(new DataEvent(
+                new Time(res.key, this._meta.DataSet.DataChannels[db].keyUnit),
+                new Voltage(val, this._meta.DataSet.DataChannels[db].units[i]),
+                this._meta.DataSet.DataChannels[db].labels[i]
+            ));
+        });
+        return events;
     }
 
     getCurrentValue(db) {
@@ -95,30 +111,34 @@ class LMDB extends BaseDB {
         assert(this._cursors[db], 'No Cursor instance');
 
         const _self = this;
-        return new Promise(function (resolve) {
-            if (_self._meta.DataSet.DataChannels[db].type.class === 'DataFrame') {
-                let arrayClass = _self._getArrayClass(_self._meta.DataSet.DataChannels[db].type.type);
-                _self._cursors[db].getCurrentBinary((_key, _val) => {
-                    if (discardKey) {
-                        resolve(new arrayClass(_val.buffer));
-                    }
-                    resolve({
+        let res = null;
+
+        if (_self._meta.DataSet.DataChannels[db].type.class === 'DataFrame') {
+            let arrayClass = _self._getArrayClass(_self._meta.DataSet.DataChannels[db].type.type);
+            _self._cursors[db].getCurrentBinary((_key, _val) => {
+                if (discardKey) {
+                    res = new arrayClass(_val.buffer);
+                } else {
+                    res = {
                         key: _key.toString('ucs2'),
                         val: new arrayClass(_val.buffer)
-                    });
-                });
-            } else {
-                _self._cursors[db].getCurrentNumber((_key, _val) => {
-                    if (discardKey) {
-                        resolve(_val);
-                    }
-                    resolve({
+                    };
+                }
+            });
+        } else {
+            _self._cursors[db].getCurrentNumber((_key, _val) => {
+                if (discardKey) {
+                     res = _val;
+                } else {
+                    res = {
                         key: _key.toString('ucs2'),
                         val: _val
-                    });
-                });
-            }
-        });
+                    };
+                }
+            });
+        }
+
+        return res;
     }
 
     //
@@ -147,12 +167,12 @@ class LMDB extends BaseDB {
 
     gotoKey(db, key) {
         assert(this._cursors[db], 'No Cursor instance');
-        return this._cursors[db].goToKey(key);
+        return this._cursors[db].goToKey(this._checkAndConvertKey(db, key));
     }
 
     gotoRange(db, key) {
         assert(this._cursors[db], 'No Cursor instance');
-        return this._cursors[db].goToRange(key);
+        return this._cursors[db].goToRange(this._checkAndConvertKey(db, key));
     }
 
 
@@ -261,6 +281,15 @@ class LMDB extends BaseDB {
             case 'Uint8':
                 return Uint8Array;
         }
+    }
+
+    _checkAndConvertKey(db, key) {
+        if (typeof key === 'number') {
+            return this._getKey(db, key);
+        } else if (key instanceof Time) {
+            return this._getKey(db, key.normalized());
+        }
+        return key;
     }
 
     //

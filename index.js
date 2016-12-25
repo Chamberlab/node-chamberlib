@@ -5,6 +5,7 @@ import graphs from './src/graphs';
 import quantities from './src/quantities';
 import rules from './src/rules';
 import nodes from './src/nodes';
+import streams from './src/streams';
 
 export default {
     data,
@@ -13,5 +14,6 @@ export default {
     graphs,
     quantities,
     rules,
-    nodes
+    nodes,
+    streams
 };

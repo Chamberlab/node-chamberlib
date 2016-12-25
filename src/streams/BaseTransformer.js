@@ -1,17 +1,14 @@
 import Promise from 'bluebird';
 import Transform from 'stream-transform';
-import Emitter from 'tiny-emitter';
 
-class BaseTransformer extends Emitter {
+class BaseTransformer extends Transform {
     constructor() {
-        super();
+        super({
+            readableObjectMode: true,
+            writableObjectMode: true
+        });
 
-        this._stream = new Transform(this._transform, this._flush);
         this._time = null;
-    }
-
-    get stream() {
-        return this._stream;
     }
 
     _transformHandler(event) {
@@ -19,8 +16,6 @@ class BaseTransformer extends Emitter {
     }
 
     _transform(event, cb) {
-        this._time = Date.now();
-        this.emit(this.constructor.name, 'start', this._time);
         return this._transformHandler(event)
             .then((result) => {
                 cb(null, result);
@@ -28,10 +23,6 @@ class BaseTransformer extends Emitter {
             .catch((err) => {
                 cb(err, event);
             });
-    }
-
-    _flush(err) {
-        this.emit('TransformComplete', this.constructor.name, err ? err.message : null);
     }
 }
 

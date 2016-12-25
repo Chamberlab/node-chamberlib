@@ -16,28 +16,49 @@ describe('cl.nodes.storage.LMDBNode', () => {
     });
 
     it('Gets the start and end time', () => {
-        return lmdb.getTimeRange(dbname)
-            .then((res) => {
-                res.start.should.be.instanceOf(cl.quantities.Time);
-                res.end.should.be.instanceOf(cl.quantities.Time);
-            });
+        let res = lmdb.getTimeRange(dbname)
+        res.start.should.be.instanceOf(cl.quantities.Time);
+        res.end.should.be.instanceOf(cl.quantities.Time);
     });
 
     it('Gets the min/max for all values', () => {
-        return lmdb.getValueRanges(dbname)
-            .then((res) => {
-                res.min.should.be.instanceOf(Array);
-                res.min.length.should.equal(64);
-                for (let v of res.min) {
-                    v.should.be.instanceOf(cl.quantities.Voltage);
-                    v.unit.suffix.should.equal('mV');
-                }
-                res.max.should.be.instanceOf(Array);
-                res.max.length.should.equal(64);
-                for (let v of res.max) {
-                    v.should.be.instanceOf(cl.quantities.Voltage);
-                    v.unit.suffix.should.equal('mV');
-                }
+        let res= lmdb.getValueRanges(dbname)
+        res.min.should.be.instanceOf(Array);
+        res.min.length.should.equal(64);
+        for (let v of res.min) {
+            v.should.be.instanceOf(cl.quantities.Voltage);
+            v.unit.suffix.should.equal('mV');
+        }
+        res.max.should.be.instanceOf(Array);
+        res.max.length.should.equal(64);
+        for (let v of res.max) {
+            v.should.be.instanceOf(cl.quantities.Voltage);
+            v.unit.suffix.should.equal('mV');
+        }
+    });
+
+    it('Streams all DataFrames', () => {
+        return new Promise((resolve, reject) => {
+            const output = lmdb.getOutputStream(dbname, 0.0);
+            let results = [];
+            output.on('data', (data) => {
+                results.push(data);
             });
+            output.on('end', () => {
+                resolve(results);
+            });
+            output.on('error', (err) => {
+                reject(err);
+            });
+        })
+        .then((results) => {
+            results.length.should.be.equal(3200);
+            results.map((res) => {
+                res.should.be.instanceOf(cl.events.DataEvent);
+                res.time.should.be.instanceOf(cl.quantities.Time);
+                res.value.should.be.instanceOf(cl.quantities.Voltage);
+            })
+        });
+
     });
 });
