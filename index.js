@@ -4,6 +4,7 @@ import harmonics from './src/harmonics';
 import graphs from './src/graphs';
 import quantities from './src/quantities';
 import rules from './src/rules';
+import nodes from './src/nodes';
 
 export default {
     data,
@@ -11,5 +12,6 @@ export default {
     harmonics,
     graphs,
     quantities,
-    rules
+    rules,
+    nodes
 };

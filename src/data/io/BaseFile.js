@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 
 class BaseFile {
-    constructor() {
+    constructor(data = undefined) {
         this._pathinfo = {
             root: null,
             dir: null,
@@ -13,12 +13,13 @@ class BaseFile {
             name: null
         };
         this._fullpath = null;
-        this._data = null;
+        this._data = data;
     }
 
-    write(file, data, overwrite = false, createPath = false) {
+    write(file, data = undefined, createPath = false, overwrite = true) {
+        this._data = data || this._data;
         assert(typeof file === 'string');
-        assert(typeof data !== 'undefined', 'File has no data.');
+        assert(typeof this._data !== 'undefined', 'File has no data.');
 
         // TODO: make this async, lazy bastard
 

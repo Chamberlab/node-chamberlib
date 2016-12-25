@@ -10,7 +10,7 @@ describe('NanobrainsCSV', () => {
         let tstart = Date.now();
         return nano.read(path.join(__dirname, '..', '..', '..', 'assets', 'nanobrains.csv'))
             .then(() => {
-                console.log(`NanobrainsCSV: Read ${nano.data.at(0).size} records in ${Date.now() - tstart} ms\n`);
+                console.log(`   NanobrainsCSV: Read ${nano.data.at(0).size} records in ${Date.now() - tstart} ms\n`);
                 nano.data.should.be.instanceof(clab.data.DataSet);
                 nano.data.size.should.equal(64);
                 nano.data.at(0).size.should.equal(46);

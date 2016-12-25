@@ -27,7 +27,7 @@ describe('MsgPackFile', () => {
             tstart = Date.now();
         return file.write(filepath, channel)
             .then(() => {
-                console.log(`MsgPackFile: Stored 10k DataEvents in ${Date.now() - tstart} ms`);
+                console.log(`   MsgPackFile: Stored 10k DataEvents in ${Date.now() - tstart} ms`);
                 fs.existsSync(filepath).should.be.true;
                 let size = fs.statSync(filepath).size;
                 console.log(`MsgPackFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n\n`);
@@ -42,7 +42,7 @@ describe('MsgPackFile', () => {
             .then((data) => {
                 // TODO: resurrect original object type!
                 // data.size.should.be.equal(10000);
-                console.log(`MsgPackFile: Loaded 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
+                console.log(`   MsgPackFile: Loaded 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
                 /*
                 data.all.map((event, i) => {
                     event.time.normalized().should.be.equal(channel.at(i).time.normalized());

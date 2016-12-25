@@ -27,10 +27,10 @@ describe('JSONFile', () => {
         let tstart = Date.now();
         return file.write(filepath, channel)
             .then(() => {
-                console.log(`JSONFile: Stored 10k DataEvents in ${Date.now() - tstart} ms`);
+                console.log(`   JSONFile: Stored 10k DataEvents in ${Date.now() - tstart} ms`);
                 fs.existsSync(filepath).should.be.true;
                 let size = fs.statSync(filepath).size;
-                console.log(`JSONFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n\n`);
+                console.log(`   JSONFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n\n`);
                 size.should.be.greaterThan(4);
             });
     });
@@ -42,7 +42,7 @@ describe('JSONFile', () => {
             .then((data) => {
                 // TODO: resurrect original object type!
                 // data.size.should.be.equal(10000);
-                console.log(`JSONFile: Loaded 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
+                console.log(`   JSONFile: Loaded 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
                 /*
                 data.all.map((event, i) => {
                     event.time.normalized().should.be.equal(channel.at(i).time.normalized());

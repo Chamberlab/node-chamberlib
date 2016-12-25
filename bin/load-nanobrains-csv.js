@@ -9,9 +9,10 @@ Promise.coroutine(function* () {
         importers = cl.data.io.importers,
         LMDB = cl.data.io.LMDB,
         csv = new importers.NanobrainsCSV(),
-        infile = process.argv[2] || process.env.NB_INFILE_PATH;
+        infile = process.argv[2] || process.env.NB_INFILE_PATH,
+        metaOnly = false;
 
-    let count = 0,
+    let rows = 0,
         dataDir = path.join(__dirname, '..', 'data', 'lmdb');
 
     if (!fs.existsSync(dataDir)) { fs.mkdirSync(dataDir); }
@@ -19,36 +20,71 @@ Promise.coroutine(function* () {
     console.log(`Reading DataSet from CSV at ${infile} into LMDB...`);
 
     let lmdbDir = path.join(dataDir, path.parse(infile).name),
-        dataSet = new cl.data.DataSet(0, path.parse(infile).name);
+        dataSize = 0;
 
     if (!fs.existsSync(lmdbDir)) { fs.mkdirSync(lmdbDir); }
 
-    const lmdb = new LMDB(lmdbDir, 8 * Math.pow(1024, 3));
+    const dbname = path.parse(infile).name,
+        meta = {
+            dataDir: lmdbDir,
+            mapSize: 32 * Math.pow(1024, 3),
+            maxDbs: 10,
+            DataSet: {
+                title: dbname,
+                DataChannels: {}
+            }
+        };
 
-    const dbname = dataSet.title;
-    lmdb.begin(dbname, false);
+    meta.DataSet.DataChannels[dbname] = {
+        type: {
+            class: 'DataFrame',
+            type: 'Float32',
+            length: 0
+        },
+        keySize: 16,
+        keyPrecision: 4,
+        keyUnit: null,
+        units: [],
+        labels: []
+    };
+
+    const lmdb = new LMDB(lmdbDir, false, meta);
+
+    if (!metaOnly) {
+        lmdb.begin(dbname, false);
+    }
 
     yield new Promise(function (resolve, reject) {
         const writeStream = transform(function lmdbTransform(entry, cb) {
-            if (count > 0 && count % 100000 === 0) {
-                console.log(`Time spent importing ${count} events: ${(Date.now() - tstart) * 0.001}s`);
-                lmdb.commit(dbname);
-                lmdb.begin(dbname, false);
+            if (rows > 0 && rows % 100000 === 0) {
+                console.log(`Time spent importing ${rows} rows containing ${rows * dataSize} ` +
+                    `events: ${(Date.now() - tstart) * 0.001}s`);
             }
-            if (count > 2) {
-                let ms = entry.shift();
+            if (rows > 3) {
+                if (metaOnly) {
+                    return resolve();
+                }
+                let ms = parseFloat(entry.shift()),
+                    values = new Float32Array(64);
                 entry.forEach(function (field, i) {
-                    if (count === 3) {
-                        dataSet.push(new cl.data.DataChannel([], field));
-                    } else {
-                        lmdb.put(dbname, dataSet.at(i).title, new cl.events.DataEvent(
-                            new cl.quantities.Time(parseFloat(ms), 'ms'),
-                            new cl.quantities.Voltage(parseFloat(field), 'mv')
-                        ));
-                    }
+                    values[i] = parseFloat(field);
                 });
+                lmdb.put(dbname, new cl.events.DataFrame(
+                    new cl.quantities.Time(ms, 'ms'), values));
+            } else if (rows === 3) {
+                let channel = meta.DataSet.DataChannels[dbname];
+                channel.keyUnit = entry.shift().split('_')[1];
+                channel.type.length = entry.length;
+                channel.units = new Array(channel.type.length);
+                channel.labels = new Array(channel.type.length);
+                entry.forEach(function (field, i) {
+                    let label = field.split('_');
+                    channel.labels[i] = label[0];
+                    channel.units[i] = label[1];
+                });
+                dataSize = channel.type.length;
             }
-            count += 1;
+            rows += 1;
             return cb();
         }, function (err) {
             if (err) {
@@ -56,14 +92,16 @@ Promise.coroutine(function* () {
                 lmdb.abort(dbname);
                 reject(err);
             }
+            lmdb.commit(dbname);
             resolve();
         });
         csv.read(infile, writeStream);
     });
 
-    lmdb.closeEnv();
+    yield lmdb.closeEnv();
 
-    console.log(`Time spent importing ${count - 4} events: ${(Date.now() - tstart) * 0.001}s`);
+    console.log(`Time spent importing ${rows} rows containing ${rows * dataSize} ` +
+        `events: ${(Date.now() - tstart) * 0.001}s`);
     console.log(`LMDB files are ready at ${dataDir}`);
     process.exit(0);
 

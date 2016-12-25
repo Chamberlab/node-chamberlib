@@ -2,11 +2,13 @@ import assert from 'assert';
 import Promise from 'bluebird';
 import BaseCollection from '../data/BaseCollection';
 import BaseEvent from '../events/BaseEvent';
+import Emitter from 'tiny-emitter';
 
-class BaseRule {
-    constructor(active = true, autoreset = false) {
+class BaseRule extends Emitter {
+    constructor(active = true) {
+        super();
+
         this._active = active;
-        this._autoreset = autoreset;
     }
 
 
@@ -22,11 +24,14 @@ class BaseRule {
         }
 
         const _self = this;
+        _self.emit('EvaluationProgress', _self.constructor.name, 0.0);
         this._progress = 0.0;
         this._results = [];
+        this._errors = [];
 
         return Promise.reduce(source.all, function (history, event, i, len) {
             _self._progress = i / len;
+            _self.emit('EvaluationProgress', _self.constructor.name, _self.progress);
             return Promise.resolve(processorFunc(event, history, _self._progress, args))
                 .then(function (result) {
                     if (result instanceof BaseEvent) {
@@ -36,6 +41,8 @@ class BaseRule {
                 });
         }, null)
         .then(function (results) {
+            _self.emit(_self.constructor.name + 'EvaluationProgress', 1.0);
+            _self.emit('EvaluationComplete', _self.constructor.name, { errors: _self.errors });
             return results;
         });
     }
@@ -61,21 +68,16 @@ class BaseRule {
         return this._active;
     }
 
-    set active(v) {
-        this._active = v;
-    }
-
-
-    get autoreset() {
-        return this._autoreset;
-    }
-
-    set autoreset(v) {
-        this._autoreset = v;
+    set active(val) {
+        this._active = val;
     }
 
     get progress() {
         return this._progress;
+    }
+
+    get errors() {
+        return this._errors;
     }
 }
 
