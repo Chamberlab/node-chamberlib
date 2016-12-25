@@ -45,6 +45,7 @@ class LineChart extends BaseGraph {
         }
 
         if (d3env.layoutConfig.xAxis.show) {
+            /*
             d3env.xAxis = d3env.d3.svg.axis().scale(x)
                 .orient("bottom").ticks(d3env.duration * d3env.layoutConfig.xAxis.scaleTicks);
             g.append("g")
@@ -55,6 +56,7 @@ class LineChart extends BaseGraph {
                 .style("stroke-width", d3env.layoutConfig.xAxis['stroke-width'])
                 .attr("transform", "translate(0," + d3env.docHeight + ")")
                 .call(d3env.xAxis);
+                */
         }
 
         if (d3env.layoutConfig.yAxis.show) {

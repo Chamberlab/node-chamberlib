@@ -36,7 +36,7 @@ class Random extends BaseNode {
                 value = new Voltage(chance.floating({ min: this._min, max: this._max }), 'mV'),
                 event = new DataEvent(time, value);
 
-            this._time += chance.floating({ min: 1, max: 1000 });
+            this._time += chance.floating({ min: 500, max: 2000 });
             this._eventCount -= 1;
             this._stream.addEvent(event);
             if (this._eventCount < 1) {

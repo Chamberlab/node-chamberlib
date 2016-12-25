@@ -26,7 +26,7 @@ class BaseGraph {
         // TODO: update d3 to version 4
         // TODO: clean up graph config
 
-        d3env.width = Math.ceil(d3env.duration * d3env.config.pixelsPerSecond);
+        d3env.width = Math.ceil(d3env.duration * d3env.config.pixelsPerSecond * 0.001);
         d3env.height = d3env.config.displayDimensions.height - d3env.config.margins.top - d3env.config.margins.bottom;
         d3env.d3 = {};
         Object.assign(d3env.d3, d3);
@@ -111,17 +111,17 @@ class BaseGraph {
             let stats = channel.stats;
             _self.d3env.layerStats.push(stats);
 
-            _self.d3env.duration = Math.max(_self.d3env.duration, stats.duration.normalized());
-            _self.d3env.maxX = Math.max(_self.d3env.maxX, stats.time.max.normalized());
-            _self.d3env.minX = Math.min(_self.d3env.minX, stats.time.min.normalized());
-            _self.d3env.maxY = Math.max(_self.d3env.maxY, stats.value.max.normalized());
-            _self.d3env.minY = Math.min(_self.d3env.minY, stats.value.min.normalized());
+            _self.d3env.duration = Math.max(_self.d3env.duration, stats.duration.normalized() * 0.001);
+            _self.d3env.maxX = Math.max(_self.d3env.maxX, stats.time.max.normalized() * 0.001);
+            _self.d3env.minX = Math.min(_self.d3env.minX, stats.time.min.normalized() * 0.001);
+            _self.d3env.maxY = Math.max(_self.d3env.maxY, stats.value.max.normalized() * 0.001);
+            _self.d3env.minY = Math.min(_self.d3env.minY, stats.value.min.normalized() * 0.001);
 
             events = yield Promise.map(events, function (event) {
-                _self.d3env.layerRes = Math.min(Math.max(event.time.normalized() - last_t,
+                _self.d3env.layerRes = Math.min(Math.max(event.time.normalized() * 0.001 - last_t,
                     _self.config.layerResolutionLimit), _self.config.layerResolutionLimit);
-                last_t = event.time.normalized();
-                return { x: event.time.normalized(), y: event.value.normalized() };
+                last_t = event.time.normalized() * 0.001;
+                return { x: event.time.normalized() * 0.001, y: event.value.normalized() * 0.001 };
             });
 
             _self.d3env.layerCount += 1;

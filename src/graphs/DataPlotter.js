@@ -1,6 +1,6 @@
 import assert from 'assert';
 import path from 'path';
-import fs from 'pn/fs';
+import fs from 'fs';
 import svg2png from 'svg2png';
 import Promise from 'bluebird';
 import DataSet from '../data/DataSet';
@@ -20,7 +20,7 @@ class DataPlotter {
         const chart = new layoutClass();
         return chart.draw(this.dataSet)
             .then(function (data) {
-                _self.writeImages(data, chart.constructor.name);
+                return _self.writeImages(data, chart.constructor.name);
             });
     }
 
@@ -28,13 +28,15 @@ class DataPlotter {
         let outpath = path.join(this.dirname, this.filename + `-${chartType}.svg`);
         return Promise.promisify(fs.writeFile)(outpath, data)
             .then(() => {
-                console.log(`SVG saved to ${outpath}`);
-                return fs.readFile(outpath);
+                return Promise.promisify(fs.readFile)(outpath);
             })
             .then(svg2png)
-            .then(buffer => fs.writeFile(outpath.replace(/\.svg$/, '.png'), buffer))
-            .then(console.log(`PNG saved to ${outpath.replace(/\.svg$/, '.png')}`))
-            .catch(e => console.error(e));
+            .then((buffer) => {
+                return Promise.promisify(fs.writeFile)(outpath.replace(/\.svg$/, '.png'), buffer);
+            })
+            .catch((err) => {
+                console.error(err);
+            });
     }
 
 
