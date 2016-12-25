@@ -4,7 +4,7 @@ chai.should();
 import path from 'path';
 import cl from '../../../index';
 
-describe('LMDBNode', () => {
+describe('cl.nodes.storage.LMDBNode', () => {
     const dbname = 'nanobrains-demo-import',
         filepath = path.join(__dirname, '..', '..', 'assets', dbname);
 

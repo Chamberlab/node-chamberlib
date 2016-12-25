@@ -9,7 +9,7 @@ import * as fixtures from '../../fixtures';
 
 const chance = new Chance();
 
-describe('LMDB', () => {
+describe('cl.data.io.LMDB', () => {
     const title = chance.word({syllables: 3}),
         datapath = path.join(__dirname, '..', '..', 'assets', title);
 

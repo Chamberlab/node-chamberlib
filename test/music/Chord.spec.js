@@ -3,7 +3,7 @@ chai.should();
 
 import clab from '../../index';
 
-describe('Chord', () => {
+describe('cl.harmonics.Chord', () => {
     it('Creates a chord from string', () => {
         let chord = new clab.harmonics.Chord('Fm7b5');
 

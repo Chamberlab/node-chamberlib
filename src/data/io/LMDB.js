@@ -15,7 +15,7 @@ class LMDB extends BaseDB {
         super();
 
         this._readOnly = readOnly;
-        this._datapath = datapath
+        this._datapath = datapath;
         this._meta = meta;
         this._env = new lmdb.Env();
 

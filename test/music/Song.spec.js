@@ -3,7 +3,7 @@ chai.should();
 
 import clab from '../../index';
 
-describe('Song', () => {
+describe('cl.harmonics.Song', () => {
     it('Creates new song with params', () => {
         let tcount = 4, bpm = 136, sig = '4/8',
             song = new clab.harmonics.Song(tcount, bpm, sig);

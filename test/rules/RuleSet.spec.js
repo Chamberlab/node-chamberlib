@@ -4,7 +4,7 @@ chai.should();
 import clab from '../../index';
 import * as fixtures from '../fixtures';
 
-describe('RuleSet', () => {
+describe('cl.rules.RuleSet', () => {
     it('Creates an empty ruleset', () => {
         let set = new clab.rules.RuleSet();
 

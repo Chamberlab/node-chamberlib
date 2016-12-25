@@ -9,7 +9,7 @@ import * as fixtures from '../../fixtures';
 
 const chance = new Chance();
 
-describe('JSONFile', () => {
+describe('cl.data.io.JSONFile', () => {
     const filepath = path.join(__dirname, '..', '..', 'assets', chance.word({syllables: 3}) + '.json'),
         channel = fixtures.makeDataChannel(10000);
     let discardFile = false;

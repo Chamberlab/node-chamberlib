@@ -4,7 +4,7 @@ chai.should();
 import clab from '../../index';
 import path from 'path';
 
-describe('DataSet', () => {
+describe('cl.data.DataSet', () => {
     it('Creates new dataset with params', () => {
         let set = new clab.data.DataSet(4);
 

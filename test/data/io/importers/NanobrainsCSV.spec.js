@@ -4,7 +4,7 @@ chai.should();
 import path from 'path';
 import clab from '../../../../index';
 
-describe('NanobrainsCSV', () => {
+describe('cl.data.io.importers.NanobrainsCSV', () => {
     it('Reads and parses a nanobrains file', () => {
         let nano = new clab.data.io.importers.NanobrainsCSV();
         let tstart = Date.now();

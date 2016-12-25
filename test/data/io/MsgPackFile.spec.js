@@ -9,7 +9,7 @@ import * as fixtures from '../../fixtures';
 
 const chance = new Chance();
 
-describe('MsgPackFile', () => {
+describe('cl.data.io.MsgPackFile', () => {
     const filepath = path.join(__dirname, '..', '..', 'assets', chance.word({syllables: 3}) + '.msgpack'),
         channel = fixtures.makeDataChannel(10000);
     let discardFile = false;
@@ -30,7 +30,7 @@ describe('MsgPackFile', () => {
                 console.log(`   MsgPackFile: Stored 10k DataEvents in ${Date.now() - tstart} ms`);
                 fs.existsSync(filepath).should.be.true;
                 let size = fs.statSync(filepath).size;
-                console.log(`   MsgPackFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n\n`);
+                console.log(`   MsgPackFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n`);
                 size.should.be.greaterThan(4);
             });
     });

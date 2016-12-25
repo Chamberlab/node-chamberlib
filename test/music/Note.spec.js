@@ -3,7 +3,7 @@ chai.should();
 
 import clab from '../../index';
 
-describe('Note', () => {
+describe('cl.harmonics.Note', () => {
     it('Creates a note from string', () => {
         let note = new clab.harmonics.Note('C4');
 

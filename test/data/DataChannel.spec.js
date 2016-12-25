@@ -7,7 +7,7 @@ const chance = new Chance();
 import clab from '../../index';
 import * as fixtures from '../fixtures';
 
-describe('DataChannel', () => {
+describe('cl.data.DataChannel', () => {
     it('Creates new empty data channel', () => {
         let channel = new clab.data.DataChannel();
 

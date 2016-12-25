@@ -6,7 +6,7 @@ const chance = new Chance();
 
 import clab from '../../index';
 
-describe('Quantities', () => {
+describe('cl.quantities', () => {
     it('500 randomly selected quantities, each set randomly converted and compared 1000 times', () => {
         const quantities = [
             clab.quantities.Datasize,
