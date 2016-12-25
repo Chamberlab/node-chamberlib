@@ -1,7 +1,7 @@
-import BaseTransformer from './BaseTransformer';
+import BaseTransformStream from './BaseTransformStream';
 import EventOutputStream from './EventOutputStream';
 
 export default {
-    BaseTransformer,
+    BaseTransformStream,
     EventOutputStream
 };

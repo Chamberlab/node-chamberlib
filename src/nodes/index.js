@@ -1,7 +1,11 @@
 import BaseNode from './BaseNode';
+import transform from './transform';
 import storage from './storage';
+import generators from './generators';
 
 export default {
     BaseNode,
-    storage
+    transform,
+    storage,
+    generators
 };
