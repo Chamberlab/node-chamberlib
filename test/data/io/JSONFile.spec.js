@@ -30,7 +30,7 @@ describe('JSONFile', () => {
                 console.log(`   JSONFile: Stored 10k DataEvents in ${Date.now() - tstart} ms`);
                 fs.existsSync(filepath).should.be.true;
                 let size = fs.statSync(filepath).size;
-                console.log(`   JSONFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n\n`);
+                console.log(`   JSONFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n`);
                 size.should.be.greaterThan(4);
             });
     });

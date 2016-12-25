@@ -15,6 +15,7 @@ class LMDB extends BaseDB {
         super();
 
         this._readOnly = readOnly;
+        this._datapath = datapath
         this._meta = meta;
         this._env = new lmdb.Env();
 
@@ -25,7 +26,7 @@ class LMDB extends BaseDB {
         assert(this._meta instanceof Object);
 
         this._env.open({
-            path: this._meta.dataDir,
+            path: datapath,
             mapSize: this._meta.mapSize,
             maxDbs: this._meta.maxDbs
         });
@@ -79,6 +80,13 @@ class LMDB extends BaseDB {
         this._cursors[db] = new lmdb.Cursor(this._openTxn[db], this._openDB[db]);
     }
 
+    closeCursor(db) {
+        assert(this._cursors[db], 'No Cursor instance');
+
+        this._cursors[db].close();
+        this._cursors[db] = null;
+    }
+
     getCurrentValue(db) {
         return this.getCurrentKeyValue(db, true);
     }
@@ -92,20 +100,20 @@ class LMDB extends BaseDB {
                 let arrayClass = _self._getArrayClass(_self._meta.DataSet.DataChannels[db].type.type);
                 _self._cursors[db].getCurrentBinary((_key, _val) => {
                     if (discardKey) {
-                        return new arrayClass(_val.buffer);
+                        resolve(new arrayClass(_val.buffer));
                     }
                     resolve({
-                        key: _key.toString(),
+                        key: _key.toString('ucs2'),
                         val: new arrayClass(_val.buffer)
                     });
                 });
             } else {
                 _self._cursors[db].getCurrentNumber((_key, _val) => {
                     if (discardKey) {
-                        return _val;
+                        resolve(_val);
                     }
                     resolve({
-                        key: _key.toString(),
+                        key: _key.toString('ucs2'),
                         val: _val
                     });
                 });
@@ -119,32 +127,32 @@ class LMDB extends BaseDB {
 
     gotoFirst(db) {
         assert(this._cursors[db], 'No Cursor instance');
-        this._cursors[db].goToFirst();
+        return this._cursors[db].goToFirst();
     }
 
     gotoPrev(db) {
         assert(this._cursors[db], 'No Cursor instance');
-        this._cursors[db].goToPrev();
+        return this._cursors[db].goToPrev();
     }
 
     gotoNext(db) {
         assert(this._cursors[db], 'No Cursor instance');
-        this._cursors[db].goToNext();
+        return this._cursors[db].goToNext();
     }
 
     gotoLast(db) {
         assert(this._cursors[db], 'No Cursor instance');
-        this._cursors[db].goToLast();
+        return this._cursors[db].goToLast();
     }
 
     gotoKey(db, key) {
         assert(this._cursors[db], 'No Cursor instance');
-        this._cursors[db].goToKey(key);
+        return this._cursors[db].goToKey(key);
     }
 
     gotoRange(db, key) {
         assert(this._cursors[db], 'No Cursor instance');
-        this._cursors[db].goToRange(key);
+        return this._cursors[db].goToRange(key);
     }
 
 
@@ -224,7 +232,7 @@ class LMDB extends BaseDB {
     }
 
     _updateMeta() {
-        return new JSONFile(this._meta).write(path.join(this._meta.dataDir, 'meta.json'));
+        return new JSONFile(this._meta).write(path.join(this._datapath, 'meta.json'));
     }
 
     _getKey(db, time) {
@@ -253,6 +261,14 @@ class LMDB extends BaseDB {
             case 'Uint8':
                 return Uint8Array;
         }
+    }
+
+    //
+    //
+    // Getters / Setters
+
+    get meta() {
+        return this._meta;
     }
 }
 

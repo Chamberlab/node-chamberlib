@@ -30,7 +30,7 @@ describe('MsgPackFile', () => {
                 console.log(`   MsgPackFile: Stored 10k DataEvents in ${Date.now() - tstart} ms`);
                 fs.existsSync(filepath).should.be.true;
                 let size = fs.statSync(filepath).size;
-                console.log(`MsgPackFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n\n`);
+                console.log(`   MsgPackFile: File size is ${(size / Math.pow(1024,2)).toFixed(2)} MB\n\n`);
                 size.should.be.greaterThan(4);
             });
     });

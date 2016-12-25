@@ -89,8 +89,8 @@ Promise.coroutine(function* () {
         }, function (err) {
             if (err) {
                 console.log(err.stack);
-                lmdb.abort(dbname);
-                reject(err);
+                //lmdb.abort(dbname);
+                return reject(err);
             }
             lmdb.commit(dbname);
             resolve();

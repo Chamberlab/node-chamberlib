@@ -2,16 +2,11 @@ const chai = require('chai');
 chai.should();
 
 import path from 'path';
-import fs from 'fs';
-import Chance from 'chance';
 import cl from '../../../index';
-import * as fixtures from '../../fixtures';
-
-const chance = new Chance();
 
 describe('LMDBNode', () => {
-    const dbname = '20151208_15h59m12s_nanobrain',
-        filepath = path.join(__dirname, '..', '..', '..', 'data/lmdb/20151208_15h59m12s_nanobrain');
+    const dbname = 'nanobrains-demo-import',
+        filepath = path.join(__dirname, '..', '..', 'assets', dbname);
 
     const lmdb = new cl.nodes.storage.LMDBNode();
     lmdb.openDataSet(filepath);
@@ -20,13 +15,29 @@ describe('LMDBNode', () => {
         lmdb.should.be.instanceOf(cl.nodes.storage.LMDBNode);
     });
 
-    it('Gets the time range', () => {
+    it('Gets the start and end time', () => {
         return lmdb.getTimeRange(dbname)
             .then((res) => {
-                res.key.should.be.instanceOf(String);
-                res.val.should.be.instanceOf(Float32Array);
-                res.key.length.should.equal(16);
+                res.start.should.be.instanceOf(cl.quantities.Time);
+                res.end.should.be.instanceOf(cl.quantities.Time);
             });
     });
 
+    it('Gets the min/max for all values', () => {
+        return lmdb.getValueRanges(dbname)
+            .then((res) => {
+                res.min.should.be.instanceOf(Array);
+                res.min.length.should.equal(64);
+                for (let v of res.min) {
+                    v.should.be.instanceOf(cl.quantities.Voltage);
+                    v.unit.suffix.should.equal('mV');
+                }
+                res.max.should.be.instanceOf(Array);
+                res.max.length.should.equal(64);
+                for (let v of res.max) {
+                    v.should.be.instanceOf(cl.quantities.Voltage);
+                    v.unit.suffix.should.equal('mV');
+                }
+            });
+    });
 });
