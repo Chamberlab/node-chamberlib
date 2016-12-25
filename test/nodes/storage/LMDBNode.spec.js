@@ -39,8 +39,9 @@ describe('cl.nodes.storage.LMDBNode', () => {
 
     it('Streams all DataFrames', () => {
         return new Promise((resolve, reject) => {
-            const output = lmdb.getOutputStream(dbname, 0.0, false);
+            const output = lmdb.createOutput(dbname, 0.0, false);
             let results = [];
+
             output.on('data', (data) => {
                 results.push(data);
             });
@@ -63,8 +64,9 @@ describe('cl.nodes.storage.LMDBNode', () => {
 
     it('Streams all DataFrames as single DataEvents', () => {
         return new Promise((resolve, reject) => {
-            const output = lmdb.getOutputStream(dbname, 0.0);
+            const output = lmdb.createOutput(dbname);
             let results = [];
+
             output.on('data', (data) => {
                 results.push(data);
             });

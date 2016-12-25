@@ -11,6 +11,9 @@ class LMDBNode extends BaseNode {
         super();
 
         this._lmdb = null;
+        this._db = null;
+        this._output = null;
+        this._eventBuffer = [];
     }
 
     openDataSet(datapath) {
@@ -74,53 +77,60 @@ class LMDBNode extends BaseNode {
         };
     }
 
-    getOutputStream(db, startTime = new Time(0.0), convertFrames = true) {
+    createOutput(db, startTime = new Time(0.0), convertFrames = true) {
         assert(this._lmdb !== null);
+        assert(this._output === null);
+        assert(this._db === null);
+        assert(typeof db === 'string');
 
-        const _self = this;
+        this._db = db;
+        this._output = new EventOutputStream(this);
+        this._convertFrames = convertFrames;
+        this._hasNext = true;
 
-        _self._lmdb.begin(db);
-        _self._lmdb.cursor(db);
+        this._lmdb.begin(db);
+        this._lmdb.cursor(db);
+        this._db = db;
+        this._lmdb.gotoRange(db, startTime);
 
-        _self._lmdb.gotoRange(db, startTime);
+        this.startOutput();
 
-        let hasNext = true,
-            paused = false;
+        return this._output;
+    }
 
-        const dataSource = {
-            events: [],
-            pauseOutput: function () {
-                paused = true;
-            },
-            startOutput: function () {
-                if (paused) {
-                    paused = false;
+    startOutput() {
+        if (this._paused) {
+            this._paused = false;
+        }
+        while (!this._paused) {
+            if (this._eventBuffer.length === 0 && this._hasNext) {
+                if (this._convertFrames) {
+                    this._eventBuffer = this._lmdb.getCurrentEvents(this._db);
+                } else {
+                    this._eventBuffer = [this._lmdb.getCurrentFrame(this._db)];
                 }
-                while (!paused) {
-                    if (this.events.length === 0 && hasNext) {
-                        if (convertFrames) {
-                            this.events = _self._lmdb.getCurrentEvents(db);
-                        } else {
-                            this.events = [_self._lmdb.getCurrentFrame(db)];
-                        }
-                        if (!_self._lmdb.gotoNext(db, startTime)) {
-                            hasNext = false;
-                        }
-                    } else if (this.events.length === 0 && !hasNext) {
-                        paused = true;
-                        _self._lmdb.closeCursor(db);
-                        _self._lmdb.abort(db);
-                        output.EOF();
-                    } else if (this.events.length > 0) {
-                        output.addEvent(this.events.shift());
-                    }
+                if (!this._lmdb.gotoNext(this._db)) {
+                    this._hasNext = false;
                 }
+            } else if (this._eventBuffer.length === 0 && !this._hasNext) {
+                this.endOutput(this._db);
+            } else if (this._eventBuffer.length > 0) {
+                this._output.addEvent(this._eventBuffer.shift());
             }
-        },
-        output = new EventOutputStream(dataSource);
+        }
+    }
 
-        dataSource.startOutput();
-        return output;
+    pauseOutput() {
+        this._paused = true;
+    }
+
+    endOutput() {
+        this._paused = true;
+        this._lmdb.closeCursor(this._db);
+        this._lmdb.abort(this._db);
+        this._db = null;
+        this._output.EOF();
+        this._output = null;
     }
 }
 
