@@ -2,8 +2,12 @@ import stream from 'stream';
 import assert from 'assert';
 import uuid from 'uuid4';
 
+import BaseNode from '../nodes/BaseNode';
+
 class EventOutputStream extends stream.Readable {
     constructor(dataSource) {
+        assert(dataSource instanceof BaseNode);
+
         super({ objectMode: true });
         this._dataSource = dataSource;
         this._uuid = uuid();

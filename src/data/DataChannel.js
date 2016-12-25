@@ -1,4 +1,6 @@
 import assert from 'assert';
+import Promise from 'bluebird';
+
 import BaseCollection from '../data/BaseCollection';
 import BaseEvent from '../events/BaseEvent';
 import Time from '../quantities/Time';
