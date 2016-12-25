@@ -39,6 +39,30 @@ describe('cl.nodes.storage.LMDBNode', () => {
 
     it('Streams all DataFrames', () => {
         return new Promise((resolve, reject) => {
+            const output = lmdb.getOutputStream(dbname, 0.0, false);
+            let results = [];
+            output.on('data', (data) => {
+                results.push(data);
+            });
+            output.on('end', () => {
+                resolve(results);
+            });
+            output.on('error', (err) => {
+                reject(err);
+            });
+        })
+        .then((results) => {
+            results.length.should.be.equal(50);
+            results.map((res) => {
+                res.should.be.instanceOf(cl.events.DataFrame);
+                res.time.should.be.instanceOf(cl.quantities.Time);
+                res.value.should.be.instanceOf(Float32Array);
+            })
+        });
+    });
+
+    it('Streams all DataFrames as single DataEvents', () => {
+        return new Promise((resolve, reject) => {
             const output = lmdb.getOutputStream(dbname, 0.0);
             let results = [];
             output.on('data', (data) => {

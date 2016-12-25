@@ -103,6 +103,15 @@ class LMDB extends BaseDB {
         return events;
     }
 
+    getCurrentFrame(db) {
+        let res = this.getCurrentKeyValue(db),
+            frame = new DataFrame(
+                new Time(res.key, this._meta.DataSet.DataChannels[db].keyUnit),
+                res.val
+            );
+        return frame;
+    }
+
     getCurrentValue(db) {
         return this.getCurrentKeyValue(db, true);
     }

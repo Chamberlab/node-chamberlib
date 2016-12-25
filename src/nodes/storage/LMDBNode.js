@@ -74,7 +74,7 @@ class LMDBNode extends BaseNode {
         };
     }
 
-    getOutputStream(db, startTime = new Time(0.0)) {
+    getOutputStream(db, startTime = new Time(0.0), convertFrames = true) {
         assert(this._lmdb !== null);
 
         const _self = this;
@@ -98,7 +98,11 @@ class LMDBNode extends BaseNode {
                 }
                 while (!paused) {
                     if (this.events.length === 0 && hasNext) {
-                        this.events = _self._lmdb.getCurrentEvents(db);
+                        if (convertFrames) {
+                            this.events = _self._lmdb.getCurrentEvents(db);
+                        } else {
+                            this.events = [_self._lmdb.getCurrentFrame(db)];
+                        }
                         if (!_self._lmdb.gotoNext(db, startTime)) {
                             hasNext = false;
                         }
