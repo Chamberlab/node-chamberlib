@@ -5,7 +5,7 @@ import Dimensions from './Dimensions';
 // TODO: js number precision is a nightmare, implement mathjs or bignumber
 
 class BaseQuantity {
-    constructor(value, unit) {
+    constructor(value, unit = new Unit()) {
         assert(unit instanceof Unit);
 
         this._value = BaseQuantity.validateFloatInput(value);

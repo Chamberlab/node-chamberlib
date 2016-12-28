@@ -20,20 +20,22 @@ class BaseNode extends Emitter {
         } else {
             this._stats.data[dir][type] = count;
         }
-        if (!process.env.DUMP_STATS_MILLIS) {
-            return;
-        }
         let now = Date.now();
         if (this._stats.start === 0) {
             this._stats.start = now;
             console.log(`${this.constructor.name} -- START ${now}`);
         }
-        if (now - this._stats.lastLog > process.env.DUMP_STATS_MILLIS) {
+        if (now - this._stats.lastLog > Math.max(1000, process.env.DUMP_STATS_MILLIS)) {
             this._stats.lastLog = now;
-            this.printStats();
+            this.emit('stats', this._stats);
+            if (process.env.DUMP_STATS_MILLIS) {
+                this.printStats();
+            }
         } else if (count === 0) {
-            console.log(`${this.constructor.name} -- END ${now}`);
-            this.printStats();
+            if (process.env.DUMP_STATS_MILLIS) {
+                console.log(`${this.constructor.name} -- END ${now}`);
+                this.printStats();
+            }
         }
     }
 

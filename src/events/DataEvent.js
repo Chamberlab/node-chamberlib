@@ -1,4 +1,5 @@
 import BaseEvent from './BaseEvent';
+import BaseQuantity from '../quantities/base/BaseQuantity';
 import Voltage from '../quantities/Voltage';
 import Frequency from '../quantities/Frequency';
 import Time from '../quantities/Time';
@@ -6,7 +7,7 @@ import Datasize from '../quantities/Datasize';
 
 class DataEvent extends BaseEvent {
     constructor(time, value) {
-        super(time, value, [Voltage, Frequency, Time, Datasize]);
+        super(time, value, [BaseQuantity, Voltage, Frequency, Time, Datasize]);
 
         this.time = time;
         this.value = value;
