@@ -16,6 +16,8 @@ describe('cl.nodes.output.GraphNode', () => {
             random = new cl.nodes.generators.Random(10, 1);
         graph.on('done', () => {
             ['.svg', '.png'].forEach((ext) => {
+                fs.existsSync(path.join(filePath, filename + '-all-LineChart' + ext)).should.be.true;
+                fs.unlinkSync(path.join(filePath, filename + '-all-LineChart' + ext));
                 fs.existsSync(path.join(filePath, filename + '--LineChart' + ext)).should.be.true;
                 fs.unlinkSync(path.join(filePath, filename + '--LineChart' + ext));
             });
