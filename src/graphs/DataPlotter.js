@@ -36,6 +36,7 @@ class DataPlotter {
             fs.mkdirSync(outpath);
         }
         outpath = path.join(outpath, this.filename + `-${chartType}.svg`);
+        console.log(`Writing graph image SVG ${outpath}`);
         return Promise.promisify(fs.writeFile)(outpath, data)
             .then(() => {
                 return Promise.promisify(fs.readFile)(outpath);
@@ -44,7 +45,9 @@ class DataPlotter {
                 return svg2png(data);
             })
             .then((buffer) => {
-                return Promise.promisify(fs.writeFile)(outpath.replace(/\.svg$/, '.png'), buffer);
+                outpath = outpath.replace(/\.svg$/, '.png');
+                console.log(`Writing graph image PNG ${outpath}`);
+                return Promise.promisify(fs.writeFile)(outpath, buffer);
             })
             .catch((err) => {
                 console.error(err);

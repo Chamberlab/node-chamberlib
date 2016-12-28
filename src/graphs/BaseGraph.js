@@ -22,16 +22,25 @@ class BaseGraph {
                     d3env = Object.assign({}, _self.d3env);
                     d3env.layerData = [ld];
                     d3env.layerCount = 1;
-                    d3env.layerStats = d3env.layerStats.splice(i, 1);
-                    d3env.channels = d3env.channels.splice(i, 1);
-                    d3env.channelTitle = d3env.channelTitles.splice(i, 1).join('-');
+                    d3env.layerStats = [_self.d3env.layerStats[i]];
+                    d3env.channels = [_self.d3env.channels[i]];
+                    d3env.channelTitle = [_self.d3env.channelTitles[i]].join('-');
                     console.log(`Creating graph for channel ${d3env.channelTitle}`);
                     return Promise.promisify(_self.jsdomEnv)(d3env, d3env.layerData, d3env.g,
                         _self.drawContent, _self.quantize ? _self.quantizeData : null)
                         .then((data) => {
                             return { data: data, title: d3env.channelTitle };
                         });
-                }, {concurrency: 1});
+                }, {concurrency: 1})
+                .then((graphs) => {
+                    console.log(`Creating graph for all channels`);
+                    return Promise.promisify(_self.jsdomEnv)(_self.d3env, _self.layerData, d3env.g,
+                        _self.drawContent, _self.quantize ? _self.quantizeData : null)
+                        .then((data) => {
+                            graphs.push({ data: data, title: 'all' });
+                            return graphs;
+                        });
+                });
             });
     }
 

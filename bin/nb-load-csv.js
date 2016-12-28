@@ -74,6 +74,7 @@ Promise.coroutine(function* () {
                 lmdb.put(dbname, txnUUID, new cl.events.DataFrame(
                     new cl.quantities.Time(ms * 0.001, 's'), values));
             } else if (rows === 3) {
+                entry.shift();
                 let channel = meta.DataSet.DataChannels[dbname];
                 channel.keyUnit = 's';
                 channel.type.length = entry.length;
