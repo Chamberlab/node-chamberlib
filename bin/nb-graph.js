@@ -24,7 +24,7 @@ graph.on('error', (err) => {
 });
 
 const outputUuid = lmdb.createOutput(
-    '20151208_15h59m12s_nanobrain-bak',
+    '20151208_15h59m12s_nanobrain',
     new cl.quantities.Time(0.0),
     new cl.quantities.Time(0.0)
 );
