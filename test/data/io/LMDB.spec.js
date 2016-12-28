@@ -90,6 +90,7 @@ describe('cl.data.io.LMDB', () => {
 
         let txn = lmdb.begin(dbname, false);
         channel.all.map((event) => {
+            event.parentUUID = channel.uuid;
             lmdb.put(dbname, txn, event);
         });
         lmdb.commit(txn);
@@ -97,7 +98,7 @@ describe('cl.data.io.LMDB', () => {
         let tstart = Date.now();
         txn = lmdb.begin(dbname);
         channel.all.map((event) => {
-            let res = lmdb.get(dbname, txn, event.time);
+            let res = lmdb.get(dbname, txn, event.time, event.parentUUID);
             res.time.toObject().should.be.equal(event.time.toObject());
             // TODO: fix the rounding errors
             // res.value.toObject().should.be.equal(event.value.toObject());

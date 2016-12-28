@@ -1,8 +1,12 @@
 import assert from 'assert';
+import path from 'path';
+import fs from 'fs';
 import uuid4 from 'uuid4';
 import through from 'through';
 
 import BaseNode from '../BaseNode';
+import DataFrame from '../../events/DataFrame';
+import DataEvent from '../../events/DataEvent';
 import Time from '../../quantities/Time';
 import Voltage from '../../quantities/Voltage';
 import LMDB from '../../data/io/LMDB';
@@ -14,10 +18,11 @@ class LMDBNode extends BaseNode {
         this._lmdb = null;
         this._channels = {};
         this._outputs = {};
+        this._inputs = {};
     }
 
-    openDataSet(datapath) {
-        this._lmdb = new LMDB(datapath);
+    openDataSet(datapath, readOnly = true) {
+        this._lmdb = new LMDB(datapath, readOnly);
         Object.keys(this._lmdb._meta.DataSet.DataChannels).forEach((key) => {
             let channel = this._lmdb._meta.DataSet.DataChannels[key];
             channel._isDirty = true;
@@ -27,6 +32,22 @@ class LMDBNode extends BaseNode {
             this._channels[key] = channel;
             this._channels[key].timeRange = this.getTimeRange(key);
         });
+    }
+
+    createDataSet(datapath, sizeGb = 2, dbname = undefined) {
+        const _dbname = dbname || path.parse(datapath).name,
+            meta = {
+                mapSize: sizeGb * Math.pow(1024, 3),
+                maxDbs: 10,
+                DataSet: {
+                    title: _dbname,
+                    DataChannels: {}
+                }
+            };
+        if (!fs.existsSync(datapath)) {
+            fs.mkdirSync(datapath);
+        }
+        this._lmdb = new LMDB(datapath, false, meta);
     }
 
     getTimeRange(channelKey) {
@@ -98,6 +119,80 @@ class LMDBNode extends BaseNode {
         };
 
         return channel.valueRange;
+    }
+
+    createInput(dataLayout, storeFrames = false) {
+        assert(this._lmdb !== null);
+        assert(typeof dataLayout === 'object');
+
+        if (storeFrames) {
+            assert(Object.keys(dataLayout).length === 1, 'Only create a single channel when storing frames.');
+        }
+
+        const _self = this;
+        Object.keys(dataLayout).map((channelKey) => {
+            _self._lmdb.meta.DataSet.DataChannels[channelKey] = {
+                type: {
+                    class: storeFrames ? 'DataFrame' : 'DataEvent',
+                    type: storeFrames ? 'Float32' : null,
+                    length: storeFrames ? dataLayout[channelKey].labels.length : 0
+                },
+                keySize: 16,
+                keyPrecision: 6,
+                title: dataLayout[channelKey].title || channelKey,
+                keyUnit: dataLayout[channelKey].keyUnit,
+                units: storeFrames ? dataLayout[channelKey].units : [],
+                labels: storeFrames ? dataLayout[channelKey].labels : [],
+                uuids: []
+            };
+        });
+        Object.keys(this._lmdb._meta.DataSet.DataChannels).forEach((key) => {
+            let channel = this._lmdb._meta.DataSet.DataChannels[key];
+            channel._isDirty = true;
+            channel.timeRange = null;
+            channel.valueRange = null;
+            channel.uuid = key;
+            this._channels[key] = channel;
+        });
+
+        let input = {
+            uuid: uuid4(),
+            db: this._lmdb._meta.DataSet.title,
+            stream: through(),
+            paused: false,
+            position: 0
+        };
+
+        input.txnUUID = this._lmdb.begin(input.db, false);
+
+        input.stream.on('data', (data) => {
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+            data.map((event) => {
+
+                if (event instanceof DataFrame && storeFrames) {
+                    _self._lmdb.put(_self._lmdb._meta.DataSet.title, input.txnUUID, event);
+                } else if (event instanceof DataEvent && !storeFrames) {
+                    _self._lmdb.put(_self._lmdb._meta.DataSet.title, input.txnUUID, event);
+                }
+                this.addStats('in', event.constructor.name);
+            });
+        });
+        input.stream.once('end', () => {
+            _self._lmdb.commit(input.txnUUID);
+            return _self._lmdb._updateMeta()
+                .then(() => {
+                    _self.emit('done');
+                });
+        });
+        input.stream.once('error', (err) => {
+            _self.emit('error', `LMDB input error ${err.message}`);
+            _self._lmdb.commit(input.txnUUID);
+        });
+
+        this._inputs[input.uuid] = input;
+        return input.uuid;
     }
 
     createOutput(channelKey, startTime = new Time(0.0), endTime = new Time(0.0), convertFrames = false) {
@@ -186,6 +281,10 @@ class LMDBNode extends BaseNode {
 
     get outputs() {
         return this._outputs;
+    }
+
+    get inputs() {
+        return this._inputs;
     }
 
     get meta() {

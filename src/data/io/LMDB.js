@@ -199,11 +199,11 @@ class LMDB extends BaseDB {
     //
     // CRU(D?)
 
-    get(db, uuid, time) {
+    get(db, uuid, time, parentUUID = undefined) {
         assert(this._openTxn[uuid], `No Transaction instance for ${uuid}`);
         assert(this._openDB[db], `No open DB instance for ${db}`);
 
-        let key = this._getKey(db, time.toObject()),
+        let key = this._getKey(db, time.toObject(), parentUUID),
             val = this._openTxn[uuid].getNumber(this._openDB[db], key);
         return typeof val === 'number' ? new DataEvent(time, new Voltage(val)) : null;
     }
@@ -220,7 +220,7 @@ class LMDB extends BaseDB {
             return;
         }
         let e = event.toObject(),
-            key = this._getKey(db, e.t);
+            key = this._getKey(db, e.t, event.parentUUID);
         this._openTxn[uuid].putNumber(this._openDB[db], key, e.v);
     }
 
@@ -283,11 +283,11 @@ class LMDB extends BaseDB {
             });
     }
 
-    _getKey(db, time) {
+    _getKey(db, time, channelUUID = undefined) {
         const channel = this._meta.DataSet.DataChannels[db];
         time = time.toFixed(channel.keyPrecision);
         return new Array(channel.keySize + channel.keyPrecision - time.length)
-                .fill(0).join('') + time;
+                .fill(0).join('') + time + (channelUUID ? '-' + channelUUID : '');
     }
 
     _getArrayClass(typeString) {

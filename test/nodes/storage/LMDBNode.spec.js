@@ -99,4 +99,6 @@ describe('cl.nodes.storage.LMDBNode', () => {
         });
 
     });
+
+    // TODO: write tests for data input
 });
