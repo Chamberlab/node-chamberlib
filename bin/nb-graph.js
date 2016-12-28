@@ -8,9 +8,9 @@ memwatch.on('leak', function(info) {
 
 const lmdb = new cl.nodes.storage.LMDBNode(),
     quantize = new cl.nodes.transform.QuantizeTime({ steps: new cl.quantities.Time(0.1) }),
-    graph = new cl.nodes.output.GraphNode(path.resolve('../data/nanobrains'));
+    graph = new cl.nodes.output.GraphNode(path.resolve('../data/nanobrains-rawdata'));
 
-lmdb.openDataSet(path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain-bak'));
+lmdb.openDataSet(path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain'));
 graph.meta = lmdb.meta;
 
 graph.on('done', () => {
@@ -23,9 +23,11 @@ graph.on('error', (err) => {
     process.exit(err.code);
 });
 
-const outputUuid = lmdb.createOutput('20151208_15h59m12s_nanobrain-bak',
-    new cl.quantities.Time(0.0), new cl.quantities.Time(0.0));
-lmdb.outputs[outputUuid].stream.pipe(quantize.stream)
-    .pipe(graph.input);
+const outputUuid = lmdb.createOutput(
+    '20151208_15h59m12s_nanobrain-bak',
+    new cl.quantities.Time(0.0),
+    new cl.quantities.Time(0.0)
+);
 
+lmdb.outputs[outputUuid].stream.pipe(quantize.stream).pipe(graph.input);
 lmdb.startOutput(outputUuid);
