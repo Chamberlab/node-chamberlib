@@ -1,11 +1,9 @@
 import assert from 'assert';
-import Promise from 'bluebird';
 
 import BaseCollection from '../data/BaseCollection';
 import BaseEvent from '../events/BaseEvent';
 import Time from '../quantities/Time';
 import Voltage from '../quantities/Voltage';
-import RuleSet from '../rules/RuleSet';
 
 class DataChannel extends BaseCollection {
     constructor(events, title = undefined, uuid = undefined) {
@@ -14,21 +12,6 @@ class DataChannel extends BaseCollection {
         if (title) {
             this.title = title;
         }
-
-        this._ruleset = new RuleSet();
-    }
-
-    evaluateRuleSet() {
-        const _self = this;
-        return Promise.resolve()
-            .then(() => {
-                return _self.ruleset.evaluate(_self);
-            });
-    }
-
-
-    get ruleset() {
-        return this._ruleset;
     }
 
     get stats() {

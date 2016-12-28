@@ -1,10 +1,7 @@
-import assert from 'assert';
 import path from 'path';
-import Promise from 'bluebird';
 
 import DataChannel from './DataChannel';
 import BaseCollection from './BaseCollection';
-import RuleSet from '../rules/RuleSet';
 import JSONFile from './io/JSONFile';
 
 class DataSet extends BaseCollection {
@@ -13,6 +10,7 @@ class DataSet extends BaseCollection {
         this.title = title;
     }
 
+    // TODO: move this or make it more general
     loadJson(filepath, importerClass = undefined, title = undefined) {
         let _self = this;
         _self.title = title || path.basename(filepath, '.json');
@@ -28,18 +26,6 @@ class DataSet extends BaseCollection {
             .then(function (data) {
                 return data;
             });
-    }
-
-    evaluateRuleSets() {
-        let _self = this;
-        return Promise.each(_self.all, function (channel) {
-            return channel.evaluateRuleSet()
-                .then(function (res) {
-                    // TODO: handle errors and stats later on
-                    assert(res instanceof RuleSet);
-                    channel = res.lastResult;
-                });
-        });
     }
 }
 

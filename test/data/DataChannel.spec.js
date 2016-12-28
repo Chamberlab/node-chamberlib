@@ -1,16 +1,12 @@
 const chai = require('chai');
 chai.should();
 
-import Chance from 'chance';
-const chance = new Chance();
-
 import clab from '../../src/index';
 import * as fixtures from '../fixtures';
 
 describe('cl.data.DataChannel', () => {
     it('Creates new empty data channel', () => {
         let channel = new clab.data.DataChannel();
-
         channel.size.should.equal(0);
     });
 
@@ -32,7 +28,6 @@ describe('cl.data.DataChannel', () => {
         while (channel.size < 500) {
             channel.push(fixtures.makeDataEvent(clab.quantities.Voltage));
         }
-        let sta = channel.stats;
         channel.size.should.equal(500);
     });
 
