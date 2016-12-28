@@ -37,7 +37,9 @@ class LMDB extends BaseDB {
         this._openTxn = {};
         this._cursors = {};
 
-        this._updateMeta();
+        if (!readOnly) {
+            this._updateMeta();
+        }
     }
 
     closeEnv() {
@@ -97,13 +99,15 @@ class LMDB extends BaseDB {
 
     getCurrentEvents(db, cursorUUID) {
         let res = this.getCurrentKeyValue(db, cursorUUID),
-            events = [];
+            events = [],
+            _self = this;
         res.val.map((val, i) => {
-            events.push(new DataEvent(
-                new Time(res.key, this._meta.DataSet.DataChannels[db].keyUnit),
-                new Voltage(val, this._meta.DataSet.DataChannels[db].units[i]),
-                this._meta.DataSet.DataChannels[db].labels[i]
-            ));
+            let evt = new DataEvent(
+                new Time(res.key, _self._meta.DataSet.DataChannels[db].keyUnit),
+                new Voltage(val, _self._meta.DataSet.DataChannels[db].units[i])
+            );
+            evt.parentUUID = _self._meta.DataSet.DataChannels[db].uuids[i];
+            events.push(evt);
         });
         return events;
     }
@@ -114,6 +118,7 @@ class LMDB extends BaseDB {
                 new Time(res.key, this._meta.DataSet.DataChannels[db].keyUnit),
                 res.val
             );
+        frame.parentUUID = this._meta.DataSet.DataChannels[db].uuid;
         return frame;
     }
 
@@ -266,7 +271,16 @@ class LMDB extends BaseDB {
     }
 
     _updateMeta() {
-        return new JSONFile(this._meta).write(path.join(this._datapath, 'meta.json'));
+        const _self = this,
+            fpath = path.join(this._datapath, 'meta.json'),
+            meta = this._meta;
+        return new JSONFile(meta).write(fpath + '.bak')
+            .then(() => {
+                return new JSONFile(meta).write(fpath);
+            })
+            .then(() => {
+                _self.emit('updated');
+            });
     }
 
     _getKey(db, time) {

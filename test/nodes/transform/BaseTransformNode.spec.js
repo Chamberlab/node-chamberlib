@@ -1,7 +1,7 @@
 import chai from 'chai';
 chai.should();
 
-import cl from '../../../index';
+import cl from '../../../src/index';
 
 describe('cl.nodes.transform.BaseTransformNode', () => {
 
@@ -24,6 +24,7 @@ describe('cl.nodes.transform.BaseTransformNode', () => {
         });
 
         random.stream.pipe(transformer.stream);
+        random.startOutput();
     });
 
 });

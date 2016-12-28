@@ -14,10 +14,10 @@ class Datasize extends BaseQuantity {
     static get units() {
         return {
             'b': new Unit('Byte', 'b', 1, Dimensions.DIMENSION_DATASTORAGE),
-            'kb': new Unit('Kilobyte', 'Kb', 1 / 1024, Dimensions.DIMENSION_DATASTORAGE),
-            'mb': new Unit('Megabyte', 'Mb', Math.pow(1024, -2), Dimensions.DIMENSION_DATASTORAGE),
-            'gb': new Unit('Gigabyte', 'Gb', Math.pow(1024, -3), Dimensions.DIMENSION_DATASTORAGE),
-            'tb': new Unit('Terabyte', 'Tb', Math.pow(1024, -4), Dimensions.DIMENSION_DATASTORAGE),
+            'kb': new Unit('Kilobyte', 'Kb', 1024, Dimensions.DIMENSION_DATASTORAGE),
+            'mb': new Unit('Megabyte', 'Mb', Math.pow(1024, 2), Dimensions.DIMENSION_DATASTORAGE),
+            'gb': new Unit('Gigabyte', 'Gb', Math.pow(1024, 3), Dimensions.DIMENSION_DATASTORAGE),
+            'tb': new Unit('Terabyte', 'Tb', Math.pow(1024, 4), Dimensions.DIMENSION_DATASTORAGE),
         };
     }
 

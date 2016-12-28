@@ -1,8 +1,9 @@
 import Promise from 'bluebird';
 import path from 'path';
+import uuid4 from 'uuid4';
 import fs from 'fs';
 import transform from 'stream-transform';
-import cl from '../index';
+import cl from '../src/index';
 
 Promise.coroutine(function* () {
     const tstart = Date.now(),
@@ -26,7 +27,6 @@ Promise.coroutine(function* () {
 
     const dbname = path.parse(infile).name,
         meta = {
-            dataDir: lmdbDir,
             mapSize: 32 * Math.pow(1024, 3),
             maxDbs: 10,
             DataSet: {
@@ -42,16 +42,18 @@ Promise.coroutine(function* () {
             length: 0
         },
         keySize: 16,
-        keyPrecision: 4,
+        keyPrecision: 6,
         keyUnit: null,
         units: [],
-        labels: []
+        labels: [],
+        uuids: []
     };
 
     const lmdb = new LMDB(lmdbDir, false, meta);
+    let txnUUID;
 
     if (!metaOnly) {
-        lmdb.begin(dbname, false);
+        txnUUID = lmdb.begin(dbname, false);
     }
 
     yield new Promise(function (resolve, reject) {
@@ -67,20 +69,22 @@ Promise.coroutine(function* () {
                 let ms = parseFloat(entry.shift()),
                     values = new Float32Array(64);
                 entry.forEach(function (field, i) {
-                    values[i] = parseFloat(field);
+                    values[i] = parseFloat(field) * 0.001;
                 });
-                lmdb.put(dbname, new cl.events.DataFrame(
-                    new cl.quantities.Time(ms, 'ms'), values));
+                lmdb.put(dbname, txnUUID, new cl.events.DataFrame(
+                    new cl.quantities.Time(ms * 0.001, 's'), values));
             } else if (rows === 3) {
                 let channel = meta.DataSet.DataChannels[dbname];
-                channel.keyUnit = entry.shift().split('_')[1];
+                channel.keyUnit = 's';
                 channel.type.length = entry.length;
                 channel.units = new Array(channel.type.length);
                 channel.labels = new Array(channel.type.length);
+                channel.uuids = new Array(channel.type.length);
                 entry.forEach(function (field, i) {
                     let label = field.split('_');
                     channel.labels[i] = label[0];
-                    channel.units[i] = label[1];
+                    channel.units[i] = 'v';
+                    channel.uuids[i] = uuid4();
                 });
                 dataSize = channel.type.length;
             }
@@ -89,10 +93,9 @@ Promise.coroutine(function* () {
         }, function (err) {
             if (err) {
                 console.log(err.stack);
-                //lmdb.abort(dbname);
                 return reject(err);
             }
-            lmdb.commit(dbname);
+            lmdb.commit(txnUUID);
             resolve();
         });
         csv.read(infile, writeStream);

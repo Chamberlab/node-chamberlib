@@ -20,17 +20,29 @@ class DataPlotter {
         const chart = new layoutClass();
         return chart.draw(this.dataSet)
             .then(function (data) {
-                return _self.writeImages(data, chart.constructor.name);
+                if (Array.isArray(data)) {
+                    return Promise.map(data, (gd) => {
+                        return _self.writeImages(gd.data, `${gd.title}-${chart.constructor.name}`);
+                    }, {concurrency: 1});
+                } else {
+                    return _self.writeImages(data, chart.constructor.name);
+                }
             });
     }
 
     writeImages(data, chartType) {
-        let outpath = path.join(this.dirname, this.filename + `-${chartType}.svg`);
+        let outpath = path.join(this.dirname, this.filename);
+        if (!fs.existsSync(outpath)) {
+            fs.mkdirSync(outpath);
+        }
+        outpath = path.join(outpath, this.filename + `-${chartType}.svg`);
         return Promise.promisify(fs.writeFile)(outpath, data)
             .then(() => {
                 return Promise.promisify(fs.readFile)(outpath);
             })
-            .then(svg2png)
+            .then((data) => {
+                return svg2png(data);
+            })
             .then((buffer) => {
                 return Promise.promisify(fs.writeFile)(outpath.replace(/\.svg$/, '.png'), buffer);
             })

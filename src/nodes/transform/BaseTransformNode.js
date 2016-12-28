@@ -1,11 +1,19 @@
+import through from 'through';
 import BaseNode from '../BaseNode';
-import BaseTransformStream from '../../streams/BaseTransformStream';
 
 class BaseTransformNode extends BaseNode {
     constructor(transformFunction = undefined) {
         super();
 
-        this._stream = new BaseTransformStream(transformFunction);
+        this._stream = new through(transformFunction);
+    }
+
+    initStream(transformFunction) {
+        const _self = this;
+        this._stream = new through(transformFunction, () => {
+            _self.addStats('out', 'null', 0);
+            _self.stream.queue(null);
+        });
     }
 
     get stream() {

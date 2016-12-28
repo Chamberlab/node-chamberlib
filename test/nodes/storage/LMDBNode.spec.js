@@ -2,7 +2,7 @@ const chai = require('chai');
 chai.should();
 
 import path from 'path';
-import cl from '../../../index';
+import cl from '../../../src/index';
 
 describe('cl.nodes.storage.LMDBNode', () => {
     const dbname = 'nanobrains-demo-import',
@@ -39,11 +39,12 @@ describe('cl.nodes.storage.LMDBNode', () => {
 
     it('Streams all DataFrames', () => {
         return new Promise((resolve, reject) => {
-            const streamId = lmdb.createOutput(dbname, 0.0, false),
+            const streamId = lmdb.createOutput(dbname,
+                new cl.quantities.Time(0.0), new cl.quantities.Time(0.0), false),
                 output = lmdb.outputs[streamId].stream;
 
             let results = [],
-                meta = null;
+                meta = lmdb.meta;
             output.on('data', (data) => {
                 results.push(data);
             });
@@ -53,11 +54,8 @@ describe('cl.nodes.storage.LMDBNode', () => {
             output.on('error', (err) => {
                 reject(err);
             });
-            output.on('meta', (data) => {
-                meta = data;
-            });
 
-            lmdb.startOutput(streamId)
+            lmdb.startOutput(streamId);
         })
         .then((res) => {
             res.meta.should.be.instanceOf(Object);
@@ -72,11 +70,12 @@ describe('cl.nodes.storage.LMDBNode', () => {
 
     it('Streams all DataFrames as single DataEvents', () => {
         return new Promise((resolve, reject) => {
-            const streamId = lmdb.createOutput(dbname),
+            const streamId = lmdb.createOutput(dbname,
+                new cl.quantities.Time(0.0), new cl.quantities.Time(0.0), true),
                 output = lmdb.outputs[streamId].stream;
 
             let results = [],
-                meta = null;
+                meta = lmdb.meta;
             output.on('data', (data) => {
                 results.push(data);
             });
@@ -85,9 +84,6 @@ describe('cl.nodes.storage.LMDBNode', () => {
             });
             output.on('error', (err) => {
                 reject(err);
-            });
-            output.on('meta', (data) => {
-                meta = data;
             });
 
             lmdb.startOutput(streamId)

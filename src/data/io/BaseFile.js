@@ -16,7 +16,7 @@ class BaseFile {
         this._data = data;
     }
 
-    write(file, data = undefined, createPath = false, overwrite = true) {
+    write(file, data = undefined, createPath = true, overwrite = true) {
         this._data = data || this._data;
         assert(typeof file === 'string');
         assert(typeof this._data !== 'undefined', 'File has no data.');

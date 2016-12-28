@@ -14,9 +14,9 @@ class Time extends BaseQuantity {
     static get units() {
         return {
             's': new Unit('Second', 's', 1.0, Dimensions.DIMENSION_TEMPORAL),
-            'ms': new Unit('Millisecond', 'ms', Math.pow(10, 3), Dimensions.DIMENSION_TEMPORAL),
-            'mu': new Unit('Microseconds', 'mu', Math.pow(10, 6), Dimensions.DIMENSION_TEMPORAL),
-            'ns': new Unit('Nanosecond', 'ns', Math.pow(10, 9), Dimensions.DIMENSION_TEMPORAL)
+            'ms': new Unit('Millisecond', 'ms', Math.pow(10, -3), Dimensions.DIMENSION_TEMPORAL),
+            'mu': new Unit('Microseconds', 'mu', Math.pow(10, -6), Dimensions.DIMENSION_TEMPORAL),
+            'ns': new Unit('Nanosecond', 'ns', Math.pow(10, -9), Dimensions.DIMENSION_TEMPORAL)
         };
     }
 

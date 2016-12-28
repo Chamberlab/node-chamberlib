@@ -1,7 +1,7 @@
 const chai = require('chai');
 chai.should();
 
-import clab from '../../index';
+import clab from '../../src/index';
 
 describe('cl.harmonics.Note', () => {
     it('Creates a note from string', () => {

@@ -8,12 +8,12 @@ const gulp = require('gulp'),
 gulp.task('lint', () => {
     return gulp.src(['./src/**/*.js'])
         .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(jshint.reporter('fail'));
+        .pipe(jshint.reporter('jshint-stylish'));
+        //.pipe(jshint.reporter('fail'));
 });
 
 gulp.task('build', ['lint'], () => {
-    return gulp.src(['./index.js', './src/**/*.js', './bin/**/*.js', './example/**/*.js'])
+    return gulp.src(['./src/**/*.js', './bin/**/*.js', './example/**/*.js'])
         .pipe(babel())
         .pipe(gulp.dest('dist'));
 });

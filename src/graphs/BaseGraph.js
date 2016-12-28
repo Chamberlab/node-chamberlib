@@ -17,14 +17,26 @@ class BaseGraph {
         return _self.prepareData(dataSet)
             .then(function (res) {
                 _self.layerData = res;
-                return Promise.promisify(_self.jsdomEnv)(_self.d3env, _self.layerData, _self.g,
-                    _self.drawContent, _self.quantize ? _self.quantizeData : null);
+                let d3env;
+                return Promise.map(_self.layerData, (ld, i) => {
+                    d3env = Object.assign({}, _self.d3env);
+                    d3env.layerData = [ld];
+                    d3env.layerCount = 1;
+                    d3env.layerStats = d3env.layerStats.splice(i, 1);
+                    d3env.channels = d3env.channels.splice(i, 1);
+                    d3env.channelTitle = d3env.channelTitles.splice(i, 1).join('-');
+                    console.log(`Creating graph for channel ${d3env.channelTitle}`);
+                    return Promise.promisify(_self.jsdomEnv)(d3env, d3env.layerData, d3env.g,
+                        _self.drawContent, _self.quantize ? _self.quantizeData : null)
+                        .then((data) => {
+                            return { data: data, title: d3env.channelTitle };
+                        });
+                }, {concurrency: 1});
             });
     }
 
     jsdomEnv(d3env, layerData, g, drawContent, quantizeData, cb) {
         // TODO: update d3 to version 4
-        // TODO: clean up graph config
 
         d3env.width = Math.ceil(d3env.duration * d3env.config.pixelsPerSecond);
         d3env.height = d3env.config.displayDimensions.height - d3env.config.margins.top - d3env.config.margins.bottom;
@@ -53,34 +65,17 @@ class BaseGraph {
                     .attr("height", d3env.docHeight)
                     .style("stroke", "none").style("fill", "black");
 
-                /*
-                g.append("rect")
-                    .attr("x", 0 - d3env.config.margins.left)
-                    .attr("y", 0 - d3env.config.margins.top)
-                    .attr("width", 5)
-                    .attr("height", d3env.docHeight)
-                    .style("stroke", "none").style("fill", "transparent");
-
-                g.append("rect")
-                    .attr("x", d3env.docWidth - 5 - d3env.config.margins.left)
-                    .attr("y", 0 - d3env.config.margins.top)
-                    .attr("width", 5)
-                    .attr("height", d3env.docHeight)
-                    .style("stroke", "none").style("fill", "transparent");
-                    */
-
-
                 Promise.resolve()
-                    .then(function () {
+                    .then(() => {
                         if (typeof quantizeData === 'function') {
                             return quantizeData(layerData, d3env);
                         } else {
                             return Promise.resolve();
                         }
                     })
-                    .then(function () {
+                    .then(() => {
                         return drawContent(d3env, layerData, g)
-                            .then(function () {
+                            .then(() => {
                                 cb(null, d3env.window.d3.select('.container').html());
                             });
                     });
@@ -107,6 +102,8 @@ class BaseGraph {
         this.d3env.maxY = Number.MIN_VALUE;
         this.d3env.duration = 0;
         this.d3env.layerRes = Number.MAX_SAFE_INTEGER;
+        this.d3env.channels = [];
+        this.d3env.channelTitles = [];
 
         return Promise.map(dataSet.all, Promise.coroutine(function* (channel) {
             let last_t = 0.0,
@@ -120,6 +117,8 @@ class BaseGraph {
             });
 
             let stats = channel.stats;
+            _self.d3env.channels.push(channel.uuid);
+            _self.d3env.channelTitles.push(channel.title);
             _self.d3env.layerStats.push(stats);
 
             _self.d3env.duration = Math.max(_self.d3env.duration, stats.duration.normalized());

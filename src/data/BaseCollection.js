@@ -34,21 +34,28 @@ class BaseCollection {
             assert(typeof args[0] < this._items.length);
             assert(args[1] instanceof this._childClass);
             this._items[args[0]] = args[1];
+            this._items[args[0]].parentUUID = this.uuid;
         }
     }
 
     push(item) {
+        const _self = this;
         if (item instanceof this._childClass) {
+            item.parentUUID = this.uuid;
             this._items.push(item);
             return;
         }
         if (item instanceof BaseCollection) {
-            item = item.all;
+            item = item.all.map((it) => {
+                it.parentUUID = _self.uuid;
+                return it;
+            });
         }
         if (Array.isArray(item)) {
             let _self = this;
             item = item.map(function (it) {
                 assert(it instanceof _self._childClass);
+                it.parentUUID = _self.uuid;
             });
             this._items = this._items.concat(item);
         }
@@ -62,6 +69,10 @@ class BaseCollection {
 
     get uuid() {
         return this._uuid;
+    }
+
+    set uuid(val) {
+        this._uuid = val;
     }
 
     get all() {

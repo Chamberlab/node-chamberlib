@@ -1,4 +1,5 @@
 import assert from 'assert';
+
 import Time from '../quantities/Time';
 
 class BaseEvent {
@@ -7,6 +8,15 @@ class BaseEvent {
 
         this.time = time;
         this.value = value;
+    }
+
+    get parentUUID() {
+        return this._parentUUID;
+    }
+
+    set parentUUID(uuid) {
+        assert(typeof uuid === 'string');
+        this._parentUUID = uuid;
     }
 
 

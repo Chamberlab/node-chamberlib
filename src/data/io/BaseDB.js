@@ -1,10 +1,11 @@
 import assert from 'assert';
+import Emitter from 'tiny-emitter';
 import DataEvent from '../../events/DataEvent';
 import Time from '../../quantities/Time';
 
-class BaseDB {
+class BaseDB extends Emitter {
     constructor() {
-
+        super();
     }
 
     get(key) {

@@ -4,7 +4,7 @@ chai.should();
 import path from 'path';
 import fs from 'fs';
 import Chance from 'chance';
-import clab from '../../../index';
+import clab from '../../../src/index';
 import * as fixtures from '../../fixtures';
 
 const chance = new Chance();
@@ -15,12 +15,15 @@ describe('cl.data.io.LMDB', () => {
 
     let lmdb;
 
-    beforeEach(() => {
+    beforeEach((cb) => {
         if (!fs.existsSync(datapath)) {
             fs.mkdirSync(datapath);
         }
 
         lmdb = new clab.data.io.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
+        lmdb.once('updated', () => {
+            cb();
+        });
     });
 
     afterEach(() => {
@@ -28,6 +31,7 @@ describe('cl.data.io.LMDB', () => {
         fs.unlinkSync(path.join(datapath, 'data.mdb'));
         fs.unlinkSync(path.join(datapath, 'lock.mdb'));
         fs.unlinkSync(path.join(datapath, 'meta.json'));
+        fs.unlinkSync(path.join(datapath, 'meta.json.bak'));
         if (fs.existsSync(datapath)) {
             fs.rmdirSync(datapath);
         }
@@ -37,6 +41,7 @@ describe('cl.data.io.LMDB', () => {
         fs.existsSync(path.join(datapath, 'data.mdb')).should.be.true;
         fs.existsSync(path.join(datapath, 'lock.mdb')).should.be.true;
         fs.existsSync(path.join(datapath, 'meta.json')).should.be.true;
+        fs.existsSync(path.join(datapath, 'meta.json.bak')).should.be.true;
     });
 
     it('Creates 10 databases on open, randomly reopens and closes', () => {

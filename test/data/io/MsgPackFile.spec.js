@@ -4,7 +4,7 @@ chai.should();
 import path from 'path';
 import fs from 'fs';
 import Chance from 'chance';
-import clab from '../../../index';
+import clab from '../../../src/index';
 import * as fixtures from '../../fixtures';
 
 const chance = new Chance();

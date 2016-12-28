@@ -10,15 +10,6 @@ class DataEvent extends BaseEvent {
 
         this.time = time;
         this.value = value;
-        this._channelRef = null;
-    }
-
-    get channelRef() {
-        return this._channelRef;
-    }
-
-    set channelRef(val) {
-        this._channelRef = val;
     }
 
     toObject() {

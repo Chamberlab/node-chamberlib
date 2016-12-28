@@ -1,10 +1,11 @@
 import assert from 'assert';
+import uuid4 from 'uuid4';
+import through from 'through';
 
 import BaseNode from '../BaseNode';
 import Time from '../../quantities/Time';
 import Voltage from '../../quantities/Voltage';
 import LMDB from '../../data/io/LMDB';
-import EventOutputStream from '../../streams/EventOutputStream';
 
 class LMDBNode extends BaseNode {
     constructor() {
@@ -22,7 +23,9 @@ class LMDBNode extends BaseNode {
             channel._isDirty = true;
             channel.timeRange = null;
             channel.valueRange = null;
+            channel.uuid = key;
             this._channels[key] = channel;
+            this._channels[key].timeRange = this.getTimeRange(key);
         });
     }
 
@@ -88,93 +91,105 @@ class LMDBNode extends BaseNode {
         _self._lmdb.abort(txnUUID);
 
         channel.valueRange = { min: min.map((val, i) => {
-                return new Voltage(val, units[i]);
-            }), max: max.map((val, i) => {
-                return new Voltage(val, units[i]);
-            })
+            return new Voltage(val, units[i]);
+        }), max: max.map((val, i) => {
+            return new Voltage(val, units[i]);
+        })
         };
 
         return channel.valueRange;
     }
 
-    createOutput(channelKey, startTime = new Time(0.0), convertFrames = true) {
+    createOutput(channelKey, startTime = new Time(0.0), endTime = new Time(0.0), convertFrames = false) {
         assert(this._lmdb !== null);
 
         assert(typeof channelKey === 'string');
         assert(this._channels.hasOwnProperty(channelKey));
 
-        const _self = this;
         let output = {
+            uuid: uuid4(),
             db: channelKey,
-            stream: new EventOutputStream(_self),
+            stream: through(),
             convertFrames: convertFrames,
             hasNext: true,
+            startTime: startTime,
+            endTime: endTime,
+            currentKey: null,
             paused: false,
+            position: 0,
             eventBuffer: []
         };
 
-        output.txnUUID = this._lmdb.begin(channelKey);
-        output.cursorUUID = this._lmdb.cursor(channelKey, output.txnUUID);
-        this._lmdb.gotoRange(channelKey, output.cursorUUID, startTime);
+        this._outputs[output.uuid] = output;
 
-        this._outputs[output.stream.uuid] = output;
+        output.txnUUID = this._lmdb.begin(output.db);
+        output.cursorUUID = this._lmdb.cursor(output.db, output.txnUUID);
 
-        // this.startOutput(output.stream.uuid);
-
-        return output.stream.uuid;
+        return output.uuid;
     }
 
     startOutput(uuid) {
-        let output = this._outputs[uuid];
-        assert(output instanceof Object);
-        if (!output.stream.meta) {
-            output.stream.meta = this._channels[output.db];
+        assert(this._outputs[uuid] instanceof Object);
+        const output = this._outputs[uuid],
+            _self = this;
+
+        if (output.currentKey) {
+            this._lmdb.gotoKey(output.db, output.cursorUUID, output.currentKey);
+        } else {
+            this._lmdb.gotoRange(output.db, output.cursorUUID, output.startTime);
         }
 
-        if (output.paused) {
-            output.paused = false;
-        }
-        while (!output.paused) {
+        let lastType;
+        while (!output.stream.paused) {
             if (output.eventBuffer.length === 0 && output.hasNext) {
                 if (output.convertFrames) {
                     output.eventBuffer = this._lmdb.getCurrentEvents(output.db, output.cursorUUID);
                 } else {
                     output.eventBuffer = [this._lmdb.getCurrentFrame(output.db, output.cursorUUID)];
                 }
-                if (!this._lmdb.gotoNext(output.cursorUUID)) {
+                output.currentKey = this._lmdb.gotoNext(output.cursorUUID);
+                if (!output.currentKey) {
                     output.hasNext = false;
                 }
             } else if (output.eventBuffer.length === 0 && !output.hasNext) {
-                this.endOutput(uuid);
-            } else if (output.eventBuffer.length > 0) {
-                output.stream.addEvent(output.eventBuffer.shift());
+                return this.endOutput(uuid);
+            }
+            if (output.eventBuffer.length > 0) {
+                let event = output.eventBuffer.shift();
+                if (output.endTime.normalized() > 0 && event.time.normalized() >= output.endTime.normalized()) {
+                    return this.endOutput(uuid);
+                }
+                output.stream.queue(event);
+                lastType = event.constructor.name;
+                this.addStats('out', lastType);
             }
         }
-    }
 
-    pauseOutput(uuid) {
-        let output = this._outputs[uuid];
-        assert(output instanceof Object);
-
-        output.paused = true;
+        setTimeout(function () {
+            _self.startOutput(uuid);
+        }, 10);
     }
 
     endOutput(uuid) {
         let output = this._outputs[uuid];
         assert(output instanceof Object);
 
-        output.paused = true;
-        output.stream.EOF();
+        output.stream.queue(null);
+        this.addStats('out', 'null', 0);
 
         this._lmdb.closeCursor(output.cursorUUID);
         this._lmdb.abort(output.txnUUID);
 
+        this._outputs[uuid] = null;
         output = null;
-        // TODO: clean up properly after ending a stream
     }
 
     get outputs() {
         return this._outputs;
+    }
+
+    get meta() {
+        return this._lmdb.meta;
     }
 }
 

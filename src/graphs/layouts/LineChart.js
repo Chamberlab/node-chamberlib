@@ -16,8 +16,8 @@ class LineChart extends BaseGraph {
             y = d3env.d3.scale.linear().range([d3env.height, 0]);
 
         let line = d3env.d3.svg.line()
-            .x(function(d) { return x(d.x); })
-            .y(function(d) { return y(d.y); });
+            .x((d) => { return x(d.x); })
+            .y((d) => { return y(d.y); });
 
         x.domain([d3env.minX, d3env.maxX]);
         y.domain([d3env.minY, d3env.maxY]);
@@ -46,6 +46,8 @@ class LineChart extends BaseGraph {
                 .style("stroke-width", "0.8")
                 .attr("d", line(layerData[i]));
         }
+
+        // TODO: plotter croaks on very large values because of axis ticks
 
         if (d3env.layoutConfig.yAxis.show) {
             d3env.yAxis = d3env.d3.svg.axis().scale(y)
