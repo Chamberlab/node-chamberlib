@@ -9,7 +9,7 @@ import DataFrame from '../../events/DataFrame';
 import DataEvent from '../../events/DataEvent';
 import Time from '../../quantities/Time';
 import Voltage from '../../quantities/Voltage';
-import LMDB from '../../data/io/LMDB';
+import LMDB from '../../io/db/LMDB';
 
 class LMDBNode extends BaseNode {
     constructor() {

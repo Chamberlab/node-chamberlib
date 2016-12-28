@@ -20,7 +20,7 @@ describe('cl.data.io.LMDB', () => {
             fs.mkdirSync(datapath);
         }
 
-        lmdb = new clab.data.io.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
+        lmdb = new clab.io.db.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
         lmdb.once('updated', () => {
             cb();
         });

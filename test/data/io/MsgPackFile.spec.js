@@ -23,7 +23,7 @@ describe('cl.data.io.MsgPackFile', () => {
     });
 
     it('Stores a DataChannel with 10k DataEvents', () => {
-        let file = new clab.data.io.MsgPackFile(),
+        let file = new clab.io.file.MsgPackFile(),
             tstart = Date.now();
         return file.write(filepath, channel)
             .then(() => {
@@ -36,7 +36,7 @@ describe('cl.data.io.MsgPackFile', () => {
     });
 
     it('Reads the DataChannel with 10k DataEvents back in', () => {
-        let file = new clab.data.io.MsgPackFile();
+        let file = new clab.io.file.MsgPackFile();
         let tstart = Date.now();
         return file.read(filepath)
             .then((data) => {

@@ -6,7 +6,7 @@ import assert from 'assert';
 import uuid4 from 'uuid4';
 
 import BaseDB from './BaseDB';
-import JSONFile from './JSONFile';
+import JSONFile from '../file/JSONFile';
 import DataEvent from '../../events/DataEvent';
 import DataFrame from '../../events/DataFrame';
 import Time from '../../quantities/Time';

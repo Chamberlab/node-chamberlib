@@ -1,11 +1,11 @@
 import assert from 'assert';
 import Promise from 'bluebird';
 
-import JSONFile from '../JSONFile';
-import DataEvent from '../../../events/DataEvent';
-import Time from '../../../quantities/Time';
-import Voltage from '../../../quantities/Voltage';
-import DataChannel from '../../DataChannel';
+import JSONFile from '../file/JSONFile';
+import DataEvent from '../../events/DataEvent';
+import Time from '../../quantities/Time';
+import Voltage from '../../quantities/Voltage';
+import DataChannel from '../../data/DataChannel';
 
 class SpiketrainsOE extends JSONFile {
     constructor() {

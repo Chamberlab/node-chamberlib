@@ -2,7 +2,7 @@ import path from 'path';
 
 import DataChannel from './DataChannel';
 import BaseCollection from './BaseCollection';
-import JSONFile from './io/JSONFile';
+import JSONFile from '../io/file/JSONFile';
 
 class DataSet extends BaseCollection {
     constructor(channels, title = undefined, uuid = undefined) {

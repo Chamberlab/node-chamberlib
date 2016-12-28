@@ -1,6 +1,6 @@
 import BaseCollection from './BaseCollection';
 import Track from './Track';
-import MidiFile from './io/MidiFile';
+import MidiFile from '../io/file/MidiFile';
 
 class Song extends BaseCollection {
     constructor(items, bpm = 120, uuid = undefined) {

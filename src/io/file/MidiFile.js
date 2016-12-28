@@ -1,7 +1,7 @@
 import assert from 'assert';
 import fs from 'pn/fs';
 import * as midi from 'jsmidgen';
-import Song from '../Song';
+import Song from '../../data/Song';
 import Note from '../../harmonics/Note';
 import Chord from '../../harmonics/Chord';
 import TonalEvent from '../../events/TonalEvent';

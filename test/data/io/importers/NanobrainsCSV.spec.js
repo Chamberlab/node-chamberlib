@@ -6,7 +6,7 @@ import clab from '../../../../src/index';
 
 describe('cl.data.io.importers.NanobrainsCSV', () => {
     it('Reads and parses a nanobrains file', () => {
-        let nano = new clab.data.io.importers.NanobrainsCSV();
+        let nano = new clab.io.importers.NanobrainsCSV();
         let tstart = Date.now();
         return nano.read(path.join(__dirname, '..', '..', '..', 'assets', 'nanobrains.csv'))
             .then(() => {

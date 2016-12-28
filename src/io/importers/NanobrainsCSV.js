@@ -1,11 +1,11 @@
 import Promise from 'bluebird';
 import transform from 'stream-transform';
-import CSVFile from '../CSVFile';
-import DataSet from '../../DataSet';
-import DataChannel from '../../DataChannel';
-import DataEvent from '../../../events/DataEvent';
-import Time from '../../../quantities/Time';
-import Voltage from '../../../quantities/Voltage';
+import CSVFile from '../file/CSVFile';
+import DataSet from '../../data/DataSet';
+import DataChannel from '../../data/DataChannel';
+import DataEvent from '../../events/DataEvent';
+import Time from '../../quantities/Time';
+import Voltage from '../../quantities/Voltage';
 
 class NanobrainsCSV extends CSVFile {
     constructor() {
