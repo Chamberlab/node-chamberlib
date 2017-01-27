@@ -30,6 +30,17 @@ class OSC extends BaseNet {
         });
     }
 
+    enableSendFromStream(targetIp, targetPort) {
+        this._stream.on('data', data => {
+            if (!Array.isArray(data)) {
+                data = [data];
+            }
+            data.map(data => {
+
+            });
+        });
+    }
+
     disable() {
         this._active = false;
     }

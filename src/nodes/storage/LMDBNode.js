@@ -23,14 +23,15 @@ class LMDBNode extends BaseNode {
 
     openDataSet(datapath, readOnly = true) {
         this._lmdb = new LMDB(datapath, readOnly);
-        Object.keys(this._lmdb._meta.DataSet.DataChannels).forEach((key) => {
-            let channel = this._lmdb._meta.DataSet.DataChannels[key];
+        const _this = this;
+        Object.keys(_this._lmdb._meta.DataSet.DataChannels).forEach((key) => {
+            let channel = _this._lmdb._meta.DataSet.DataChannels[key];
             channel._isDirty = true;
             channel.timeRange = null;
             channel.valueRange = null;
             channel.uuid = key;
-            this._channels[key] = channel;
-            this._channels[key].timeRange = this.getTimeRange(key);
+            _this._channels[key] = channel;
+            _this._channels[key].timeRange = _this.getTimeRange(key);
         });
     }
 
@@ -224,6 +225,9 @@ class LMDBNode extends BaseNode {
     }
 
     startOutput(uuid) {
+        if (!this._outputs[uuid]) {
+            return;
+        }
         assert(this._outputs[uuid] instanceof Object);
         const output = this._outputs[uuid],
             _self = this;

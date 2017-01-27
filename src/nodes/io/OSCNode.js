@@ -47,6 +47,10 @@ class OSCNode extends BaseNode {
         this._inputPort.disable();
     }
 
+    get input() {
+        return this._inputPort.stream;
+    }
+
     get output() {
         return this._inputPort.stream;
     }
