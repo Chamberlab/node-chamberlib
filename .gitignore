@@ -6,5 +6,4 @@ lock.mdb
 node_modules
 sets
 data/*
-dist/
 !.gitkeep
