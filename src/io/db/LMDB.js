@@ -147,7 +147,7 @@ class LMDB extends BaseDB {
         } else {
             _self._cursors[cursorUUID].getCurrentNumber((_key, _val) => {
                 if (discardKey) {
-                     res = _val;
+                    res = _val;
                 } else {
                     res = {
                         key: _key.toString('ucs2'),
@@ -292,22 +292,22 @@ class LMDB extends BaseDB {
 
     _getArrayClass(typeString) {
         switch (typeString) {
-            case 'Float32':
-                return Float32Array;
-            case 'Float64':
-                return Float32Array;
-            case 'Int32':
-                return Int32Array;
-            case 'Uint32':
-                return Uint32Array;
-            case 'Int16':
-                return Int32Array;
-            case 'Uint16':
-                return Uint32Array;
-            case 'Int8':
-                return Int8Array;
-            case 'Uint8':
-                return Uint8Array;
+        case 'Float32':
+            return Float32Array;
+        case 'Float64':
+            return Float32Array;
+        case 'Int32':
+            return Int32Array;
+        case 'Uint32':
+            return Uint32Array;
+        case 'Int16':
+            return Int32Array;
+        case 'Uint16':
+            return Uint32Array;
+        case 'Int8':
+            return Int8Array;
+        case 'Uint8':
+            return Uint8Array;
         }
     }
 

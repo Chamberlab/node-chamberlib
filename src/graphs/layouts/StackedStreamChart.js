@@ -18,7 +18,7 @@ class StackedStreamChart extends BaseGraph {
 
         d3env.layoutConfig = require('../../../config/layouts/StackedStreamChart.json');
 
-        let stack = d3env.d3.layout.stack().offset("wiggle"),
+        let stack = d3env.d3.layout.stack().offset('wiggle'),
             layers = stack(d3env.d3.range(layerData.length).map(function (i) {
                 return layerData[i];
             }));
@@ -28,7 +28,7 @@ class StackedStreamChart extends BaseGraph {
             .range([0, d3env.width]);
 
         d3env.xAxis = d3env.d3.svg.axis().scale(x)
-            .orient("bottom").ticks(d3env.duration * 0.1);
+            .orient('bottom').ticks(d3env.duration * 0.1);
 
         let ymax = d3env.d3.max(layers, function (layer) {
                 return d3env.d3.max(layer, function (d) {
@@ -52,14 +52,14 @@ class StackedStreamChart extends BaseGraph {
 
         let colourList = new ColourTable(layerData.length, 5);
 
-        g.selectAll("svg:path")
+        g.selectAll('svg:path')
             .data(layers)
-            .enter().append("svg:path")
-            .attr("d", area)
-            .style("stroke", (d, i) => {
+            .enter().append('svg:path')
+            .attr('d', area)
+            .style('stroke', (d, i) => {
                 return colourList.colours[i];
             })
-            .style("fill", (d, i) => {
+            .style('fill', (d, i) => {
                 return colourList.colours[i];
             });
 

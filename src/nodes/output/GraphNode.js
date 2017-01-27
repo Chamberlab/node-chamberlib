@@ -51,7 +51,7 @@ class GraphNode extends BaseNode {
         });
 
         this._input.once('error', function (err) {
-            console.log('graph stream error', err.message);
+            throw new Error('graph stream error', err.message);
         });
     }
 

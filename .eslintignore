@@ -1,4 +1,4 @@
-build/
-dist/
-bin/
-test/
+/build/**/*
+/dist/**/*
+/bin/*
+/test/**/*

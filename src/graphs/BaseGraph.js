@@ -35,7 +35,7 @@ class BaseGraph {
                         });
                 }, {concurrency: 1})
                 .then((graphs) => {
-                    console.log(`Creating graph for all channels`);
+                    console.log('Creating graph for all channels');
                     return Promise.promisify(_self.jsdomEnv)(_self.d3env, _self.layerData, d3env.g,
                         _self.drawContent, _self.quantize ? _self.quantizeData : null)
                         .then((data) => {
@@ -69,12 +69,12 @@ class BaseGraph {
                     .attr('class','container').append('g')
                     .attr('transform',`translate(${d3env.config.margins.left}, ${d3env.config.margins.top})`);
 
-                g.append("rect")
-                    .attr("x", 0 - d3env.config.margins.left)
-                    .attr("y", 0 - d3env.config.margins.top)
-                    .attr("width", d3env.docWidth + d3env.config.margins.left)
-                    .attr("height", d3env.docHeight)
-                    .style("stroke", "none").style("fill", "black");
+                g.append('rect')
+                    .attr('x', 0 - d3env.config.margins.left)
+                    .attr('y', 0 - d3env.config.margins.top)
+                    .attr('width', d3env.docWidth + d3env.config.margins.left)
+                    .attr('height', d3env.docHeight)
+                    .style('stroke', 'none').style('fill', 'black');
 
                 Promise.resolve()
                     .then(() => {
@@ -119,13 +119,13 @@ class BaseGraph {
         return Promise.map(dataSet.all, Promise.coroutine(function* (channel) {
             let last_t = 0.0,
                 events = channel.all.sort(function (a, b) {
-                if (a.time.normalized() > b.time.normalized()) {
-                    return 1;
-                } else if (a.time.normalized() < b.time.normalized()) {
-                    return -1;
-                }
-                return 0;
-            });
+                    if (a.time.normalized() > b.time.normalized()) {
+                        return 1;
+                    } else if (a.time.normalized() < b.time.normalized()) {
+                        return -1;
+                    }
+                    return 0;
+                });
 
             let stats = channel.stats;
             _self.d3env.channels.push(channel.uuid);

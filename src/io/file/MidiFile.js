@@ -6,15 +6,15 @@ import Note from '../../harmonics/Note';
 import Chord from '../../harmonics/Chord';
 import TonalEvent from '../../events/TonalEvent';
 
-const TICKS_PER_BEAT = 128;
+// const TICKS_PER_BEAT = 128;
 
 class MidiFile {
     static write(song, filename) {
         assert(song instanceof Song);
         assert(typeof filename === 'string');
 
-        let ticksPerSec = (song.bpm * TICKS_PER_BEAT) / 60.0,
-            ticks = 0,
+        let // ticksPerSec = (song.bpm * TICKS_PER_BEAT) / 60.0,
+            // ticks = 0,
             layout = [],
             file = new midi.File();
         song.all.map((channel) => {
@@ -42,16 +42,16 @@ class MidiFile {
         });
 
         layout.map((lt) => {
-            let track = new midi.Track(),
-                last_t = 0;
+            let track = new midi.Track();
+                // last_t = 0;
             lt.map((event) => {
                 if (event.value instanceof Note) {
                     track.addNote(1, event.value.toMidi());
                 } else if (event.value instanceof Chord) {
                     track.addChord(1, event.value.toMidi());
                 }
-                ticks += (event.value.time.normalized() - last_t) ;
-                last_t = event.value.time.normalized() * ticksPerSec;
+                // ticks += (event.value.time.normalized() - last_t) ;
+                // last_t = event.value.time.normalized() * ticksPerSec;
             });
             file.addTrack(track);
         });

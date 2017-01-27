@@ -30,14 +30,17 @@ class OSC extends BaseNet {
         });
     }
 
-    enableSendFromStream(targetIp, targetPort) {
+    enableSendFromStream(/* targetIp, targetPort */) {
+        // TODO: complete osc implementation
         this._stream.on('data', data => {
             if (!Array.isArray(data)) {
                 data = [data];
             }
+            /*
             data.map(data => {
 
             });
+            */
         });
     }
 
@@ -49,9 +52,9 @@ class OSC extends BaseNet {
         assert(this._port !== null, 'Port is undefined.');
         const _self = this;
         this._bundleTransformFunc = transformFunc;
-        this._port.on("bundle", function (bundle, timeTag, info) {
-            console.log("An OSC bundle just arrived for time tag", timeTag, ":");
-            console.log("Remote info is: ", info);
+        this._port.on('bundle', function (bundle, timeTag, info) {
+            console.log('An OSC bundle just arrived for time tag', timeTag, ':');
+            console.log('Remote info is: ', info);
             return Promise.resolve(_self._bundleTransform(bundle))
                 .then((data) => {
                     _self._inputBuffer.push(data);
@@ -71,7 +74,7 @@ class OSC extends BaseNet {
         assert(this._port !== null, 'Port is undefined.');
         const _self = this;
         this._messageTransformFunc = transformFunc;
-        this._port.on("message", (message) => {
+        this._port.on('message', (message) => {
             return Promise.resolve(_self._messageTransform(message))
                 .then((data) => {
                     if (_self._active) {

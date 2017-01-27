@@ -98,12 +98,12 @@ class BaseQuantity {
     static validateFloatInput(value) {
         let type = typeof value;
         switch (type) {
-            case 'number':
-                return value;
-            case 'string':
-                return parseFloat(value);
-            default:
-                throw new TypeError(`Expected float or string but got: ${type}`);
+        case 'number':
+            return value;
+        case 'string':
+            return parseFloat(value);
+        default:
+            throw new TypeError(`Expected float or string but got: ${type}`);
         }
     }
 }
