@@ -3,7 +3,7 @@
 const gulp = require('gulp'),
     jshint = require('gulp-jshint'),
     babel = require('gulp-babel'),
-    del = require('del');
+    trash = require('trash');
 
 gulp.task('lint', () => {
     return gulp.src(['./src/**/*.js'])
@@ -19,7 +19,7 @@ gulp.task('build', ['lint'], () => {
 });
 
 gulp.task('clean', () => {
-    return del('./dist');
+    return trash('./dist');
 });
 
 gulp.task('default', ['lint']);

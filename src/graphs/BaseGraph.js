@@ -2,6 +2,8 @@ import * as d3 from 'd3';
 import jsdom from 'jsdom';
 import Promise from 'bluebird';
 
+// FIXME: update this to use d3 4.x
+
 class BaseGraph {
     constructor() {
         this._d3env = {};
