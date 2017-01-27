@@ -1,6 +1,6 @@
 {
   "name": "chamberlib",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lib for lab.",
   "main": "dist/index.js",
   "scripts": {
@@ -27,7 +27,6 @@
     "babel-preset-stage-0": "^6.16.0",
     "babel-register": "^6.18.0",
     "chai": "^3.5.0",
-    "chance": "^1.0.4",
     "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
@@ -36,19 +35,20 @@
     "gulp-sourcemaps": "^1.9.1",
     "jshint": "^2.9.4",
     "jshint-stylish": "^2.2.1",
-    "memwatch-next": "^0.3.0",
     "mocha": "^3.2.0",
     "sinon": "^1.17.6"
   },
   "dependencies": {
     "babel-runtime": "^6.20.0",
     "bluebird": "^3.4.6",
+    "chance": "^1.0.4",
     "csv-parse": "^1.1.7",
     "d3": "^3.5.5",
     "jsdom": "^9.9.1",
     "jsmidgen": "^0.1.5",
     "levenshtein": "^1.0.5",
     "mathjs": "^3.8.1",
+    "memwatch-next": "^0.3.0",
     "msgpack": "^1.0.2",
     "node-lmdb": "^0.4.3",
     "osc": "^2.1.0",
