@@ -4,7 +4,7 @@ const gulp = require('gulp'),
     jshint = require('gulp-jshint'),
     eslint = require('gulp-eslint'),
     babel = require('gulp-babel'),
-    trash = require('trash');
+    del = require('del');
 
 gulp.task('lint', () => {
     return gulp.src(['./src/**/*.js'])
@@ -23,7 +23,7 @@ gulp.task('build', () => {
 });
 
 gulp.task('clean', () => {
-    return trash('./dist');
+    return del('./dist');
 });
 
 gulp.task('default', ['lint']);
