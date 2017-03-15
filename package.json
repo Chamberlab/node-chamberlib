@@ -38,7 +38,7 @@
     "jshint": "^2.9.4",
     "jshint-stylish": "^2.2.1",
     "mocha": "^3.2.0",
-    "sinon": "^1.17.6"
+    "sinon": "^2.0.0"
   },
   "dependencies": {
     "babel-runtime": "^6.20.0",
