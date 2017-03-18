@@ -49,6 +49,7 @@ describe('cl.data.io.JSONFile', () => {
                     event.value.normalized().should.be.equal(channel.at(i).value.normalized());
                 });
                 */
+                discardFile = true;
             });
     });
 });

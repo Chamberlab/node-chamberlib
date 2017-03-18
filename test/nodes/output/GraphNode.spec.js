@@ -32,5 +32,6 @@ describe('cl.nodes.output.GraphNode', () => {
         random.stream.pipe(graph.input);
         random.startOutput();
         */
+        cb();
     });
 });

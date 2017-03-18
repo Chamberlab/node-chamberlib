@@ -49,6 +49,7 @@ describe('cl.data.io.MsgPackFile', () => {
                     event.value.normalized().should.be.equal(channel.at(i).value.normalized());
                 });
                 */
+                discardFile = true;
             });
     });
 });

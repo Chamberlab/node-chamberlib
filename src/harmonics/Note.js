@@ -19,7 +19,7 @@ class Note {
     // Conversion
 
     toString() {
-        return this.key + this.octave.toString();
+        return this.key + (this.octave ? this.octave.toString() : '');
     }
 
     fromString(input) {
@@ -40,6 +40,8 @@ class Note {
             if (res.length === 1) {
                 _self.key = res[0];
             }
+        } else {
+            _self.key = input;
         }
 
         return this;
@@ -55,7 +57,8 @@ class Note {
 
 
     toMidi() {
-        return tonal.note.midi(this.toString());
+        const str = this.toString();
+        return tonal.note.midi(str);
     }
 
     fromMidi(value) {

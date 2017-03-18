@@ -4,6 +4,7 @@ const chance = new Chance();
 import data from '../src/data';
 import events from '../src/events';
 import quantities from '../src/quantities';
+import harmonics from '../src/harmonics';
 
 const quants = [
     quantities.Datasize,
@@ -31,9 +32,9 @@ export function makeQuantity(valClass = chance.pickone(quants)) {
     return new valClass(chance.floating({min: Math.MIN_VALUE, max: Math.MAX_VALUE}), 'ms');
 }
 
-export function makeTime() {
+export function makeTime(startAtZero = false, max) {
     // TODO: keys and negative time values - will it sort?!? implement integer keys as well...
-    return new quantities.Time(chance.floating({min: Math.pow(10, 6) * -1.0, max: Math.pow(10, 6)}), 'ms');
+    return new quantities.Time(chance.floating({min: startAtZero ? 0.0 : Math.pow(10, 6) * -1.0, max: max ? max : Math.pow(10, 6)}), 'ms');
 }
 
 export function makeLMDBMeta(dir, title) {
@@ -59,4 +60,17 @@ export function makeLMDBMeta(dir, title) {
         labels: [chance.word({ syllables: 2 })]
     };
     return meta;
+}
+
+export function makeTonalEvent(maxTime = 60000) {
+    return new events.TonalEvent(makeTime(true, maxTime), new harmonics.Note(chance.pickone(['C', 'D', 'E', 'F', 'G']), 3), makeTime(true, 6000));
+}
+
+export function makeSong() {
+    const items = new Array(32).fill(0).map(() => {
+            return makeTonalEvent();
+        }),
+        channel = new data.DataChannel(items, chance.word(), chance.hash()),
+        channels = [channel];
+    return new data.Song(channels);
 }
