@@ -4,38 +4,29 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
-
-var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
-
-var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
-
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
-
-var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-var _inherits2 = require('babel-runtime/helpers/inherits');
-
-var _inherits3 = _interopRequireDefault(_inherits2);
-
 var _tinyEmitter = require('tiny-emitter');
 
 var _tinyEmitter2 = _interopRequireDefault(_tinyEmitter);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var BaseNet = function (_Emitter) {
-    (0, _inherits3.default)(BaseNet, _Emitter);
+    _inherits(BaseNet, _Emitter);
 
     function BaseNet() {
-        (0, _classCallCheck3.default)(this, BaseNet);
-        return (0, _possibleConstructorReturn3.default)(this, (BaseNet.__proto__ || (0, _getPrototypeOf2.default)(BaseNet)).call(this));
+        _classCallCheck(this, BaseNet);
+
+        return _possibleConstructorReturn(this, (BaseNet.__proto__ || Object.getPrototypeOf(BaseNet)).call(this));
     }
 
     return BaseNet;
 }(_tinyEmitter2.default);
 
 exports.default = BaseNet;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImlvL25ldC9CYXNlTmV0LmpzIl0sIm5hbWVzIjpbIkJhc2VOZXQiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQTs7Ozs7O0lBRU1BLE87OztBQUNGLHVCQUFjO0FBQUE7QUFBQTtBQUViOzs7OztrQkFHVUEsTyIsImZpbGUiOiJpby9uZXQvQmFzZU5ldC5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBFbWl0dGVyIGZyb20gJ3RpbnktZW1pdHRlcic7XG5cbmNsYXNzIEJhc2VOZXQgZXh0ZW5kcyBFbWl0dGVyIHtcbiAgICBjb25zdHJ1Y3RvcigpIHtcbiAgICAgICAgc3VwZXIoKTtcbiAgICB9XG59XG5cbmV4cG9ydCBkZWZhdWx0IEJhc2VOZXQ7Il19
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImlvL25ldC9CYXNlTmV0LmpzIl0sIm5hbWVzIjpbIkJhc2VOZXQiXSwibWFwcGluZ3MiOiI7Ozs7OztBQUFBOzs7Ozs7Ozs7Ozs7SUFFTUEsTzs7O0FBQ0YsdUJBQWM7QUFBQTs7QUFBQTtBQUViOzs7OztrQkFHVUEsTyIsImZpbGUiOiJpby9uZXQvQmFzZU5ldC5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBFbWl0dGVyIGZyb20gJ3RpbnktZW1pdHRlcic7XG5cbmNsYXNzIEJhc2VOZXQgZXh0ZW5kcyBFbWl0dGVyIHtcbiAgICBjb25zdHJ1Y3RvcigpIHtcbiAgICAgICAgc3VwZXIoKTtcbiAgICB9XG59XG5cbmV4cG9ydCBkZWZhdWx0IEJhc2VOZXQ7Il19

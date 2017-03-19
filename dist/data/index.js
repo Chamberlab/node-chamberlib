@@ -12,9 +12,13 @@ var _DataSet = require('./DataSet');
 
 var _DataSet2 = _interopRequireDefault(_DataSet);
 
-var _Song = require('./Song');
+var _Song = require('../data/Song');
 
 var _Song2 = _interopRequireDefault(_Song);
+
+var _Track = require('../data/Track');
+
+var _Track2 = _interopRequireDefault(_Track);
 
 var _lut = require('./lut');
 
@@ -26,6 +30,7 @@ exports.default = {
     DataChannel: _DataChannel2.default,
     DataSet: _DataSet2.default,
     Song: _Song2.default,
+    Track: _Track2.default,
     lut: _lut2.default
 };
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImRhdGEvaW5kZXguanMiXSwibmFtZXMiOlsiRGF0YUNoYW5uZWwiLCJEYXRhU2V0IiwiU29uZyIsImx1dCJdLCJtYXBwaW5ncyI6Ijs7Ozs7O0FBQUE7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7OztrQkFFZTtBQUNYQSxzQ0FEVztBQUVYQyw4QkFGVztBQUdYQyx3QkFIVztBQUlYQztBQUpXLEMiLCJmaWxlIjoiZGF0YS9pbmRleC5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBEYXRhQ2hhbm5lbCBmcm9tICcuL0RhdGFDaGFubmVsJztcbmltcG9ydCBEYXRhU2V0IGZyb20gJy4vRGF0YVNldCc7XG5pbXBvcnQgU29uZyBmcm9tICcuL1NvbmcnO1xuaW1wb3J0IGx1dCBmcm9tICcuL2x1dCc7XG5cbmV4cG9ydCBkZWZhdWx0IHtcbiAgICBEYXRhQ2hhbm5lbCxcbiAgICBEYXRhU2V0LFxuICAgIFNvbmcsXG4gICAgbHV0XG59OyJdfQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImRhdGEvaW5kZXguanMiXSwibmFtZXMiOlsiRGF0YUNoYW5uZWwiLCJEYXRhU2V0IiwiU29uZyIsIlRyYWNrIiwibHV0Il0sIm1hcHBpbmdzIjoiOzs7Ozs7QUFBQTs7OztBQUNBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7Ozs7a0JBRWU7QUFDWEEsc0NBRFc7QUFFWEMsOEJBRlc7QUFHWEMsd0JBSFc7QUFJWEMsMEJBSlc7QUFLWEM7QUFMVyxDIiwiZmlsZSI6ImRhdGEvaW5kZXguanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgRGF0YUNoYW5uZWwgZnJvbSAnLi9EYXRhQ2hhbm5lbCc7XG5pbXBvcnQgRGF0YVNldCBmcm9tICcuL0RhdGFTZXQnO1xuaW1wb3J0IFNvbmcgZnJvbSAnLi4vZGF0YS9Tb25nJztcbmltcG9ydCBUcmFjayBmcm9tICcuLi9kYXRhL1RyYWNrJztcbmltcG9ydCBsdXQgZnJvbSAnLi9sdXQnO1xuXG5leHBvcnQgZGVmYXVsdCB7XG4gICAgRGF0YUNoYW5uZWwsXG4gICAgRGF0YVNldCxcbiAgICBTb25nLFxuICAgIFRyYWNrLFxuICAgIGx1dFxufTsiXX0=

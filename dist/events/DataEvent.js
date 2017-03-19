@@ -4,25 +4,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
-
-var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
-
-var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
-
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _createClass2 = require('babel-runtime/helpers/createClass');
-
-var _createClass3 = _interopRequireDefault(_createClass2);
-
-var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
-
-var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-var _inherits2 = require('babel-runtime/helpers/inherits');
-
-var _inherits3 = _interopRequireDefault(_inherits2);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _BaseEvent2 = require('./BaseEvent');
 
@@ -50,27 +32,34 @@ var _Datasize2 = _interopRequireDefault(_Datasize);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var DataEvent = function (_BaseEvent) {
-    (0, _inherits3.default)(DataEvent, _BaseEvent);
+    _inherits(DataEvent, _BaseEvent);
 
     function DataEvent(time, value) {
-        (0, _classCallCheck3.default)(this, DataEvent);
+        _classCallCheck(this, DataEvent);
 
-        var _this = (0, _possibleConstructorReturn3.default)(this, (DataEvent.__proto__ || (0, _getPrototypeOf2.default)(DataEvent)).call(this, time, value, [_BaseQuantity2.default, _Voltage2.default, _Frequency2.default, _Time2.default, _Datasize2.default]));
+        var _this = _possibleConstructorReturn(this, (DataEvent.__proto__ || Object.getPrototypeOf(DataEvent)).call(this, time, value, [_BaseQuantity2.default, _Voltage2.default, _Frequency2.default, _Time2.default, _Datasize2.default]));
 
         _this.time = time;
         _this.value = value;
         return _this;
     }
 
-    (0, _createClass3.default)(DataEvent, [{
+    _createClass(DataEvent, [{
         key: 'toObject',
         value: function toObject() {
             return { t: this.time.normalized(), v: this.value.normalized() };
         }
     }]);
+
     return DataEvent;
 }(_BaseEvent3.default);
 
 exports.default = DataEvent;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImV2ZW50cy9EYXRhRXZlbnQuanMiXSwibmFtZXMiOlsiRGF0YUV2ZW50IiwidGltZSIsInZhbHVlIiwidCIsIm5vcm1hbGl6ZWQiLCJ2Il0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUFBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7O0lBRU1BLFM7OztBQUNGLHVCQUFZQyxJQUFaLEVBQWtCQyxLQUFsQixFQUF5QjtBQUFBOztBQUFBLGdKQUNmRCxJQURlLEVBQ1RDLEtBRFMsRUFDRixvR0FERTs7QUFHckIsY0FBS0QsSUFBTCxHQUFZQSxJQUFaO0FBQ0EsY0FBS0MsS0FBTCxHQUFhQSxLQUFiO0FBSnFCO0FBS3hCOzs7O21DQUVVO0FBQ1AsbUJBQU8sRUFBRUMsR0FBRyxLQUFLRixJQUFMLENBQVVHLFVBQVYsRUFBTCxFQUE2QkMsR0FBRyxLQUFLSCxLQUFMLENBQVdFLFVBQVgsRUFBaEMsRUFBUDtBQUNIOzs7OztrQkFHVUosUyIsImZpbGUiOiJldmVudHMvRGF0YUV2ZW50LmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IEJhc2VFdmVudCBmcm9tICcuL0Jhc2VFdmVudCc7XG5pbXBvcnQgQmFzZVF1YW50aXR5IGZyb20gJy4uL3F1YW50aXRpZXMvYmFzZS9CYXNlUXVhbnRpdHknO1xuaW1wb3J0IFZvbHRhZ2UgZnJvbSAnLi4vcXVhbnRpdGllcy9Wb2x0YWdlJztcbmltcG9ydCBGcmVxdWVuY3kgZnJvbSAnLi4vcXVhbnRpdGllcy9GcmVxdWVuY3knO1xuaW1wb3J0IFRpbWUgZnJvbSAnLi4vcXVhbnRpdGllcy9UaW1lJztcbmltcG9ydCBEYXRhc2l6ZSBmcm9tICcuLi9xdWFudGl0aWVzL0RhdGFzaXplJztcblxuY2xhc3MgRGF0YUV2ZW50IGV4dGVuZHMgQmFzZUV2ZW50IHtcbiAgICBjb25zdHJ1Y3Rvcih0aW1lLCB2YWx1ZSkge1xuICAgICAgICBzdXBlcih0aW1lLCB2YWx1ZSwgW0Jhc2VRdWFudGl0eSwgVm9sdGFnZSwgRnJlcXVlbmN5LCBUaW1lLCBEYXRhc2l6ZV0pO1xuXG4gICAgICAgIHRoaXMudGltZSA9IHRpbWU7XG4gICAgICAgIHRoaXMudmFsdWUgPSB2YWx1ZTtcbiAgICB9XG5cbiAgICB0b09iamVjdCgpIHtcbiAgICAgICAgcmV0dXJuIHsgdDogdGhpcy50aW1lLm5vcm1hbGl6ZWQoKSwgdjogdGhpcy52YWx1ZS5ub3JtYWxpemVkKCkgfTtcbiAgICB9XG59XG5cbmV4cG9ydCBkZWZhdWx0IERhdGFFdmVudDsiXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImV2ZW50cy9EYXRhRXZlbnQuanMiXSwibmFtZXMiOlsiRGF0YUV2ZW50IiwidGltZSIsInZhbHVlIiwidCIsIm5vcm1hbGl6ZWQiLCJ2Il0sIm1hcHBpbmdzIjoiOzs7Ozs7OztBQUFBOzs7O0FBQ0E7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7QUFDQTs7Ozs7Ozs7Ozs7O0lBRU1BLFM7OztBQUNGLHVCQUFZQyxJQUFaLEVBQWtCQyxLQUFsQixFQUF5QjtBQUFBOztBQUFBLDBIQUNmRCxJQURlLEVBQ1RDLEtBRFMsRUFDRixvR0FERTs7QUFHckIsY0FBS0QsSUFBTCxHQUFZQSxJQUFaO0FBQ0EsY0FBS0MsS0FBTCxHQUFhQSxLQUFiO0FBSnFCO0FBS3hCOzs7O21DQUVVO0FBQ1AsbUJBQU8sRUFBRUMsR0FBRyxLQUFLRixJQUFMLENBQVVHLFVBQVYsRUFBTCxFQUE2QkMsR0FBRyxLQUFLSCxLQUFMLENBQVdFLFVBQVgsRUFBaEMsRUFBUDtBQUNIOzs7Ozs7a0JBR1VKLFMiLCJmaWxlIjoiZXZlbnRzL0RhdGFFdmVudC5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBCYXNlRXZlbnQgZnJvbSAnLi9CYXNlRXZlbnQnO1xuaW1wb3J0IEJhc2VRdWFudGl0eSBmcm9tICcuLi9xdWFudGl0aWVzL2Jhc2UvQmFzZVF1YW50aXR5JztcbmltcG9ydCBWb2x0YWdlIGZyb20gJy4uL3F1YW50aXRpZXMvVm9sdGFnZSc7XG5pbXBvcnQgRnJlcXVlbmN5IGZyb20gJy4uL3F1YW50aXRpZXMvRnJlcXVlbmN5JztcbmltcG9ydCBUaW1lIGZyb20gJy4uL3F1YW50aXRpZXMvVGltZSc7XG5pbXBvcnQgRGF0YXNpemUgZnJvbSAnLi4vcXVhbnRpdGllcy9EYXRhc2l6ZSc7XG5cbmNsYXNzIERhdGFFdmVudCBleHRlbmRzIEJhc2VFdmVudCB7XG4gICAgY29uc3RydWN0b3IodGltZSwgdmFsdWUpIHtcbiAgICAgICAgc3VwZXIodGltZSwgdmFsdWUsIFtCYXNlUXVhbnRpdHksIFZvbHRhZ2UsIEZyZXF1ZW5jeSwgVGltZSwgRGF0YXNpemVdKTtcblxuICAgICAgICB0aGlzLnRpbWUgPSB0aW1lO1xuICAgICAgICB0aGlzLnZhbHVlID0gdmFsdWU7XG4gICAgfVxuXG4gICAgdG9PYmplY3QoKSB7XG4gICAgICAgIHJldHVybiB7IHQ6IHRoaXMudGltZS5ub3JtYWxpemVkKCksIHY6IHRoaXMudmFsdWUubm9ybWFsaXplZCgpIH07XG4gICAgfVxufVxuXG5leHBvcnQgZGVmYXVsdCBEYXRhRXZlbnQ7Il19

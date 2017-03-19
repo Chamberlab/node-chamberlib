@@ -4,25 +4,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
-
-var _getPrototypeOf2 = _interopRequireDefault(_getPrototypeOf);
-
-var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
-
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _createClass2 = require('babel-runtime/helpers/createClass');
-
-var _createClass3 = _interopRequireDefault(_createClass2);
-
-var _possibleConstructorReturn2 = require('babel-runtime/helpers/possibleConstructorReturn');
-
-var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-var _inherits2 = require('babel-runtime/helpers/inherits');
-
-var _inherits3 = _interopRequireDefault(_inherits2);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _BaseCollection2 = require('./BaseCollection');
 
@@ -38,21 +20,28 @@ var _MidiFile2 = _interopRequireDefault(_MidiFile);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var Song = function (_BaseCollection) {
-    (0, _inherits3.default)(Song, _BaseCollection);
+    _inherits(Song, _BaseCollection);
 
     function Song(items) {
         var bpm = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 120;
         var uuid = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : undefined;
-        (0, _classCallCheck3.default)(this, Song);
 
-        var _this = (0, _possibleConstructorReturn3.default)(this, (Song.__proto__ || (0, _getPrototypeOf2.default)(Song)).call(this, items, _Track2.default, uuid));
+        _classCallCheck(this, Song);
+
+        var _this = _possibleConstructorReturn(this, (Song.__proto__ || Object.getPrototypeOf(Song)).call(this, items, _Track2.default, uuid));
 
         _this._bpm = bpm;
         return _this;
     }
 
-    (0, _createClass3.default)(Song, [{
+    _createClass(Song, [{
         key: 'toMidiFile',
         value: function toMidiFile(filename) {
             return _MidiFile2.default.write(this, filename);
@@ -66,8 +55,9 @@ var Song = function (_BaseCollection) {
             this._bpm = bpm;
         }
     }]);
+
     return Song;
 }(_BaseCollection3.default);
 
 exports.default = Song;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImRhdGEvU29uZy5qcyJdLCJuYW1lcyI6WyJTb25nIiwiaXRlbXMiLCJicG0iLCJ1dWlkIiwidW5kZWZpbmVkIiwiX2JwbSIsImZpbGVuYW1lIiwid3JpdGUiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7O0FBQUE7Ozs7QUFDQTs7OztBQUNBOzs7Ozs7SUFFTUEsSTs7O0FBQ0Ysa0JBQVlDLEtBQVosRUFBZ0Q7QUFBQSxZQUE3QkMsR0FBNkIsdUVBQXZCLEdBQXVCO0FBQUEsWUFBbEJDLElBQWtCLHVFQUFYQyxTQUFXO0FBQUE7O0FBQUEsc0lBQ3RDSCxLQURzQyxtQkFDeEJFLElBRHdCOztBQUc1QyxjQUFLRSxJQUFMLEdBQVlILEdBQVo7QUFINEM7QUFJL0M7Ozs7bUNBRVVJLFEsRUFBVTtBQUNqQixtQkFBTyxtQkFBU0MsS0FBVCxDQUFlLElBQWYsRUFBcUJELFFBQXJCLENBQVA7QUFDSDs7OzRCQUdTO0FBQ04sbUJBQU8sS0FBS0QsSUFBWjtBQUNILFM7MEJBRU9ILEcsRUFBSztBQUNULGlCQUFLRyxJQUFMLEdBQVlILEdBQVo7QUFDSDs7Ozs7a0JBR1VGLEkiLCJmaWxlIjoiZGF0YS9Tb25nLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IEJhc2VDb2xsZWN0aW9uIGZyb20gJy4vQmFzZUNvbGxlY3Rpb24nO1xuaW1wb3J0IFRyYWNrIGZyb20gJy4vVHJhY2snO1xuaW1wb3J0IE1pZGlGaWxlIGZyb20gJy4uL2lvL2ZpbGUvTWlkaUZpbGUnO1xuXG5jbGFzcyBTb25nIGV4dGVuZHMgQmFzZUNvbGxlY3Rpb24ge1xuICAgIGNvbnN0cnVjdG9yKGl0ZW1zLCBicG0gPSAxMjAsIHV1aWQgPSB1bmRlZmluZWQpIHtcbiAgICAgICAgc3VwZXIoaXRlbXMsIFRyYWNrLCB1dWlkKTtcblxuICAgICAgICB0aGlzLl9icG0gPSBicG07XG4gICAgfVxuXG4gICAgdG9NaWRpRmlsZShmaWxlbmFtZSkge1xuICAgICAgICByZXR1cm4gTWlkaUZpbGUud3JpdGUodGhpcywgZmlsZW5hbWUpO1xuICAgIH1cblxuXG4gICAgZ2V0IGJwbSgpIHtcbiAgICAgICAgcmV0dXJuIHRoaXMuX2JwbTtcbiAgICB9XG5cbiAgICBzZXQgYnBtKGJwbSkge1xuICAgICAgICB0aGlzLl9icG0gPSBicG07XG4gICAgfVxufVxuXG5leHBvcnQgZGVmYXVsdCBTb25nOyJdfQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImRhdGEvU29uZy5qcyJdLCJuYW1lcyI6WyJTb25nIiwiaXRlbXMiLCJicG0iLCJ1dWlkIiwidW5kZWZpbmVkIiwiX2JwbSIsImZpbGVuYW1lIiwid3JpdGUiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7O0FBQUE7Ozs7QUFDQTs7OztBQUNBOzs7Ozs7Ozs7Ozs7SUFFTUEsSTs7O0FBQ0Ysa0JBQVlDLEtBQVosRUFBZ0Q7QUFBQSxZQUE3QkMsR0FBNkIsdUVBQXZCLEdBQXVCO0FBQUEsWUFBbEJDLElBQWtCLHVFQUFYQyxTQUFXOztBQUFBOztBQUFBLGdIQUN0Q0gsS0FEc0MsbUJBQ3hCRSxJQUR3Qjs7QUFHNUMsY0FBS0UsSUFBTCxHQUFZSCxHQUFaO0FBSDRDO0FBSS9DOzs7O21DQUVVSSxRLEVBQVU7QUFDakIsbUJBQU8sbUJBQVNDLEtBQVQsQ0FBZSxJQUFmLEVBQXFCRCxRQUFyQixDQUFQO0FBQ0g7Ozs0QkFHUztBQUNOLG1CQUFPLEtBQUtELElBQVo7QUFDSCxTOzBCQUVPSCxHLEVBQUs7QUFDVCxpQkFBS0csSUFBTCxHQUFZSCxHQUFaO0FBQ0g7Ozs7OztrQkFHVUYsSSIsImZpbGUiOiJkYXRhL1NvbmcuanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgQmFzZUNvbGxlY3Rpb24gZnJvbSAnLi9CYXNlQ29sbGVjdGlvbic7XG5pbXBvcnQgVHJhY2sgZnJvbSAnLi9UcmFjayc7XG5pbXBvcnQgTWlkaUZpbGUgZnJvbSAnLi4vaW8vZmlsZS9NaWRpRmlsZSc7XG5cbmNsYXNzIFNvbmcgZXh0ZW5kcyBCYXNlQ29sbGVjdGlvbiB7XG4gICAgY29uc3RydWN0b3IoaXRlbXMsIGJwbSA9IDEyMCwgdXVpZCA9IHVuZGVmaW5lZCkge1xuICAgICAgICBzdXBlcihpdGVtcywgVHJhY2ssIHV1aWQpO1xuXG4gICAgICAgIHRoaXMuX2JwbSA9IGJwbTtcbiAgICB9XG5cbiAgICB0b01pZGlGaWxlKGZpbGVuYW1lKSB7XG4gICAgICAgIHJldHVybiBNaWRpRmlsZS53cml0ZSh0aGlzLCBmaWxlbmFtZSk7XG4gICAgfVxuXG5cbiAgICBnZXQgYnBtKCkge1xuICAgICAgICByZXR1cm4gdGhpcy5fYnBtO1xuICAgIH1cblxuICAgIHNldCBicG0oYnBtKSB7XG4gICAgICAgIHRoaXMuX2JwbSA9IGJwbTtcbiAgICB9XG59XG5cbmV4cG9ydCBkZWZhdWx0IFNvbmc7Il19
