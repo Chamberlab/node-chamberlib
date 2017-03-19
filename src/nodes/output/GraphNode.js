@@ -1,10 +1,9 @@
 import through from 'through';
 import path from 'path';
+import Qty from 'js-quantities';
 
 import BaseNode from '../BaseNode';
 import DataSet from '../../data/DataSet';
-import Time from '../../quantities/Time';
-import Voltage from '../../quantities/Voltage';
 import DataEvent from '../../events/DataEvent';
 import DataFrame from '../../events/DataFrame';
 import DataChannel from '../../data/DataChannel';
@@ -68,8 +67,8 @@ class GraphNode extends BaseNode {
                     _self._channels[uuid].uuid = meta.units[i];
                 }
                 let evt = new DataEvent(
-                    new Time(event.time.normalized(), meta.keyUnit),
-                    new Voltage(val, meta.units[i]));
+                    Qty(event.time.normalized(), meta.keyUnit),
+                    Qty(val, meta.units[i]));
                 _self._channels[uuid].push(evt);
                 _self.addStats('in', evt.constructor.name);
                 _self._store += 1;

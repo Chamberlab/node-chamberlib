@@ -1,8 +1,8 @@
 import assert from 'assert';
+import Qty from 'js-quantities';
 
 import Track from '../data/Track';
 import BaseCollection from '../data/BaseCollection';
-import Time from '../quantities/Time';
 import TonalEvent from '../events/TonalEvent';
 import harmonics from '../harmonics';
 
@@ -13,7 +13,7 @@ class SimpleWalk {
         this.baseNote = baseNote instanceof harmonics.Note ? baseNote : new harmonics.Note('C4');
     }
 
-    makeTrack(dataEvents, threshold = 0.7, interval = 'P5', duration = undefined, chordSelectHandler = undefined) {
+    makeTrack(dataEvents, threshold = '0.7mV', interval = 'P5', duration = undefined, chordSelectHandler = undefined) {
         assert(Array.isArray(dataEvents) || dataEvents instanceof BaseCollection,
             `dataEvents must be Array or BaseCollection, is ${typeof dataEvents}`);
 
@@ -21,7 +21,7 @@ class SimpleWalk {
             octave = this.baseNote.octave;
 
         if (typeof duration === 'undefined') {
-            duration = new Time(1 / 16, 's');
+            duration = Qty(1 / 16, 's');
         }
 
         dataEvents.forEach(event => {
@@ -29,7 +29,7 @@ class SimpleWalk {
                 intervalValue = typeof interval === 'function' ? interval(event) : interval,
                 durationValue = typeof duration === 'function' ? duration(event) : duration;
 
-            if (event.value.value >= threshold) {
+            if (event.value.gte(Qty(threshold))) {
                 this.baseNote.transpose(new harmonics.Interval(intervalValue), true);
             }
 
@@ -48,7 +48,7 @@ class SimpleWalk {
 
             if (typeof tonalValue !== 'undefined') {
                 tonalEvents.push(new TonalEvent(
-                    new Time(event.time.normalized(), 's'),
+                    event.time,
                     tonalValue,
                     durationValue
                 ));

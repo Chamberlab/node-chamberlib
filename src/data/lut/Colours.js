@@ -1,7 +1,7 @@
 import Levenshtein from 'levenshtein';
 import Chance from 'chance';
 
-class ColourTable {
+class Colours {
     constructor(size, minDistance, minSum = 255) {
         const chance = new Chance();
 
@@ -36,4 +36,4 @@ class ColourTable {
     }
 }
 
-export default ColourTable;
+export default Colours;

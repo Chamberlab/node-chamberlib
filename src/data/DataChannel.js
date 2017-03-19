@@ -1,9 +1,8 @@
 import assert from 'assert';
+import Qty from 'js-quantities';
 
 import BaseCollection from '../data/BaseCollection';
 import BaseEvent from '../events/BaseEvent';
-import Time from '../quantities/Time';
-import Voltage from '../quantities/Voltage';
 
 class DataChannel extends BaseCollection {
     constructor(events, title = undefined, uuid = undefined) {
@@ -21,31 +20,31 @@ class DataChannel extends BaseCollection {
             value: { min: Number.MAX_SAFE_INTEGER, max: Number.MIN_SAFE_INTEGER }
         };
         this._items.map(function (item) {
-            let time = item.time.normalized(),
-                value = item.value.normalized();
+            let time = item.time,
+                value = item.value;
 
-            s.avg += value;
+            s.avg += value.scalar;
             s.items++;
 
             if (time < s.time.min) {
-                s.time.min = time;
+                s.time.min = time.scalar;
             } else if (time > s.time.max) {
-                s.time.max = time;
+                s.time.max = time.scalar;
             }
 
             if (value < s.value.min) {
-                s.value.min = value;
+                s.value.min = value.scalar;
             } else if (value > s.value.max) {
-                s.value.max = value;
+                s.value.max = value.scalar;
             }
         });
 
         s.avg = s.avg / s.items;
-        s.duration = new Time(s.time.max - s.time.min);
-        s.time.min = new Time(s.time.min);
-        s.time.max = new Time(s.time.max);
-        s.value.min = new Voltage(s.value.min);
-        s.value.max = new Voltage(s.value.max);
+        s.duration = Qty(s.time.max - s.time.min, 's');
+        s.time.min = Qty(s.time.min, 's');
+        s.time.max = Qty(s.time.max, 's');
+        s.value.min = Qty(s.value.min, 'mV');
+        s.value.max = Qty(s.value.max, 'mV');
 
         return s;
     }

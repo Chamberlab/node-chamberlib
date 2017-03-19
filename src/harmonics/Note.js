@@ -1,10 +1,11 @@
 import assert from 'assert';
+import Qty from 'js-quantities';
+
 import * as tonal from 'tonal';
 import * as tt from 'tonal-transpose';
 import * as tn from 'tonal-note';
 
 import Interval from './Interval';
-import Frequency from '../quantities/Frequency';
 
 class Note {
     constructor(key = 'C', octave = undefined) {
@@ -26,7 +27,7 @@ class Note {
     }
 
     fromString(input) {
-        assert(typeof input === 'string');
+        assert(typeof input === 'string', `Note input must be string, is ${typeof input}`);
 
         let _self = this,
             regex = /^[a-z,A-Z,#]+([0-9]+)$/,
@@ -81,7 +82,7 @@ class Note {
         assert(typeof this.octave === 'number', 'Octave not defined');
 
         let freq = tonal.note.freq(this.toString());
-        return new Frequency(freq, 'hz');
+        return Qty(freq, 'Hz');
     }
 
 

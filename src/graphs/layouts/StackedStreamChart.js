@@ -1,6 +1,6 @@
 import Promise from 'bluebird';
 import BaseGraph from '../BaseGraph';
-import ColourTable from '../../data/lut/ColourTable';
+import ColourTable from '../../data/lut/Colours';
 
 // FIXME: update this to use d3 4.x
 

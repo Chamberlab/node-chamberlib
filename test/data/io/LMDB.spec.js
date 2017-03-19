@@ -37,7 +37,6 @@ describe('cl.data.io.LMDB', () => {
 
     afterEach((cb) => {
         lmdb.closeEnv();
-
         removeFiles(cb);
     });
 
@@ -50,7 +49,7 @@ describe('cl.data.io.LMDB', () => {
                 }
                 cb();
             });
-        }, 500);
+        }, 100);
     });
 
     it('Opens and closes an environment', (cb) => {
@@ -121,7 +120,8 @@ describe('cl.data.io.LMDB', () => {
         txn = lmdb.begin(dbname);
         channel.all.map((event) => {
             let res = lmdb.get(dbname, txn, event.time, event.parentUUID);
-            res.time.toObject().should.be.equal(event.time.toObject());
+            res.time.eq(event.time).should.be.true;
+
             // TODO: fix the rounding errors
             // res.value.toObject().should.be.equal(event.value.toObject());
         });

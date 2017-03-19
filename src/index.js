@@ -4,7 +4,6 @@ import harmonics from './harmonics';
 import composition from './composition';
 import io from './io';
 import graphs from './graphs';
-import quantities from './quantities';
 import nodes from './nodes';
 
 export default {
@@ -14,6 +13,5 @@ export default {
     composition,
     io,
     graphs,
-    quantities,
     nodes
 };

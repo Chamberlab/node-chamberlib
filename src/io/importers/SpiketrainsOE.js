@@ -1,10 +1,9 @@
 import assert from 'assert';
 import Promise from 'bluebird';
+import Qty from 'js-quantities';
 
 import JSONFile from '../file/JSONFile';
 import DataEvent from '../../events/DataEvent';
-import Time from '../../quantities/Time';
-import Voltage from '../../quantities/Voltage';
 import DataChannel from '../../data/DataChannel';
 
 class SpiketrainsOE extends JSONFile {
@@ -29,8 +28,8 @@ class SpiketrainsOE extends JSONFile {
                             return Promise.map(sptr.waveforms, function (wf, i) {
                                 let val_diff = wf.max - wf.min,
                                     event = new DataEvent(
-                                        new Time(sptr.times[i], 's'),
-                                        new Voltage(val_diff, 'mv')
+                                        Qty(sptr.times[i], 's'),
+                                        Qty(val_diff, 'mV')
                                     );
                                 channel.push(event);
                             });

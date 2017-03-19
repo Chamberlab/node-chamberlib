@@ -1,6 +1,6 @@
 class BaseLUT {
     constructor() {
-        this.generate();
+
     }
 
     generate() {

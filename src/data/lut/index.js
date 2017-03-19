@@ -1,7 +1,9 @@
 import BaseLUT from './BaseLUT';
-import ChordLUT from './ChordLUT';
+import Colours from './Colours';
+import VoltageToNote from './VoltageToNote';
 
 export default {
     BaseLUT,
-    ChordLUT
+    Colours,
+    VoltageToNote
 };

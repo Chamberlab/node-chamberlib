@@ -1,57 +1,42 @@
 import Chance from 'chance';
+import Qty from 'js-quantities';
 const chance = new Chance();
 
 import data from '../src/data';
 import events from '../src/events';
-import quantities from '../src/quantities';
 import harmonics from '../src/harmonics';
 
-const quants = [
-    quantities.Datasize,
-    quantities.Frequency,
-    quantities.Time,
-    quantities.Voltage
-];
-
-export function makeDataChannel(size, valClass = chance.pickone(quants)) {
+export function makeDataChannel(size) {
     let channel = new data.DataChannel(chance.word({syllables: 3}));
     while (channel.size < size) {
-        channel.push(makeDataEvent(valClass));
+        channel.push(makeDataEvent());
     }
     return channel;
 }
 
-export function makeDataEvent(valClass = chance.pickone(quants)) {
+export function makeDataEvent() {
     return new events.DataEvent(
-        new quantities.Time(chance.floating({min: 0, max: 20000000}), chance.pickone(Object.keys(quantities.Time.units))),
-        new valClass(chance.floating({min: -24, max: 24}), chance.pickone(Object.keys(valClass.units)))
+        chance.floating({min: 0, max: 20000000}) + 'ms',
+        chance.floating({min: -24, max: 24}) + 'mV'
     );
 }
 
-export function makeEvenlySpacedDataEvents(count = 256, deltaTime = undefined, valMin = 0.0, valMax = 1.0) {
+export function makeEvenlySpacedDataEvents(count = 256, deltaTime = '0.25 s', valMin = 0.0, valMax = 1.0) {
     const dataEvents = [];
-
-    if (!(deltaTime instanceof quantities.Time)) {
-        deltaTime = new quantities.Time(1 / 8, 's');
-    }
 
     for (let i = 0; i < count; i += 1) {
         dataEvents.push(new events.DataEvent(
-            new quantities.Time(deltaTime.normalized() * i, 's'),
-            new quantities.Voltage(chance.floating({min: valMin, max: valMax }), 'mV')
+            Qty(deltaTime).mul(i).toString(),
+            chance.floating({min: valMin, max: valMax }) + 'mV'
         ));
     }
 
     return dataEvents;
 }
 
-export function makeQuantity(valClass = chance.pickone(quants)) {
-    return new valClass(chance.floating({min: Math.MIN_VALUE, max: Math.MAX_VALUE}), 'ms');
-}
-
 export function makeTime(startAtZero = false, max) {
     // TODO: keys and negative time values - will it sort?!? implement integer keys as well...
-    return new quantities.Time(chance.floating({min: startAtZero ? 0.0 : Math.pow(10, 6) * -1.0, max: max ? max : Math.pow(10, 6)}), 'ms');
+    return Qty(chance.floating({min: startAtZero ? 0.0 : Math.pow(10, 6) * -1.0, max: max ? max : Math.pow(10, 6)}), 'ms');
 }
 
 export function makeLMDBMeta(dir, title) {

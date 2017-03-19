@@ -3,12 +3,11 @@ import path from 'path';
 import fs from 'fs';
 import uuid4 from 'uuid4';
 import through from 'through';
+import Qty from 'js-quantities';
 
 import BaseNode from '../BaseNode';
 import DataFrame from '../../events/DataFrame';
 import DataEvent from '../../events/DataEvent';
-import Time from '../../quantities/Time';
-import Voltage from '../../quantities/Voltage';
 import LMDB from '../../io/db/LMDB';
 
 class LMDBNode extends BaseNode {
@@ -70,8 +69,8 @@ class LMDBNode extends BaseNode {
         _self._lmdb.gotoLast(cursorUUID);
         let end = _self._lmdb.getCurrentKeyValue(channelKey, cursorUUID);
 
-        let startTime = new Time(start.key, 'ms'),
-            endTime = new Time(end.key, 'ms');
+        let startTime = Qty(parseFloat(start.key), 's'),
+            endTime = Qty(parseFloat(end.key), 's');
 
         _self._lmdb.closeCursor(cursorUUID);
         _self._lmdb.abort(txnUUID);
@@ -97,7 +96,7 @@ class LMDBNode extends BaseNode {
             max = new Array(channel.type.length).fill(Number.MIN_VALUE),
             min = new Array(channel.type.length).fill(Number.MAX_VALUE);
 
-        for (var found = _self._lmdb.gotoFirst(cursorUUID); found; found = _self._lmdb.gotoNext(cursorUUID)) {
+        for (let found = _self._lmdb.gotoFirst(cursorUUID); found; found = _self._lmdb.gotoNext(cursorUUID)) {
             let vals = _self._lmdb.getCurrentValue(channelKey, cursorUUID);
             for (let i in vals) {
                 if (vals[i] > max[i]) {
@@ -113,9 +112,9 @@ class LMDBNode extends BaseNode {
         _self._lmdb.abort(txnUUID);
 
         channel.valueRange = { min: min.map((val, i) => {
-            return new Voltage(val, units[i]);
+            return Qty(val, units[i]);
         }), max: max.map((val, i) => {
-            return new Voltage(val, units[i]);
+            return Qty(val, units[i]);
         })
         };
 
@@ -196,7 +195,7 @@ class LMDBNode extends BaseNode {
         return input.uuid;
     }
 
-    createOutput(channelKey, startTime = new Time(0.0), endTime = new Time(0.0), convertFrames = false) {
+    createOutput(channelKey, startTime = Qty('0s'), endTime = Qty('0s'), convertFrames = false) {
         assert(this._lmdb !== null);
 
         assert(typeof channelKey === 'string');
@@ -255,7 +254,7 @@ class LMDBNode extends BaseNode {
             }
             if (output.eventBuffer.length > 0) {
                 let event = output.eventBuffer.shift();
-                if (output.endTime.normalized() > 0 && event.time.normalized() >= output.endTime.normalized()) {
+                if (output.endTime.gt(Qty('0s')) && event.time.gte(output.endTime)) {
                     return this.endOutput(uuid);
                 }
                 output.stream.queue(event);

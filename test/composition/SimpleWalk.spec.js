@@ -2,6 +2,7 @@ const chai = require('chai');
 chai.should();
 
 import Chance from 'chance';
+import Qty from 'js-quantities';
 import fs from 'fs';
 import path from 'path';
 import * as fixtures from '../fixtures';
@@ -13,8 +14,8 @@ const makeTrack = function (dataEvents, useChords) {
     const walk = new clab.composition.SimpleWalk(useChords);
 
     return walk.makeTrack(
-        dataEvents, 0.6, 'P5',
-        () => new clab.quantities.Time(1 / 16 + Math.random() / 8, 's'),
+        dataEvents, '0.6mV', 'P5',
+        () => Qty(1 / 16 + Math.random() / 8, 's'),
         chords => chance.pickone(chords)
     );
 };

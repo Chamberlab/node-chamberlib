@@ -1,26 +1,25 @@
 import math from 'mathjs';
+import Qty from 'js-quantities';
 
 import BaseTransformNode from './BaseTransformNode';
 import DataEvent from '../../events/DataEvent';
 import DataFrame from '../../events/DataFrame';
-import Time from '../../quantities/Time';
-import Voltage from '../../quantities/Voltage';
 
 class QuantizeTime extends BaseTransformNode {
     constructor(options) {
         super();
-        let lastFrameTime = 0.0,
+        let lastFrameTime = Qty(0.0, 's'),
             values = {}, _self = this;
         const transformFunction = function (event) {
             _self.addStats('in', event.constructor.name);
-            if (event.time.normalized() - lastFrameTime > options.steps.normalized()) {
-                lastFrameTime += options.steps.normalized();
-                let evt, frameTime = new Time(lastFrameTime);
+            if (event.time.sub(lastFrameTime).gt(options.steps)) {
+                lastFrameTime.add(options.steps);
+                let evt, frameTime = Qty(lastFrameTime);
                 if (event instanceof DataEvent) {
                     Object.keys(values).map((key) => {
                         evt = new DataEvent(
                             frameTime,
-                            new Voltage(values[key].length ? math.mean(values[key]) : 0.0)
+                            Qty(values[key].length ? math.mean(values[key]) : 0.0)
                         );
                         evt.parentUUID = key;
                         values[key] = [];
@@ -41,7 +40,7 @@ class QuantizeTime extends BaseTransformNode {
                     if (!Array.isArray(values[event.parentUUID])) {
                         values[event.parentUUID] = [];
                     }
-                    values[event.parentUUID].push(event.value.normalized());
+                    values[event.parentUUID].push(event.value);
                 } else if (event instanceof DataFrame) {
                     if (!Array.isArray(values)) {
                         values = new Array(event.value.length).fill([]);

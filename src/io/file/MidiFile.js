@@ -1,11 +1,11 @@
 import assert from 'assert';
+import Qty from 'js-quantities';
 import fs from 'pn/fs';
 import * as midi from 'jsmidgen';
 import Song from '../../data/Song';
 import Note from '../../harmonics/Note';
 import Chord from '../../harmonics/Chord';
 import TonalEvent from '../../events/TonalEvent';
-import Time from '../../quantities/Time';
 
 const TICKS_PER_BEAT = 128;
 
@@ -34,29 +34,21 @@ class MidiFile {
 
                 values.forEach(value => {
                     lt.push({
-                        value: new TonalEvent(
-                            new Time(event.time.normalized(), event.time.defaultUnit),
-                            value,
-                            new Time(event.duration.normalized(), event.duration.defaultUnit)
-                        ),
+                        value: new TonalEvent(event.time, value, event.duration),
                         on: true
                     });
 
                     lt.push({
-                        value: new TonalEvent(
-                            new Time(event.time.normalized() + event.duration.normalized(), event.time.defaultUnit),
-                            value,
-                            new Time(0.0, event.time.defaultUnit)
-                        ),
+                        value: new TonalEvent(event.time.add(event.duration), value, event.duration),
                         on: false
                     });
                 });
             });
 
             layout.push(lt.sort((a, b) => {
-                if (a.value.time.normalized() > b.value.time.normalized()) {
+                if (a.value.time.gt(b.value.time)) {
                     return 1;
-                } else if (a.value.time.normalized() < b.value.time.normalized()) {
+                } else if (a.value.time.lt(b.value.time)) {
                     return -1;
                 }
                 return 0;
@@ -65,14 +57,14 @@ class MidiFile {
 
         layout.map((lt) => {
             let track = new midi.Track(),
-                ticks = 0, last_ticks = 0, last_v = 0;
+                ticks = 0, last_ticks = 0, last_v = Qty('0s');
 
             lt.map((event) => {
                 const event_val = event.value.value;
 
-                if (event.value.time.value !== last_v) {
-                    last_v = event.value.time.value;
-                    ticks = event.value.time.normalized() * ticksPerSec;
+                if (event.value.time.eq(last_v)) {
+                    last_v = event.value.time;
+                    ticks = event.value.time.to('s').scalar * ticksPerSec;
                 }
 
                 if (event_val instanceof Note) {

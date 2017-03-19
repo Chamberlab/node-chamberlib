@@ -1,12 +1,11 @@
 import Chance from 'chance';
 const chance = new Chance();
 
+import Qty from 'js-quantities';
 import through from 'through';
 import uuid4 from 'uuid4';
 import BaseNode from '../BaseNode';
 import DataEvent from '../../events/DataEvent';
-import Time from '../../quantities/Time';
-import Voltage from '../../quantities/Voltage';
 
 class Random extends BaseNode {
     constructor(eventCount = 100, channelCount = 1, min = -0.02, max = 0.02, tstart = 0.0, tend = 20.0) {
@@ -35,8 +34,8 @@ class Random extends BaseNode {
     startOutput() {
         const _self = this;
         while (!this._stream.paused && this._stream.readable) {
-            const time = new Time(this._time, 's'),
-                value = new Voltage(chance.floating({ min: this._min, max: this._max }), 'V'),
+            const time = Qty(this._time, 's'),
+                value = Qty(chance.floating({ min: this._min, max: this._max }), 'mV'),
                 event = new DataEvent(time, value);
             event.parentUUID = chance.pickone(this._channelUUIDs);
 

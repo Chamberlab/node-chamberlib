@@ -4,13 +4,19 @@ import fs from 'fs';
 import path from 'path';
 import assert from 'assert';
 import uuid4 from 'uuid4';
+import Qty from 'js-quantities';
 
 import BaseDB from './BaseDB';
 import JSONFile from '../file/JSONFile';
 import DataEvent from '../../events/DataEvent';
 import DataFrame from '../../events/DataFrame';
-import Time from '../../quantities/Time';
-import Voltage from '../../quantities/Voltage';
+
+const roundFormat = decimals => {
+    return function(scalar) {
+        const pow = Math.pow(10, decimals);
+        return `${Math.round(scalar * pow) / pow}`;
+    };
+};
 
 class LMDB extends BaseDB {
     constructor(datapath, readOnly = true, meta = undefined) {
@@ -103,8 +109,8 @@ class LMDB extends BaseDB {
             _self = this;
         res.val.map((val, i) => {
             let evt = new DataEvent(
-                new Time(res.key, _self._meta.DataSet.DataChannels[db].keyUnit),
-                new Voltage(val, _self._meta.DataSet.DataChannels[db].units[i])
+                Qty(parseFloat(res.key), _self._meta.DataSet.DataChannels[db].keyUnit),
+                Qty(val, _self._meta.DataSet.DataChannels[db].units[i])
             );
             evt.parentUUID = _self._meta.DataSet.DataChannels[db].uuids[i];
             events.push(evt);
@@ -115,7 +121,7 @@ class LMDB extends BaseDB {
     getCurrentFrame(db, cursorUUID) {
         let res = this.getCurrentKeyValue(db, cursorUUID),
             frame = new DataFrame(
-                new Time(res.key, this._meta.DataSet.DataChannels[db].keyUnit),
+                Qty(parseFloat(res.key), this._meta.DataSet.DataChannels[db].keyUnit),
                 res.val
             );
         frame.parentUUID = this._meta.DataSet.DataChannels[db].uuid;
@@ -203,9 +209,11 @@ class LMDB extends BaseDB {
         assert(this._openTxn[uuid], `No Transaction instance for ${uuid}`);
         assert(this._openDB[db], `No open DB instance for ${db}`);
 
-        let key = this._getKey(db, time.toObject(), parentUUID),
+        let key = this._getKey(db, time, parentUUID),
             val = this._openTxn[uuid].getNumber(this._openDB[db], key);
-        return typeof val === 'number' ? new DataEvent(time, new Voltage(val)) : null;
+
+        // FIXME: remove hardcoded mV
+        return typeof val === 'number' ? new DataEvent(time, Qty(val, 'mV')) : null;
     }
 
     put(db, uuid, event) {
@@ -221,7 +229,7 @@ class LMDB extends BaseDB {
         }
         let e = event.toObject(),
             key = this._getKey(db, e.t, event.parentUUID);
-        this._openTxn[uuid].putNumber(this._openDB[db], key, e.v);
+        this._openTxn[uuid].putNumber(this._openDB[db], key, e.v.scalar);
     }
 
 
@@ -285,7 +293,13 @@ class LMDB extends BaseDB {
 
     _getKey(db, time, channelUUID = undefined) {
         const channel = this._meta.DataSet.DataChannels[db];
-        time = time.toFixed(channel.keyPrecision);
+
+        if (typeof time === 'number') {
+            time = Qty(time, 's');
+        }
+
+        time = time.format(roundFormat(channel.keyPrecision));
+
         return new Array(channel.keySize + channel.keyPrecision - time.length)
                 .fill(0).join('') + time + (channelUUID ? '-' + channelUUID : '');
     }
@@ -314,8 +328,8 @@ class LMDB extends BaseDB {
     _checkAndConvertKey(db, key) {
         if (typeof key === 'number') {
             return this._getKey(db, key);
-        } else if (key instanceof Time) {
-            return this._getKey(db, key.normalized());
+        } else if (key instanceof Qty) {
+            return this._getKey(db, key.scalar);
         }
         return key;
     }

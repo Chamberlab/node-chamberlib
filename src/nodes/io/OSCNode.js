@@ -1,10 +1,8 @@
 import uuid4 from 'uuid4';
+import Qty from 'js-quantities';
 
 import BaseNode from '../BaseNode';
 import OSC from '../../io/net/OSC';
-import Time from '../../quantities/Time';
-import BaseQuantity from '../../quantities/base/BaseQuantity';
-import Unit from '../../quantities/base/Unit';
 import DataEvent from '../../events/DataEvent';
 
 class OSCNode extends BaseNode {
@@ -30,9 +28,9 @@ class OSCNode extends BaseNode {
                 };
                 _self.emit('addchannel', _self._channels[data.address]);
             }
-            let time = new Time(Date.now() * 0.001, 's');
+            let time = Qty(Date.now(), 'ms').to('s');
             if (valueCount === 1) {
-                let quantity = new BaseQuantity(data.args[0], new Unit()),
+                let quantity = Qty(data.args[0]),
                     event = new DataEvent(time, quantity);
                 event.parentUUID = _self._channels[data.address].uuid;
                 this.addStats('out', event.constructor.name);

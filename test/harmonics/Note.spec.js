@@ -1,6 +1,7 @@
 const chai = require('chai');
 chai.should();
 
+import Qty from 'js-quantities';
 import clab from '../../src/index';
 
 describe('cl.harmonics.Note', () => {
@@ -31,9 +32,9 @@ describe('cl.harmonics.Note', () => {
     it('Gets a note as frequency', () => {
         let freq = new clab.harmonics.Note('C4').toFreq();
 
-        freq.should.be.instanceOf(clab.quantities.Frequency);
-        freq.value.should.equal(261.63);
-        freq.unit.suffix.should.equal('Hz');
+        freq.should.be.instanceOf(Qty);
+        freq.scalar.should.equal(261.63);
+        freq._units.should.equal('Hz');
     });
 
     it('Transposes note upward by perfect fiths interval', () => {

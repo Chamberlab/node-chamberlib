@@ -1,14 +1,12 @@
 import assert from 'assert';
-
-import Time from '../quantities/Time';
+import Qty from 'js-quantities';
 
 class BaseEvent {
-    constructor(time, value, dataClasses = []) {
-        this._dataClasses = dataClasses;
-
+    constructor(time, value) {
         this.time = time;
         this.value = value;
     }
+
 
     get parentUUID() {
         return this._parentUUID;
@@ -16,14 +14,16 @@ class BaseEvent {
 
     set parentUUID(uuid) {
         assert(typeof uuid === 'string');
+
         this._parentUUID = uuid;
     }
 
 
     set time(time) {
-        assert(time !== undefined);
-        assert(time instanceof Time);
-        this._time = time;
+        assert(time instanceof Qty ||
+            typeof time === 'string', `Time value must be Qty or string, is ${typeof time}`);
+
+        this._time = Qty(time);
     }
 
     get time() {
@@ -32,17 +32,10 @@ class BaseEvent {
 
 
     set value(value) {
-        if (this._dataClasses.length > 0) {
-            let classAllowed = false;
-            for (let dc of this._dataClasses) {
-                if (value.constructor.name === dc.name) {
-                    classAllowed = true;
-                }
-            }
-            assert(classAllowed, `Invalid class: ${value.constructor.name} - ` +
-                `Allowed: ${this._dataClasses.map((cl) => { return cl.name; }).join(',')}`);
-        }
-        this._value = value;
+        assert(value instanceof Qty ||
+            typeof value === 'string', `Value value must be Qty or string, is ${typeof value}`);
+
+        this._value = Qty(value);
     }
 
     get value() {

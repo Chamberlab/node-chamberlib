@@ -1,11 +1,11 @@
 import Promise from 'bluebird';
 import transform from 'stream-transform';
+import Qty from 'js-quantities';
+
 import CSVFile from '../file/CSVFile';
 import DataSet from '../../data/DataSet';
 import DataChannel from '../../data/DataChannel';
 import DataEvent from '../../events/DataEvent';
-import Time from '../../quantities/Time';
-import Voltage from '../../quantities/Voltage';
 
 class NanobrainsCSV extends CSVFile {
     constructor() {
@@ -38,11 +38,7 @@ class NanobrainsCSV extends CSVFile {
                             _self.data.push(new DataChannel([], field));
                         } else {
                             _self.data.at(i).push(
-                                new DataEvent(
-                                    new Time(parseFloat(ms), 'ms'),
-                                    new Voltage(parseFloat(field), 'mv')
-                                )
-                            );
+                                new DataEvent(Qty(parseFloat(ms), 'ms'), Qty(parseFloat(field), 'mV')));
                         }
                     });
                 }
