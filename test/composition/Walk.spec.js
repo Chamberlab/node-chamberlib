@@ -37,7 +37,7 @@ const createSong = function (dataEvents, bpm, useChords, scale = 'Major', baseNo
 };
 
 describe('cl.composition.Walk', () => {
-    const keepFile = true;
+    const keepFile = false;
     let dataEvents;
 
     beforeEach(() => {
