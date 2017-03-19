@@ -18,23 +18,22 @@ describe('cl.data.io.LMDB', () => {
     beforeEach((cb) => {
         if (!fs.existsSync(datapath)) {
             fs.mkdirSync(datapath);
-
-            lmdb = new clab.io.db.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
-            lmdb.once('updated', () => {
-                cb();
-            });
-        } else {
-            cb();
         }
+
+        lmdb = new clab.io.db.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
+        lmdb.once('updated', () => {
+            cb();
+        });
     });
 
     afterEach((cb) => {
         lmdb.closeEnv();
 
-        fs.unlinkSync(path.join(datapath, 'data.mdb'));
-        fs.unlinkSync(path.join(datapath, 'lock.mdb'));
-        fs.unlinkSync(path.join(datapath, 'meta.json'));
-        fs.unlinkSync(path.join(datapath, 'meta.json.bak'));
+        ['data.mdb', 'lock.mdb', 'meta.json', 'meta.json.bak'].forEach(file => {
+            if (fs.existsSync(path.join(datapath, file))) {
+                fs.unlinkSync(path.join(datapath, file));
+            }
+        });
 
         if (fs.existsSync(datapath)) {
             fs.rmdirSync(datapath);
@@ -44,10 +43,9 @@ describe('cl.data.io.LMDB', () => {
     });
 
     it('Opens and closes an environment', (cb) => {
-        fs.existsSync(path.join(datapath, 'data.mdb')).should.be.true;
-        fs.existsSync(path.join(datapath, 'lock.mdb')).should.be.true;
-        fs.existsSync(path.join(datapath, 'meta.json')).should.be.true;
-        fs.existsSync(path.join(datapath, 'meta.json.bak')).should.be.true;
+        ['data.mdb', 'lock.mdb', 'meta.json', 'meta.json.bak'].forEach(file => {
+            fs.existsSync(path.join(datapath, file)).should.be.true;
+        });
 
         cb();
     });

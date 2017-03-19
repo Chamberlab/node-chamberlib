@@ -18,7 +18,9 @@ describe('cl.data.io.MsgPackFile', () => {
         if (!discardFile) {
             discardFile = true;
         } else {
-            fs.unlinkSync(filepath);
+            if (fs.existsSync(filepath)) {
+                fs.unlinkSync(filepath);
+            }
         }
     });
 
