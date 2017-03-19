@@ -28,6 +28,23 @@ export function makeDataEvent(valClass = chance.pickone(quants)) {
     );
 }
 
+export function makeEvenlySpacedDataEvents(count = 256, deltaTime = undefined, valMin = 0.0, valMax = 1.0) {
+    const dataEvents = [];
+
+    if (!(deltaTime instanceof quantities.Time)) {
+        deltaTime = new quantities.Time(1 / 8, 's');
+    }
+
+    for (let i = 0; i < count; i += 1) {
+        dataEvents.push(new events.DataEvent(
+            new quantities.Time(deltaTime.normalized() * i, 's'),
+            new quantities.Voltage(chance.floating({min: valMin, max: valMax }), 'mV')
+        ));
+    }
+
+    return dataEvents;
+}
+
 export function makeQuantity(valClass = chance.pickone(quants)) {
     return new valClass(chance.floating({min: Math.MIN_VALUE, max: Math.MAX_VALUE}), 'ms');
 }
