@@ -1,6 +1,7 @@
 import assert from 'assert';
 import * as tonal from 'tonal';
 import * as tt from 'tonal-transpose';
+import * as tn from 'tonal-note';
 
 import Interval from './Interval';
 import Frequency from '../quantities/Frequency';
@@ -84,16 +85,28 @@ class Note {
     }
 
 
-    transpose(interval) {
+    transpose(interval, simplify = false) {
         assert(interval instanceof Interval, `Invalid interval of type ${typeof interval}`);
 
-        this.fromString(tt.transpose(this.toString(), interval.toString()));
+        let newval = tt.transpose(this.toString(), interval.toString());
+
+        if (simplify) {
+            newval = tn.simplify(newval);
+        }
+
+        this.fromString(newval);
     }
 
-    transposeFifths(count = 1) {
-        assert(typeof count === 'number', `Fiths count must be number, is ${typeof count}`);
+    transposeFifths(count = 1, simplify = false) {
+        assert(typeof count === 'number', `Fifths count must be number, is ${typeof count}`);
 
-        this.fromString(tt.trFifths(this.toString(), count));
+        let newval = tt.trFifths(this.toString(), count);
+
+        if (simplify) {
+            newval = tn.simplify(newval);
+        }
+
+        this.fromString(newval);
     }
 
 

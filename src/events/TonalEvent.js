@@ -20,7 +20,8 @@ class TonalEvent extends BaseEvent {
     }
 
     set duration(value) {
-        assert(value instanceof Time);
+        assert(value instanceof Time, `Duration value must be of type Time, is ${typeof value}`);
+
         this._duration = value;
     }
 }
