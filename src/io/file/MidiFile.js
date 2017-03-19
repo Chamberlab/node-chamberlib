@@ -24,18 +24,32 @@ class MidiFile {
             channel.all.map((event) => {
                 assert(event instanceof TonalEvent);
 
-                lt.push({
-                    value: event,
-                    on: true
-                });
+                let values = [];
 
-                lt.push({
-                    value: new TonalEvent(
-                        new Time(event.time.normalized() + event.duration.normalized(), event.time.defaultUnit),
-                        event.value,
-                        new Time(0.0, event.time.defaultUnit)
-                    ),
-                    on: false
+                if (event.value instanceof Note) {
+                    values.push(event.value);
+                } else if (event.value instanceof Chord) {
+                    values = event.value.getNotesFromOctave();
+                }
+
+                values.forEach(value => {
+                    lt.push({
+                        value: new TonalEvent(
+                            new Time(event.time.normalized(), event.time.defaultUnit),
+                            value,
+                            new Time(event.duration.normalized(), event.duration.defaultUnit)
+                        ),
+                        on: true
+                    });
+
+                    lt.push({
+                        value: new TonalEvent(
+                            new Time(event.time.normalized() + event.duration.normalized(), event.time.defaultUnit),
+                            value,
+                            new Time(0.0, event.time.defaultUnit)
+                        ),
+                        on: false
+                    });
                 });
             });
 
@@ -68,8 +82,7 @@ class MidiFile {
                         track.addNoteOff(0, event_val.toMidi(), ticks - last_ticks);
                     }
                 } else if (event_val instanceof Chord) {
-                    // TODO: properly implement chords
-                    // track.addChord(0, event_val.toMidi(), ticks);
+
                 }
 
                 last_ticks = ticks;

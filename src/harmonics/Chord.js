@@ -4,13 +4,26 @@ import * as sc from 'scalesapi';
 
 import BaseCollection from '../data/BaseCollection';
 import Note from './Note';
+import Interval from './Interval';
 
 class Chord extends BaseCollection {
-    constructor(type, tonic) {
+    constructor(type, tonic = undefined, octave = undefined) {
         super([], [Note]);
+
+        if (typeof tonic === 'undefined') {
+            const parsed = tc.parse(type);
+            if (parsed instanceof Object) {
+                type = parsed.type;
+                tonic = parsed.tonic;
+            }
+        }
 
         this.type = type;
         this.tonic = tonic;
+
+        if (octave) {
+            this.octave = octave;
+        }
     }
 
 
@@ -36,12 +49,40 @@ class Chord extends BaseCollection {
     }
 
 
+    get octave() {
+        return this._octave;
+    }
+
+    set octave(octave) {
+        assert(typeof octave === 'number', `Octave must be number, is ${typeof octave}`);
+
+        this._octave = octave;
+    }
+
+
     get notes() {
         let notes = tc.notes(`${this._tonic}${this._type}`);
 
         return Array.isArray(notes) ? notes.map(note => {
             return new Note().fromString(note);
         }) : [];
+    }
+
+    getNotesFromOctave(octave = undefined) {
+        const _self = this;
+        let notes = [], currentNote;
+
+        this.notes.forEach(note => {
+            if (!currentNote) {
+                currentNote = new Note(note.key, octave || _self.octave);
+            } else {
+                currentNote.transpose(Interval.fromNotes(new Note(currentNote.key), note));
+            }
+
+            notes.push(new Note(currentNote.key, currentNote.octave));
+        });
+
+        return notes;
     }
 
 

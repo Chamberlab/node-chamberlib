@@ -41,7 +41,8 @@ class Interval {
         assert(from instanceof Note, `From must be instance of type Note, is ${typeof from}`);
         assert(to instanceof Note, `To must be instance of type Note, is ${typeof to}`);
 
-        return new Interval(td.interval(from.toString(), to.toString()));
+        const interval = td.interval(from.toString(), to.toString());
+        return new Interval(interval);
     }
 }
 
