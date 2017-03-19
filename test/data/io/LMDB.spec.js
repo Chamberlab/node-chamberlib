@@ -18,33 +18,41 @@ describe('cl.data.io.LMDB', () => {
     beforeEach((cb) => {
         if (!fs.existsSync(datapath)) {
             fs.mkdirSync(datapath);
-        }
 
-        lmdb = new clab.io.db.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
-        lmdb.once('updated', () => {
+            lmdb = new clab.io.db.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
+            lmdb.once('updated', () => {
+                cb();
+            });
+        } else {
             cb();
-        });
+        }
     });
 
-    afterEach(() => {
+    afterEach((cb) => {
         lmdb.closeEnv();
+
         fs.unlinkSync(path.join(datapath, 'data.mdb'));
         fs.unlinkSync(path.join(datapath, 'lock.mdb'));
         fs.unlinkSync(path.join(datapath, 'meta.json'));
         fs.unlinkSync(path.join(datapath, 'meta.json.bak'));
+
         if (fs.existsSync(datapath)) {
             fs.rmdirSync(datapath);
         }
+
+        cb();
     });
 
-    it('Opens and closes an environment', () => {
+    it('Opens and closes an environment', (cb) => {
         fs.existsSync(path.join(datapath, 'data.mdb')).should.be.true;
         fs.existsSync(path.join(datapath, 'lock.mdb')).should.be.true;
         fs.existsSync(path.join(datapath, 'meta.json')).should.be.true;
         fs.existsSync(path.join(datapath, 'meta.json.bak')).should.be.true;
+
+        cb();
     });
 
-    it('Creates 10 databases on open, randomly reopens and closes', () => {
+    it('Creates 10 databases on open, randomly reopens and closes', (cb) => {
         let dbnames = [];
 
         while (dbnames.length < 10) {
@@ -69,9 +77,11 @@ describe('cl.data.io.LMDB', () => {
                 lmdb._openDB.hasOwnProperty(name).should.be.false;
             }
         }
+
+        cb();
     });
 
-    it('Stores 10k DataEvent objects', () => {
+    it('Stores 10k DataEvent objects', (cb) => {
         let dbname = title || chance.word({syllables: 3}),
             channel = fixtures.makeDataChannel(10000),
             tstart = Date.now();
@@ -81,10 +91,13 @@ describe('cl.data.io.LMDB', () => {
             lmdb.put(dbname, txn, event);
         });
         lmdb.commit(txn);
+
         console.log(`   LMDB: Stored 10k DataEvents in ${Date.now() - tstart} ms\n`);
+
+        cb();
     });
 
-    it('Stores 10k DataEvent objects, then retrieves them', () => {
+    it('Stores 10k DataEvent objects, then retrieves them', (cb) => {
         let dbname = title || chance.word({syllables: 3}),
             channel = fixtures.makeDataChannel(10000);
 
@@ -106,5 +119,7 @@ describe('cl.data.io.LMDB', () => {
         lmdb.abort(txn);
 
         console.log(`   LMDB: Retrieved 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
+
+        cb();
     });
 });

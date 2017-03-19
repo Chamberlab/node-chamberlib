@@ -23,12 +23,14 @@ class MidiFile {
             let lt = [];
             channel.all.map((event) => {
                 assert(event instanceof TonalEvent);
+
+                let oe = new TonalEvent(new Time(event.time._value + event.duration._value,
+                    event.time.unit), event.value, new Time(0.0, event.duration.unit));
+
                 lt.push({
                     value: event,
                     on: true
                 });
-                let oe = new TonalEvent(new Time(event.time._value + event.duration._value,
-                    event.time.unit), event.value, new Time(0.0, event.duration.unit));
                 lt.push({
                     value: oe,
                     on: false
@@ -49,7 +51,7 @@ class MidiFile {
                 last_t = 0;
             lt.map((event) => {
                 const event_val = event.value._value;
-                ticks += event.value.time._value * 0.001 * ticksPerSec;
+                ticks += event.value.time.normalized() * ticksPerSec;
                 if (event_val instanceof Note) {
                     if (event.on) {
                         track.addNoteOn(0, event_val.toMidi(), ticks - last_t);
@@ -57,7 +59,8 @@ class MidiFile {
                         track.addNoteOff(0, event_val.toMidi(), ticks - last_t);
                     }
                 } else if (event.value._value instanceof Chord) {
-                    track.addChord(0, event_val.toMidi(), ticks);
+                    // TODO: properly implement chords
+                    // track.addChord(0, event_val.toMidi(), ticks);
                 }
                 last_t = ticks;
             });

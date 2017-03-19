@@ -26,7 +26,8 @@ class OSC extends BaseNet {
             broadcast: broadcast
         });
         this._port.on('error', (err) => {
-            console.log(`OSC UDP port error: ${err.message}`);
+            // console.log(`OSC UDP port error: ${err.message}`);
+            throw err;
         });
     }
 
@@ -36,11 +37,9 @@ class OSC extends BaseNet {
             if (!Array.isArray(data)) {
                 data = [data];
             }
-            /*
-            data.map(data => {
-
+            data.map((/* data */) => {
+                // TODO: do something here...
             });
-            */
         });
     }
 
@@ -52,9 +51,9 @@ class OSC extends BaseNet {
         assert(this._port !== null, 'Port is undefined.');
         const _self = this;
         this._bundleTransformFunc = transformFunc;
-        this._port.on('bundle', function (bundle, timeTag, info) {
-            console.log('An OSC bundle just arrived for time tag', timeTag, ':');
-            console.log('Remote info is: ', info);
+        this._port.on('bundle', function (bundle/* , timeTag, info */) {
+            // console.log('An OSC bundle just arrived for time tag', timeTag, ':');
+            // console.log('Remote info is: ', info);
             return Promise.resolve(_self._bundleTransform(bundle))
                 .then((data) => {
                     _self._inputBuffer.push(data);

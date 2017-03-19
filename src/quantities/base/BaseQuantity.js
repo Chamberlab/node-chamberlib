@@ -18,15 +18,11 @@ class BaseQuantity {
     }
 
     normalized() {
-        return this.value / this.unit.ratio;
-    }
-
-    defaultUnit() {
-        return this.normalized() / this.constructor.defaultUnit().ratio;
+        return this.value * this.unit.ratio;
     }
 
     asUnit(suffix) {
-        return this.normalized() / this.constructor.units[suffix.toLowerCase()].ratio;
+        return this.normalized() * this.constructor.units[suffix.toLowerCase()].ratio;
     }
 
     distanceTo(target) {
@@ -45,8 +41,12 @@ class BaseQuantity {
     setUnit(unit) {
         assert(unit && unit !== null);
         assert(unit instanceof Unit, `Expected type Unit but got ${unit ? unit.constructor.name : null}`);
-        this._value = this.normalized() * unit.ratio;
-        this._unit = unit;
+
+        // FIXME: this does not work, seems to apply ratio where not necessary
+        if (this._unit.suffix !== unit.suffix) {
+            this._value = this.normalized() * unit.ratio;
+            this._unit = unit;
+        }
     }
 
     toString() {
@@ -87,7 +87,7 @@ class BaseQuantity {
 
     static get units() {
         return {
-            'undef': new Unit('', 'undef', 1, Dimensions.DIMENSION_UNSPECIFIED)
+            undef: new Unit('', 'undef', 1, Dimensions.DIMENSION_UNSPECIFIED)
         };
     }
 

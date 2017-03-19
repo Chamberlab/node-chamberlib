@@ -23,7 +23,7 @@ class BaseNode extends Emitter {
         let now = Date.now();
         if (this._stats.start === 0) {
             this._stats.start = now;
-            console.log(`${this.constructor.name} -- START ${now}`);
+            // console.log(`${this.constructor.name} -- START ${now}`);
         }
         if (now - this._stats.lastLog > Math.max(1000, process.env.DUMP_STATS_MILLIS)) {
             this._stats.lastLog = now;
@@ -33,13 +33,14 @@ class BaseNode extends Emitter {
             }
         } else if (count === 0) {
             if (process.env.DUMP_STATS_MILLIS) {
-                console.log(`${this.constructor.name} -- END ${now}`);
+                // console.log(`${this.constructor.name} -- END ${now}`);
                 this.printStats();
             }
         }
     }
 
     printStats() {
+        /* eslint-disable no-console */
         console.log(`${this.constructor.name} -- ${(Date.now() - this._stats.start) * 0.001}s`);
         for (let dir in this._stats.data) {
             for (let key in this._stats.data[dir]) {
@@ -49,6 +50,7 @@ class BaseNode extends Emitter {
             }
         }
         console.log('------\n');
+        /* eslint-enable no-console */
     }
 
     get stats() {
