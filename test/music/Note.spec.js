@@ -9,6 +9,7 @@ describe('cl.harmonics.Note', () => {
 
         note.should.be.instanceOf(clab.harmonics.Note);
         note.key.should.equal('C');
+        note.octave.should.equal(4);
         note.toString().should.equal('C4');
     });
 
@@ -23,6 +24,7 @@ describe('cl.harmonics.Note', () => {
 
         note.should.be.instanceOf(clab.harmonics.Note);
         note.key.should.equal('C');
+        note.octave.should.equal(4);
         note.toString().should.equal('C4');
     });
 

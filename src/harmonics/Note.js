@@ -32,7 +32,7 @@ class Note {
         if (Array.isArray(res)) {
             if (res.length >= 2) {
                 _self.octave = parseInt(res[1]);
-                _self.key = res[0].replace(/[0-9]+$/i, '');
+                _self.key = res[0].replace(/[0-9]+$/, '');
             } else {
                 _self.octave = 4;
             }
@@ -57,13 +57,15 @@ class Note {
 
 
     toMidi() {
+        assert(typeof this.octave === 'number', 'Octave not defined');
+
         const str = this.toString();
         return tonal.note.midi(str);
     }
 
     fromMidi(value) {
-        assert(typeof value === 'number');
-        assert(value >= 0 && value < 128);
+        assert(typeof value === 'number', `Midi value must be number, is ${typeof value}`);
+        assert(value >= 0 && value < 128, `Midi value must be 0-128, is ${value}`);
 
         let res = tonal.note.fromMidi(value);
         this.fromString(res);
@@ -73,6 +75,8 @@ class Note {
 
 
     toFreq() {
+        assert(typeof this.octave === 'number', 'Octave not defined');
+
         let freq = tonal.note.freq(this.toString());
         return new Frequency(freq, 'hz');
     }
@@ -87,7 +91,8 @@ class Note {
     }
 
     set key(val) {
-        assert(typeof val === 'string', `Invalid key: ${typeof key}`);
+        assert(typeof val === 'string', `Key value must be string, is ${typeof val}`);
+
         this._key = val;
     }
 
@@ -97,7 +102,8 @@ class Note {
     }
 
     set octave(val) {
-        assert(typeof val === 'number', `Invalid octave: ${typeof octave}`);
+        assert(typeof val === 'number', `Octave value must be number, is ${typeof val}`);
+
         this._octave = val;
     }
 }
