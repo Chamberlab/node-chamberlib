@@ -81,8 +81,6 @@ class MidiFile {
                     } else {
                         track.addNoteOff(0, event_val.toMidi(), ticks - last_ticks);
                     }
-                } else if (event_val instanceof Chord) {
-
                 }
 
                 last_ticks = ticks;
