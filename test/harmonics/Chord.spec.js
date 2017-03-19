@@ -4,11 +4,27 @@ chai.should();
 import clab from '../../src/index';
 
 describe('cl.harmonics.Chord', () => {
-    it('Creates a chord from string', () => {
-        let chord = new clab.harmonics.Chord('Fm7b5');
+    it('Creates a chord', () => {
+        let chord = new clab.harmonics.Chord('Maj7', 'C');
 
-        chord.string.should.equal('Fm7b5');
-        chord.value.length.should.equal(4);
+        chord.type.should.equal('Maj7');
+        chord.tonic.should.equal('C');
+
+        chord.notes.length.should.equal(4);
+        'CEGB'.split('').forEach((key, i) => {
+            chord.notes[i].toString().should.equal(key);
+        });
+    });
+
+    it('Detects a chord', () => {
+        const notes = 'CEGB'.split('').map((key) => {
+                return new clab.harmonics.Note(key);
+            }),
+            chords = new clab.harmonics.Chord.detectFromNotes(notes);
+
+        chords.length.should.equal(1);
+        chords[0].type.should.equal('Maj7');
+        chords[0].tonic.should.equal('C');
     });
 
     it('Lists all available chords', () => {
