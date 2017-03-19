@@ -15,6 +15,15 @@ describe('cl.data.io.LMDB', () => {
 
     let lmdb;
 
+    const removeFiles = (cb) => {
+        ['data.mdb', 'lock.mdb', 'meta.json', 'meta.json.bak'].forEach(file => {
+            if (fs.existsSync(path.join(datapath, file))) {
+                fs.unlinkSync(path.join(datapath, file));
+            }
+        });
+        cb();
+    };
+
     beforeEach((cb) => {
         if (!fs.existsSync(datapath)) {
             fs.mkdirSync(datapath);
@@ -29,17 +38,19 @@ describe('cl.data.io.LMDB', () => {
     afterEach((cb) => {
         lmdb.closeEnv();
 
-        ['data.mdb', 'lock.mdb', 'meta.json', 'meta.json.bak'].forEach(file => {
-            if (fs.existsSync(path.join(datapath, file))) {
-                fs.unlinkSync(path.join(datapath, file));
-            }
-        });
+        removeFiles(cb);
+    });
 
-        if (fs.existsSync(datapath)) {
-            fs.rmdirSync(datapath);
-        }
-
-        cb();
+    after((cb) => {
+        // FIXME: This delay should not be necessary
+        setTimeout(() => {
+            removeFiles(() => {
+                if (fs.existsSync(datapath)) {
+                    fs.rmdirSync(datapath);
+                }
+                cb();
+            });
+        }, 500);
     });
 
     it('Opens and closes an environment', (cb) => {

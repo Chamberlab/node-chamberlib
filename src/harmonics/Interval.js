@@ -1,5 +1,8 @@
 import assert from 'assert';
 import * as tonal from 'tonal';
+import * as td from 'tonal-distance';
+
+import Note from './Note';
 
 class Interval {
     constructor(name) {
@@ -25,6 +28,20 @@ class Interval {
 
     toString() {
         return this.name;
+    }
+
+
+    static fromSemitones(count) {
+        assert(typeof num !== 'number', `Semitones count must be number, is ${typeof count}`);
+
+        return new Interval(tonal.ivl.fromSemitones(count));
+    }
+
+    static fromNotes(from, to) {
+        assert(from instanceof Note, `From must be instance of type Note, is ${typeof from}`);
+        assert(to instanceof Note, `To must be instance of type Note, is ${typeof to}`);
+
+        return new Interval(td.interval(from.toString(), to.toString()));
     }
 }
 

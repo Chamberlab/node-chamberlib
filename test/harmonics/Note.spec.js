@@ -35,4 +35,42 @@ describe('cl.harmonics.Note', () => {
         freq.value.should.equal(261.63);
         freq.unit.suffix.should.equal('Hz');
     });
+
+    it('Transposes note upward by perfect fiths interval', () => {
+        let note = new clab.harmonics.Note('C4'),
+            interval = new clab.harmonics.Interval('P5');
+
+        note.transpose(interval);
+
+        note.key.should.equal('G');
+        note.octave.should.equal(4);
+    });
+
+    it('Transposes note downward by perfect fiths interval', () => {
+        let note = new clab.harmonics.Note('C4'),
+            interval = new clab.harmonics.Interval('-5P');
+
+        note.transpose(interval);
+
+        note.key.should.equal('F');
+        note.octave.should.equal(3);
+    });
+
+    it('Transposes note upward by 3 perfect fiths', () => {
+        let note = new clab.harmonics.Note('C4');
+
+        note.transposeFifths(3);
+
+        note.key.should.equal('A');
+        note.octave.should.equal(5);
+    });
+
+    it('Transposes note downward by 3 perfect fiths', () => {
+        let note = new clab.harmonics.Note('C4');
+
+        note.transposeFifths(-3);
+
+        note.key.should.equal('Eb');
+        note.octave.should.equal(2);
+    });
 });

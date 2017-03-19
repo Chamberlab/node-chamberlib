@@ -1,6 +1,8 @@
 import assert from 'assert';
 import * as tonal from 'tonal';
+import * as tt from 'tonal-transpose';
 
+import Interval from './Interval';
 import Frequency from '../quantities/Frequency';
 
 class Note {
@@ -80,6 +82,20 @@ class Note {
         let freq = tonal.note.freq(this.toString());
         return new Frequency(freq, 'hz');
     }
+
+
+    transpose(interval) {
+        assert(interval instanceof Interval, `Invalid interval of type ${typeof interval}`);
+
+        this.fromString(tt.transpose(this.toString(), interval.toString()));
+    }
+
+    transposeFifths(count = 1) {
+        assert(typeof count === 'number', `Fiths count must be number, is ${typeof count}`);
+
+        this.fromString(tt.trFifths(this.toString(), count));
+    }
+
 
 
     //
