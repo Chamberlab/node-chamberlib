@@ -122,6 +122,7 @@ class LMDB extends BaseDB {
 
     getCurrentFrame(db, cursorUUID) {
         let res = this.getCurrentKeyValue(db, cursorUUID),
+            // FIXME: this should not be necessary
             key = res.key.substr(0, res.key.length - 1),
             frame = new DataFrame(
                 Qty(math.number(key), this._meta.DataSet.DataChannels[db].keyUnit),

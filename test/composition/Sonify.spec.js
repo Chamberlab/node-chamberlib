@@ -6,8 +6,8 @@ import path from 'path';
 import fs from 'fs';
 import cl from '../../src';
 
-describe('cl.composition.Sonify', (cb) => {
-    it('Sonify raw NanoBrain signals', () => {
+describe('cl.composition.Sonify', () => {
+    it('Sonify raw NanoBrain signals', (cb) => {
         const dbname = '20151208_15h59m12s_nanobrain',
             dbpath = path.join(__dirname, '..', '..', 'data', 'lmdb', dbname);
 
