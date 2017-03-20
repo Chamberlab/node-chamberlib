@@ -1,4 +1,6 @@
 import Promise from 'bluebird';
+import Qty from 'js-quantities';
+import math from 'mathjs';
 import path from 'path';
 import uuid4 from 'uuid4';
 import fs from 'fs';
@@ -7,8 +9,8 @@ import cl from '../src/index';
 
 Promise.coroutine(function* () {
     const tstart = Date.now(),
-        importers = cl.data.io.importers,
-        LMDB = cl.data.io.LMDB,
+        importers = cl.io.importers,
+        LMDB = cl.io.db.LMDB,
         csv = new importers.NanobrainsCSV(),
         infile = process.argv[2] || process.env.NB_INFILE_PATH,
         metaOnly = false;
@@ -16,14 +18,18 @@ Promise.coroutine(function* () {
     let rows = 0,
         dataDir = path.join(__dirname, '..', 'data', 'lmdb');
 
-    if (!fs.existsSync(dataDir)) { fs.mkdirSync(dataDir); }
+    if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir);
+    }
 
     console.log(`Reading DataSet from CSV at ${infile} into LMDB...`);
 
     let lmdbDir = path.join(dataDir, path.parse(infile).name),
         dataSize = 0;
 
-    if (!fs.existsSync(lmdbDir)) { fs.mkdirSync(lmdbDir); }
+    if (!fs.existsSync(lmdbDir)) {
+        fs.mkdirSync(lmdbDir);
+    }
 
     const dbname = path.parse(infile).name,
         meta = {
@@ -36,6 +42,7 @@ Promise.coroutine(function* () {
         };
 
     meta.DataSet.DataChannels[dbname] = {
+        uuid: uuid4(),
         type: {
             class: 'DataFrame',
             type: 'Float32',
@@ -66,13 +73,12 @@ Promise.coroutine(function* () {
                 if (metaOnly) {
                     return resolve();
                 }
-                let ms = parseFloat(entry.shift()),
+                let ms = math.number(entry.shift()),
                     values = new Float32Array(64);
                 entry.forEach(function (field, i) {
-                    values[i] = parseFloat(field) * 0.001;
+                    values[i] = math.bignumber(field);
                 });
-                lmdb.put(dbname, txnUUID, new cl.events.DataFrame(
-                    new cl.quantities.Time(ms * 0.001, 's'), values));
+                lmdb.put(dbname, txnUUID, new cl.events.DataFrame(Qty(ms, 'ms').to('s'), values));
             } else if (rows === 3) {
                 entry.shift();
                 let channel = meta.DataSet.DataChannels[dbname];
@@ -84,7 +90,7 @@ Promise.coroutine(function* () {
                 entry.forEach(function (field, i) {
                     let label = field.split('_');
                     channel.labels[i] = label[0];
-                    channel.units[i] = 'v';
+                    channel.units[i] = 'mV';
                     channel.uuids[i] = uuid4();
                 });
                 dataSize = channel.type.length;

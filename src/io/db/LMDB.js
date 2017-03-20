@@ -5,6 +5,7 @@ import path from 'path';
 import assert from 'assert';
 import uuid4 from 'uuid4';
 import Qty from 'js-quantities';
+import math from 'mathjs';
 
 import BaseDB from './BaseDB';
 import JSONFile from '../file/JSONFile';
@@ -13,8 +14,8 @@ import DataFrame from '../../events/DataFrame';
 
 const roundFormat = decimals => {
     return function(scalar) {
-        const pow = Math.pow(10, decimals);
-        return `${Math.round(scalar * pow) / pow}`;
+        const pow = math.pow(10, decimals);
+        return `${math.round(scalar * pow) / pow}`;
     };
 };
 
@@ -109,7 +110,7 @@ class LMDB extends BaseDB {
             _self = this;
         res.val.map((val, i) => {
             let evt = new DataEvent(
-                Qty(parseFloat(res.key), _self._meta.DataSet.DataChannels[db].keyUnit),
+                Qty(math.number(res.key), _self._meta.DataSet.DataChannels[db].keyUnit),
                 Qty(val, _self._meta.DataSet.DataChannels[db].units[i])
             );
             evt.parentUUID = _self._meta.DataSet.DataChannels[db].uuids[i];
@@ -120,8 +121,9 @@ class LMDB extends BaseDB {
 
     getCurrentFrame(db, cursorUUID) {
         let res = this.getCurrentKeyValue(db, cursorUUID),
+            key = res.key.substr(0, res.key.length - 1),
             frame = new DataFrame(
-                Qty(parseFloat(res.key), this._meta.DataSet.DataChannels[db].keyUnit),
+                Qty(math.number(key), this._meta.DataSet.DataChannels[db].keyUnit),
                 res.val
             );
         frame.parentUUID = this._meta.DataSet.DataChannels[db].uuid;
@@ -157,7 +159,7 @@ class LMDB extends BaseDB {
                 } else {
                     res = {
                         key: _key.toString('ucs2'),
-                        val: _val
+                        val: math.number(_val)
                     };
                 }
             });
@@ -222,7 +224,7 @@ class LMDB extends BaseDB {
         assert(!this._meta.readOnly, 'DB is read-only');
 
         if (event instanceof DataFrame) {
-            let key = this._getKey(db, event.time.normalized()),
+            let key = this._getKey(db, event.time),
                 buffer = Buffer.from(event.value.buffer);
             this._openTxn[uuid].putBinary(this._openDB[db], key, buffer);
             return;
@@ -298,10 +300,10 @@ class LMDB extends BaseDB {
             time = Qty(time, 's');
         }
 
-        time = time.format(roundFormat(channel.keyPrecision));
+        const timeStr = time.format(roundFormat(channel.keyPrecision));
 
-        return new Array(channel.keySize + channel.keyPrecision - time.length)
-                .fill(0).join('') + time + (channelUUID ? '-' + channelUUID : '');
+        return new Array(channel.keySize + channel.keyPrecision - timeStr.length)
+                .fill(0).join('') + timeStr + (channelUUID ? '-' + channelUUID : '');
     }
 
     _getArrayClass(typeString) {
