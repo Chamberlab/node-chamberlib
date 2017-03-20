@@ -106,11 +106,12 @@ class LMDB extends BaseDB {
 
     getCurrentEvents(db, cursorUUID) {
         let res = this.getCurrentKeyValue(db, cursorUUID),
+            key = res.key.substr(0, res.key.length - 1),
             events = [],
             _self = this;
         res.val.map((val, i) => {
             let evt = new DataEvent(
-                Qty(math.number(res.key), _self._meta.DataSet.DataChannels[db].keyUnit),
+                Qty(math.number(key), _self._meta.DataSet.DataChannels[db].keyUnit),
                 Qty(val, _self._meta.DataSet.DataChannels[db].units[i])
             );
             evt.parentUUID = _self._meta.DataSet.DataChannels[db].uuids[i];

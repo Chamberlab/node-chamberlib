@@ -3,12 +3,20 @@ chai.should();
 
 import Qty from 'js-quantities';
 import path from 'path';
+import fs from 'fs';
 import cl from '../../src';
 
 describe('cl.composition.Sonify', (cb) => {
     it('Sonify raw NanoBrain signals', () => {
         const dbname = '20151208_15h59m12s_nanobrain',
-            lmdb = new cl.io.db.LMDB(path.join(__dirname, '..', '..', 'data', 'lmdb', dbname)),
+            dbpath = path.join(__dirname, '..', '..', 'data', 'lmdb', dbname);
+
+        if (!fs.existsSync(dbpath)) {
+            console.log('No nanobrains db in data, skipping...');
+            return cb();
+        }
+
+        const lmdb = new cl.io.db.LMDB(dbpath),
             txn = lmdb.begin(dbname), cursor = lmdb.cursor(dbname, txn),
             min = Qty(-1.0, 'mV'), max = Qty(1.0, 'mV');
 
