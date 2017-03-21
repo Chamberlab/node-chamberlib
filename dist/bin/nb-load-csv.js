@@ -93,12 +93,7 @@ if (!metaOnly) {
 
 new Promise(function () {
     const writeStream = (0, _streamTransform2.default)(function lmdbTransform(entry, cb) {
-        if (rows > 0 && rows % 100000 === 0) {
-            if (!metaOnly) {
-                lmdb.commit(txnUUID);
-                txnUUID = lmdb.begin(dbname, false);
-            }
-
+        if (rows > 0 && rows % 200000 === 0) {
             debug(`Parsed ${rows} rows containing ${rows * dataSize} events`);
         }
         if (rows > 3) {
@@ -136,10 +131,10 @@ new Promise(function () {
         return cb();
     }, function (err) {
         if (err) {
+            if (!metaOnly) {
+                lmdb.abort(txnUUID);
+            }
             throw err;
-        }
-        if (!metaOnly) {
-            lmdb.abort(txnUUID);
         }
 
         lmdb.closeEnv().then(() => {
