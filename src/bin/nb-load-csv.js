@@ -63,7 +63,7 @@ if (!metaOnly) {
 
 new Promise(function () {
     const writeStream = transform(function lmdbTransform(entry, cb) {
-        if (rows > 0 && rows % 100000 === 0) {
+        if (rows > 0 && rows % 500000 === 0) {
             if (!metaOnly) {
                 lmdb.commit(txnUUID);
                 txnUUID = lmdb.begin(dbname, false);
