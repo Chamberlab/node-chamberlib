@@ -1,6 +1,9 @@
 {
   "presets": [
-    "env"
-  ],
-  "sourceMaps": "both"
+    ["env", {
+      "targets": {
+        "node": true
+      }
+    }]
+  ]
 }

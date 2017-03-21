@@ -17,7 +17,7 @@ gulp.task('lint', () => {
 });
 
 gulp.task('build', () => {
-    return gulp.src(['./src/**/*.js', './bin/**/*.js', './example/**/*.js'])
+    return gulp.src(['./src/**/*.js'])
         .pipe(babel())
         .pipe(gulp.dest('dist'));
 });
