@@ -43,6 +43,7 @@
     "chance": "^1.0.4",
     "csv-parse": "^1.1.7",
     "d3": "^4.7.3",
+    "debug": "^2.6.3",
     "js-quantities": "^1.6.6",
     "jsdom": "^9.9.1",
     "jsmidgen": "^0.1.5",

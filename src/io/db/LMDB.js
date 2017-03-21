@@ -14,8 +14,9 @@ import DataFrame from '../../events/DataFrame';
 
 const roundFormat = decimals => {
     return function(scalar) {
-        const pow = math.pow(10, decimals);
-        return `${math.round(scalar * pow) / pow}`;
+        const pow = math.pow(10, decimals),
+            str = `${(math.round(scalar * pow) / pow).toFixed(decimals)}`;
+        return str;
     };
 };
 
@@ -122,10 +123,8 @@ class LMDB extends BaseDB {
 
     getCurrentFrame(db, cursorUUID) {
         let res = this.getCurrentKeyValue(db, cursorUUID),
-            // FIXME: this should not be necessary
-            key = res.key.substr(0, res.key.length - 1),
             frame = new DataFrame(
-                Qty(math.number(key), this._meta.DataSet.DataChannels[db].keyUnit),
+                Qty(math.number(res.key), this._meta.DataSet.DataChannels[db].keyUnit),
                 res.val
             );
         frame.parentUUID = this._meta.DataSet.DataChannels[db].uuid;
@@ -299,13 +298,13 @@ class LMDB extends BaseDB {
         const channel = this._meta.DataSet.DataChannels[db];
 
         if (typeof time === 'number') {
-            time = Qty(time, 's');
+            time = Qty(time, channel.keyUnit);
         }
 
-        const timeStr = time.format(roundFormat(channel.keyPrecision));
+        assert(time instanceof Qty, `Key time must be Qty or number, is ${typeof time}`);
 
-        return new Array(channel.keySize + channel.keyPrecision - timeStr.length)
-                .fill(0).join('') + timeStr + (channelUUID ? '-' + channelUUID : '');
+        const timeStr = time.format(roundFormat(channel.keyPrecision));
+        return new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr + channelUUID || '';
     }
 
     _getArrayClass(typeString) {
@@ -333,7 +332,9 @@ class LMDB extends BaseDB {
         if (typeof key === 'number') {
             return this._getKey(db, key);
         } else if (key instanceof Qty) {
-            return this._getKey(db, key.scalar);
+            return this._getKey(db, key.to('s').scalar);
+        } else if (typeof key === 'string') {
+            return this._getKey(db, Qty(key).to('s').scalar);
         }
         return key;
     }
