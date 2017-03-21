@@ -16,6 +16,10 @@ var _jsQuantities = require('js-quantities');
 
 var _jsQuantities2 = _interopRequireDefault(_jsQuantities);
 
+var _mathjs = require('mathjs');
+
+var _mathjs2 = _interopRequireDefault(_mathjs);
+
 var _CSVFile = require('../file/CSVFile');
 
 var _CSVFile2 = _interopRequireDefault(_CSVFile);
@@ -55,21 +59,20 @@ class NanobrainsCSV extends _CSVFile2.default {
 
         return new _bluebird2.default(function (resolve, reject) {
             let count = 0;
-            _self.data = new _DataSet2.default();
+            _self._data = new _DataSet2.default();
 
             writeStream = (0, _streamTransform2.default)(function csvTransform(entry, cb) {
                 if (count > 2) {
-                    let ms = entry.shift();
                     entry.forEach(function (field, i) {
                         if (count === 3) {
                             _self.data.push(new _DataChannel2.default([], field));
                         } else {
-                            _self.data.at(i).push(new _DataEvent2.default((0, _jsQuantities2.default)(parseFloat(ms), 'ms'), (0, _jsQuantities2.default)(parseFloat(field), 'mV')));
+                            _self.data.at(i).push(new _DataEvent2.default((0, _jsQuantities2.default)(_mathjs2.default.number(entry[0]), 'ms'), (0, _jsQuantities2.default)(_mathjs2.default.number(field), 'mV')));
                         }
                     });
                 }
                 count++;
-                return cb();
+                cb();
             }, function (err) {
                 if (err) {
                     reject(err);

@@ -1,11 +1,12 @@
 'use strict';
 
 const memwatch = require('memwatch-next'),
-      cl = require('../../src/index').default,
-      path = require('path');
+      cl = require('../../dist').default,
+      path = require('path'),
+      Qty = require('js-quantities');
 
 memwatch.on('leak', function (info) {
-    console.log(`WARNING: ${info.reason} - Growth: ${info.growth}`);
+    process.stderr.write(`WARNING: ${info.reason} - Growth: ${info.growth}\n`);
 });
 
 const lmdb = new cl.nodes.storage.LMDBNode(),
@@ -15,16 +16,16 @@ lmdb.openDataSet(path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain-reduced
 graph.meta = lmdb.meta;
 
 graph.on('done', () => {
-    console.log('done!');
+    process.stdout.write('done!\n');
     process.exit(0);
 });
 
 graph.on('error', err => {
-    console.log(err.message);
+    process.stderr.write(`${err.message}\n`);
     process.exit(err.code);
 });
 
-const outputUuid = lmdb.createOutput('20151208_15h59m12s_nanobrain', new cl.quantities.Time(0.0), new cl.quantities.Time(0.0));
+const outputUuid = lmdb.createOutput('20151208_15h59m12s_nanobrain', Qty(0.0, 's'), Qty(0.0, 's'));
 
 lmdb.outputs[outputUuid].stream.pipe(graph.input);
 lmdb.startOutput(outputUuid);

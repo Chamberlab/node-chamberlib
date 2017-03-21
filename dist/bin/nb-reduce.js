@@ -1,12 +1,12 @@
 'use strict';
 
 const memwatch = require('memwatch-next'),
-      cl = require('../src/index').default,
+      cl = require('../../dist').default,
       path = require('path'),
       Qty = require('js-quantities');
 
 memwatch.on('leak', function (info) {
-    console.log(`WARNING: ${info.reason} - Growth: ${info.growth}`);
+    process.stderr.write(`WARNING: ${info.reason} - Growth: ${info.growth}\n`);
 });
 
 const lmdbOut = new cl.nodes.storage.LMDBNode(),
@@ -17,12 +17,12 @@ lmdbOut.openDataSet(path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain'), '
 lmdbIn.createDataSet(path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain-reduced'), 2.0, '20151208_15h59m12s_nanobrain');
 
 lmdbIn.on('done', () => {
-    console.log('done!');
+    process.stdout.write('done!\n');
     process.exit(0);
 });
 
 lmdbIn.on('error', err => {
-    console.log(err.message);
+    process.stderr.write(`${err.message}\n`);
     process.exit(err.code);
 });
 

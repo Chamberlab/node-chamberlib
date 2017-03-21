@@ -1,7 +1,7 @@
 'use strict';
 
 const memwatch = require('memwatch-next'),
-      cl = require('../src/index').default,
+      cl = require('../../dist').default,
       path = require('path'),
       lmdbIn = new cl.nodes.storage.LMDBNode(),
       osc = new cl.nodes.io.OSCNode(52777),
@@ -11,7 +11,7 @@ let inputUuid,
     DataChannels = {};
 
 memwatch.on('leak', function (info) {
-    console.log(`WARNING: ${info.reason} - Growth: ${info.growth}`);
+    process.stderr.write(`WARNING: ${info.reason} - Growth: ${info.growth}\n`);
 });
 
 lmdbIn.createDataSet(dataPath, 2.0, 'osc-record-test');
@@ -23,12 +23,12 @@ lmdbIn.on('stats', stats => {
 });
 
 lmdbIn.on('done', () => {
-    console.log('done!');
+    process.stdout.write('done!\n');
     process.exit(0);
 });
 
 lmdbIn.on('error', err => {
-    console.log(err.message);
+    process.stderr.write(`${err.message}\n`);
     process.exit(err.code);
 });
 

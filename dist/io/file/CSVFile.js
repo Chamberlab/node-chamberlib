@@ -17,6 +17,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 class CSVFile extends _BaseFile2.default {
     constructor() {
         super();
+
+        this._data = undefined;
     }
 
     read(file, options) {
@@ -27,6 +29,10 @@ class CSVFile extends _BaseFile2.default {
 
     write() {
         throw new Error('CSV writing not implemented.');
+    }
+
+    get data() {
+        return this._data;
     }
 }
 

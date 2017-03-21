@@ -19,6 +19,7 @@ class DataEvent extends _BaseEvent2.default {
     }
 
     toObject() {
+        // TODO: time & value toObject?
         return { t: this.time, v: this.value };
     }
 }

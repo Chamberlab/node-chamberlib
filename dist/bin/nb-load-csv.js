@@ -96,6 +96,7 @@ new Promise(function () {
         if (rows > 0 && rows % 200000 === 0) {
             debug(`Parsed ${rows} rows containing ${rows * dataSize} events`);
         }
+        let channel = meta.DataSet.DataChannels[dbname];
         if (rows > 3) {
             if (metaOnly) {
                 return;
@@ -105,13 +106,11 @@ new Promise(function () {
                 values = new Float32Array(dataSize);
 
             entry.forEach(function (field, i) {
-                values[i] = _mathjs2.default.bignumber(field);
+                values[i] = _mathjs2.default.number(field);
             });
 
-            lmdb.put(dbname, txnUUID, new _index2.default.events.DataFrame((0, _jsQuantities2.default)(ms, 'ms').to('s'), values));
+            lmdb.put(dbname, txnUUID, new _index2.default.events.DataFrame((0, _jsQuantities2.default)(ms, channel.units[0]).to(channel.keyUnit), values));
         } else if (rows === 3) {
-            let channel = meta.DataSet.DataChannels[dbname];
-
             channel.keyUnit = 's';
             channel.type.length = entry.length;
             channel.units = new Array(channel.type.length);
@@ -136,6 +135,8 @@ new Promise(function () {
             }
             throw err;
         }
+
+        lmdb.commit(txnUUID);
 
         lmdb.closeEnv().then(() => {
             debug(`Parsed ${rows} rows containing ${rows * dataSize} events`);
