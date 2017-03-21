@@ -2,19 +2,19 @@ const chai = require('chai');
 chai.should();
 
 import uuid4 from 'uuid4';
-import clab from '../../src/index';
+import cl from '../../dist';
 
 describe('cl.data.Song', () => {
     it('Creates new empty song with uuid', () => {
         let bpm = 136, uuid = uuid4.sync(),
-            song = new clab.data.Song([], bpm, uuid);
+            song = new cl.data.Song([], bpm, uuid);
 
         song.size.should.equal(0);
     });
 
     it('Adds track to song', () => {
-        let song = new clab.data.Song(),
-            track = new clab.data.Track();
+        let song = new cl.data.Song(),
+            track = new cl.data.Track();
 
         song.size.should.equal(0);
 

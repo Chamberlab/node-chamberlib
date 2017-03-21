@@ -4,7 +4,7 @@ chai.should();
 import path from 'path';
 import fs from 'fs';
 import Chance from 'chance';
-import clab from '../../../src/index';
+import cl from '../../../dist';
 import * as fixtures from '../../fixtures';
 
 const chance = new Chance();
@@ -26,7 +26,7 @@ describe('cl.data.io.MIDIFile', () => {
 
     it('should output a MIDI representation of events as a file', () => {
         const song = fixtures.makeSong();
-        clab.io.file.MidiFile.write(song, filepath);
+        cl.io.file.MidiFile.write(song, filepath);
         discardFile = true;
     });
 });

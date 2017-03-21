@@ -2,9 +2,9 @@ import Chance from 'chance';
 import Qty from 'js-quantities';
 const chance = new Chance();
 
-import data from '../src/data';
-import events from '../src/events';
-import harmonics from '../src/harmonics';
+import data from '../dist/data';
+import events from '../dist/events';
+import harmonics from '../dist/harmonics';
 
 export function makeDataChannel(size) {
     let channel = new data.DataChannel(chance.word({syllables: 3}));

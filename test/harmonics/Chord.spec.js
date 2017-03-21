@@ -1,11 +1,11 @@
 const chai = require('chai');
 chai.should();
 
-import clab from '../../src/index';
+import cl from '../../dist';
 
 describe('cl.harmonics.Chord', () => {
     it('Creates a chord', () => {
-        let chord = new clab.harmonics.Chord('Maj7', 'C');
+        let chord = new cl.harmonics.Chord('Maj7', 'C');
 
         chord.type.should.equal('Maj7');
         chord.tonic.should.equal('C');
@@ -18,9 +18,9 @@ describe('cl.harmonics.Chord', () => {
 
     it('Detects a chord', () => {
         const notes = 'CEGB'.split('').map((key) => {
-                return new clab.harmonics.Note(key);
+                return new cl.harmonics.Note(key);
             }),
-            chords = new clab.harmonics.Chord.detectFromNotes(notes);
+            chords = cl.harmonics.Chord.detectFromNotes(notes);
 
         chords.length.should.equal(1);
         chords[0].type.should.equal('Maj7');
@@ -28,22 +28,22 @@ describe('cl.harmonics.Chord', () => {
     });
 
     it('Lists all available chords', () => {
-        let names = clab.harmonics.Chord.getChordNames('*');
+        let names = cl.harmonics.Chord.getChordNames('*');
         names.length.should.equal(132);
     });
 
     it('Lists available chords for Major', () => {
-        let names = clab.harmonics.Chord.getChordNames('Major');
+        let names = cl.harmonics.Chord.getChordNames('Major');
         names.length.should.equal(72);
     });
 
     it('Lists available chords for Major with basenote E', () => {
-        let names = clab.harmonics.Chord.getChordNames('Major', 'E');
+        let names = cl.harmonics.Chord.getChordNames('Major', 'E');
         names.length.should.equal(13);
     });
 
     it('Lists available chords for Major with basenote E and 3 notes', () => {
-        let names = clab.harmonics.Chord.getChordNames('Major', 'E', 3);
+        let names = cl.harmonics.Chord.getChordNames('Major', 'E', 3);
         names.length.should.equal(7);
     });
 });

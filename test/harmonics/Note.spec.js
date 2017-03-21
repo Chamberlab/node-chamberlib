@@ -2,35 +2,35 @@ const chai = require('chai');
 chai.should();
 
 import Qty from 'js-quantities';
-import clab from '../../src/index';
+import cl from '../../dist';
 
 describe('cl.harmonics.Note', () => {
     it('Creates a note from string', () => {
-        let note = new clab.harmonics.Note('C4');
+        const note = new cl.harmonics.Note('C4');
 
-        note.should.be.instanceOf(clab.harmonics.Note);
+        note.should.be.instanceOf(cl.harmonics.Note);
         note.key.should.equal('C');
         note.octave.should.equal(4);
         note.toString().should.equal('C4');
     });
 
     it('Gets a note as MIDI', () => {
-        let midi = new clab.harmonics.Note('C4').toMidi();
+        const midi = new cl.harmonics.Note('C4').toMidi();
 
         midi.should.equal(60);
     });
 
     it('Sets a note from MIDI', () => {
-        let note = new clab.harmonics.Note().fromMidi(60);
+        const note = new cl.harmonics.Note().fromMidi(60);
 
-        note.should.be.instanceOf(clab.harmonics.Note);
+        note.should.be.instanceOf(cl.harmonics.Note);
         note.key.should.equal('C');
         note.octave.should.equal(4);
         note.toString().should.equal('C4');
     });
 
     it('Gets a note as frequency', () => {
-        let freq = new clab.harmonics.Note('C4').toFreq();
+        const freq = new cl.harmonics.Note('C4').toFreq();
 
         freq.should.be.instanceOf(Qty);
         freq.scalar.should.equal(261.63);
@@ -38,8 +38,8 @@ describe('cl.harmonics.Note', () => {
     });
 
     it('Transposes note upward by perfect fiths interval', () => {
-        let note = new clab.harmonics.Note('C4'),
-            interval = new clab.harmonics.Interval('P5');
+        const note = new cl.harmonics.Note('C4'),
+            interval = new cl.harmonics.Interval('P5');
 
         note.transpose(interval);
 
@@ -48,8 +48,8 @@ describe('cl.harmonics.Note', () => {
     });
 
     it('Transposes note downward by perfect fiths interval', () => {
-        let note = new clab.harmonics.Note('C4'),
-            interval = new clab.harmonics.Interval('-5P');
+        const note = new cl.harmonics.Note('C4'),
+            interval = new cl.harmonics.Interval('-5P');
 
         note.transpose(interval);
 
@@ -58,7 +58,7 @@ describe('cl.harmonics.Note', () => {
     });
 
     it('Transposes note upward by 3 perfect fiths', () => {
-        let note = new clab.harmonics.Note('C4');
+        const note = new cl.harmonics.Note('C4');
 
         note.transposeFifths(3);
 
@@ -67,7 +67,7 @@ describe('cl.harmonics.Note', () => {
     });
 
     it('Transposes note downward by 3 perfect fiths', () => {
-        let note = new clab.harmonics.Note('C4');
+        const note = new cl.harmonics.Note('C4');
 
         note.transposeFifths(-3);
 

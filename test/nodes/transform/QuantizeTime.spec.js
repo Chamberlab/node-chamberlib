@@ -2,10 +2,9 @@ import chai from 'chai';
 chai.should();
 
 // import Qty from 'js-quantities';
-// import cl from '../../../src/index';
+// import cl from '../../../dist';
 
 describe('cl.nodes.transform.QuantizeTime', () => {
-
     it('Reduces the DataEvents to specified time steps', (cb) => {
         // FIXME: stream is not closed, problem in transform/node?
         /*
@@ -33,5 +32,4 @@ describe('cl.nodes.transform.QuantizeTime', () => {
         */
         cb();
     });
-
 });

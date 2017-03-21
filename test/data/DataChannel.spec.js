@@ -1,18 +1,18 @@
 const chai = require('chai');
 chai.should();
 
-import clab from '../../src/index';
+import cl from '../../dist';
 import * as fixtures from '../fixtures';
 
 describe('cl.data.DataChannel', () => {
     it('Creates new empty data channel', () => {
-        let channel = new clab.data.DataChannel();
+        const channel = new cl.data.DataChannel();
         channel.size.should.equal(0);
     });
 
     it('Adds a data event to the channel', () => {
-        let channel = new clab.data.DataChannel([]),
-            event = new clab.events.DataEvent('12.0ms', '0.8V');
+        const channel = new cl.data.DataChannel([]),
+            event = new cl.events.DataEvent('12.0ms', '0.8V');
 
         channel.push(event);
         channel.size.should.equal(1);
@@ -21,7 +21,7 @@ describe('cl.data.DataChannel', () => {
     });
 
     it('Adds 500 single random events to the channel', () => {
-        let channel = fixtures.makeDataChannel(0);
+        const channel = fixtures.makeDataChannel(0);
 
         while (channel.size < 500) {
             channel.push(fixtures.makeDataEvent());
@@ -30,7 +30,7 @@ describe('cl.data.DataChannel', () => {
     });
 
     it('Adds 500 random events to the channel from an array', () => {
-        let channel = new clab.data.DataChannel(),
+        const channel = new cl.data.DataChannel(),
             events = [];
 
         while (events.size < 500) {

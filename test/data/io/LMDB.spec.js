@@ -1,13 +1,16 @@
 const chai = require('chai');
 chai.should();
 
+import Debug from 'debug';
 import path from 'path';
 import fs from 'fs';
 import Chance from 'chance';
-import clab from '../../../src/index';
+
+import cl from '../../../dist';
 import * as fixtures from '../../fixtures';
 
-const chance = new Chance();
+const debug = Debug('cl:stats'),
+    chance = new Chance();
 
 describe('cl.data.io.LMDB', () => {
     const title = chance.word({syllables: 3}),
@@ -29,7 +32,7 @@ describe('cl.data.io.LMDB', () => {
             fs.mkdirSync(datapath);
         }
 
-        lmdb = new clab.io.db.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
+        lmdb = new cl.io.db.LMDB(datapath, false, fixtures.makeLMDBMeta(datapath, title));
         lmdb.once('updated', () => {
             cb();
         });
@@ -100,7 +103,7 @@ describe('cl.data.io.LMDB', () => {
         });
         lmdb.commit(txn);
 
-        console.log(`   LMDB: Stored 10k DataEvents in ${Date.now() - tstart} ms\n`);
+        debug(`LMDB: Stored 10k DataEvents in ${Date.now() - tstart} ms\n`);
 
         cb();
     });
@@ -118,16 +121,20 @@ describe('cl.data.io.LMDB', () => {
 
         let tstart = Date.now();
         txn = lmdb.begin(dbname);
-        channel.all.map((event) => {
+        channel.all.map((event, i) => {
             let res = lmdb.get(dbname, txn, event.time, event.parentUUID);
             res.time.eq(event.time).should.be.true;
-
-            // TODO: fix the rounding errors
-            // res.value.toObject().should.be.equal(event.value.toObject());
+            // FIXME: not always equal, first failed after 1555 items...
+            /*
+            if (!res.value.eq(event.value)) {
+                console.log(i);
+                res.value.eq(event.value).should.be.true;
+            }
+            */
         });
         lmdb.abort(txn);
 
-        console.log(`   LMDB: Retrieved 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
+        debug(`LMDB: Retrieved 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
 
         cb();
     });

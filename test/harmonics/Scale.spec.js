@@ -1,13 +1,13 @@
 const chai = require('chai');
 chai.should();
 
-import clab from '../../src/index';
+import cl from '../../dist';
 
 describe('cl.harmonics.Scale', () => {
     it('Creates a C major scale', () => {
-        let scale = new clab.harmonics.Scale('C', 'major');
+        const scale = new cl.harmonics.Scale('C', 'major');
 
-        scale.should.be.instanceOf(clab.harmonics.Scale);
+        scale.should.be.instanceOf(cl.harmonics.Scale);
         scale.key.should.equal('C');
         scale.name.should.equal('major');
         scale.notes.length.should.equal(7);

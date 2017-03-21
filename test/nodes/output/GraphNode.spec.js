@@ -2,11 +2,11 @@ const chai = require('chai');
 chai.should();
 
 import Chance from 'chance';
-const chance = new Chance();
-
 import path from 'path';
 import fs from 'fs';
-import cl from '../../../src/index';
+import cl from '../../../dist';
+
+const chance = new Chance();
 
 describe('cl.nodes.output.GraphNode', () => {
     it('Generates a LineChart graph', (cb) => {

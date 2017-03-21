@@ -6,12 +6,12 @@ import Qty from 'js-quantities';
 import fs from 'fs';
 import path from 'path';
 import * as fixtures from '../fixtures';
-import clab from '../../src/index';
+import cl from '../../src/index';
 
 const chance = new Chance();
 
 const makeTrack = function (dataEvents, useChords) {
-    const walk = new clab.composition.SimpleWalk(useChords);
+    const walk = new cl.composition.SimpleWalk(useChords);
 
     return walk.makeTrack(
         dataEvents, '0.6mV', 'P5',
@@ -31,7 +31,7 @@ describe('cl.composition.SimpleWalk', () => {
         filepath = path.join(__dirname, '..', 'assets', `simplewalk-${chance.word({syllables: 3})}`);
 
     it('Creates a simple walk with notes from a random mV sequence as a MIDI file', () => {
-        const song = new clab.data.Song([], 120),
+        const song = new cl.data.Song([], 120),
             fullpath = `${filepath}-notes.mid`;
 
         song.push(makeTrack(dataEvents));
@@ -39,7 +39,7 @@ describe('cl.composition.SimpleWalk', () => {
     });
 
     it('Creates a simple walk with chords from a random mV sequence as a MIDI file', () => {
-        const song = new clab.data.Song([], 120),
+        const song = new cl.data.Song([], 120),
             fullpath = `${filepath}-chords.mid`;
 
         song.push(makeTrack(dataEvents, true));

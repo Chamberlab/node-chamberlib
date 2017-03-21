@@ -5,9 +5,8 @@ import uuid4 from 'uuid4';
 import through from 'through';
 import Qty from 'js-quantities';
 
+import events from '../../events';
 import BaseNode from '../BaseNode';
-import DataFrame from '../../events/DataFrame';
-import DataEvent from '../../events/DataEvent';
 import LMDB from '../../io/db/LMDB';
 
 class LMDBNode extends BaseNode {
@@ -51,32 +50,33 @@ class LMDBNode extends BaseNode {
     }
 
     getTimeRange(channelKey) {
-        assert(this._lmdb !== null);
+        assert(this._lmdb instanceof LMDB);
 
         let channel = this._channels[channelKey];
-
         if (channel.timeRange && !channel._isDirty) {
             return channel.timeRange;
         }
 
-        const _self = this;
-        const txnUUID = _self._lmdb.begin(channelKey);
-        const cursorUUID = _self._lmdb.cursor(channelKey, txnUUID);
+        // FIXME: this throws invalid argument on getbinary
+        /*
+        let txnUUID = this._lmdb.begin(channelKey),
+            cursorUUID = this._lmdb.cursor(channelKey, txnUUID);
 
-        _self._lmdb.gotoFirst(cursorUUID);
-        let start = _self._lmdb.getCurrentKeyValue(channelKey, cursorUUID);
+        this._lmdb.gotoFirst(cursorUUID);
+        let start = this._lmdb.getCurrentKeyValue(channelKey, cursorUUID);
 
-        _self._lmdb.gotoLast(cursorUUID);
-        let end = _self._lmdb.getCurrentKeyValue(channelKey, cursorUUID);
+        this._lmdb.gotoLast(cursorUUID);
+        let end = this._lmdb.getCurrentKeyValue(channelKey, cursorUUID);
 
         let startTime = Qty(parseFloat(start.key), 's'),
             endTime = Qty(parseFloat(end.key), 's');
 
-        _self._lmdb.closeCursor(cursorUUID);
-        _self._lmdb.abort(txnUUID);
+        this._lmdb.closeCursor(cursorUUID);
+        this._lmdb.abort(txnUUID);
 
         channel.timeRange = { start: startTime, end: endTime };
-        return channel.timeRange;
+        */
+        return { start: Qty(0, 's'), end: Qty(0, 's') }; // channel.timeRange;
     }
 
     getValueRanges(channelKey) {
@@ -171,9 +171,9 @@ class LMDBNode extends BaseNode {
             }
             data.map((event) => {
 
-                if (event instanceof DataFrame && storeFrames) {
+                if (event instanceof events.DataFrame && storeFrames) {
                     _self._lmdb.put(_self._lmdb._meta.DataSet.title, input.txnUUID, event);
-                } else if (event instanceof DataEvent && !storeFrames) {
+                } else if (event instanceof events.DataEvent && !storeFrames) {
                     _self._lmdb.put(_self._lmdb._meta.DataSet.title, input.txnUUID, event);
                 }
                 this.addStats('in', event.constructor.name);

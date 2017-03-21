@@ -8,17 +8,8 @@ import Qty from 'js-quantities';
 import math from 'mathjs';
 
 import BaseDB from './BaseDB';
-import JSONFile from '../file/JSONFile';
 import DataEvent from '../../events/DataEvent';
 import DataFrame from '../../events/DataFrame';
-
-const roundFormat = decimals => {
-    return function(scalar) {
-        const pow = math.pow(10, decimals),
-            str = `${(math.round(scalar * pow) / pow).toFixed(decimals)}`;
-        return str;
-    };
-};
 
 class LMDB extends BaseDB {
     constructor(datapath, readOnly = true, meta = undefined) {
@@ -138,12 +129,11 @@ class LMDB extends BaseDB {
     getCurrentKeyValue(db, cursorUUID, discardKey = false) {
         assert(this._cursors[cursorUUID], 'No Cursor instance');
 
-        const _self = this;
         let res = null;
 
-        if (_self._meta.DataSet.DataChannels[db].type.class === 'DataFrame') {
-            let arrayClass = _self._getArrayClass(_self._meta.DataSet.DataChannels[db].type.type);
-            _self._cursors[cursorUUID].getCurrentBinary((_key, _val) => {
+        if (this._meta.DataSet.DataChannels[db].type.class === 'DataFrame') {
+            let arrayClass = this._getArrayClass(this._meta.DataSet.DataChannels[db].type.type);
+            this._cursors[cursorUUID].getCurrentBinary((_key, _val) => {
                 if (discardKey) {
                     res = new arrayClass(_val.buffer);
                 } else {
@@ -154,7 +144,7 @@ class LMDB extends BaseDB {
                 }
             });
         } else {
-            _self._cursors[cursorUUID].getCurrentNumber((_key, _val) => {
+            this._cursors[cursorUUID].getCurrentNumber((_key, _val) => {
                 if (discardKey) {
                     res = _val;
                 } else {
@@ -233,118 +223,6 @@ class LMDB extends BaseDB {
         let e = event.toObject(),
             key = this._getKey(db, e.t, event.parentUUID);
         this._openTxn[uuid].putNumber(this._openDB[db], key, e.v.scalar);
-    }
-
-
-    //
-    //
-    // internals
-
-    _createDB(db, meta) {
-        assert(meta instanceof Object, 'Meta object is required');
-
-        const _self = this;
-        this._meta.DataSet.DataChannels[db] = meta;
-        return this._updateMeta()
-            .then(() => {
-                _self._open(db);
-            });
-    }
-
-    _open(dbname) {
-        if (Object.keys(this._openDB) > 0) {
-            Object.keys(this._openDB).map((name) => {
-                if (name !== dbname) {
-                    this._close(dbname);
-                }
-            });
-        }
-        if (!this._openDB[dbname]) {
-            this._openDB[dbname] = this._env.openDbi({
-                name: dbname,
-                create: true,
-                dupSort: true,
-                reverseKey: false,
-                integerKey: false,
-                dupFixed: false,
-                integerDup: false
-            });
-        }
-        return this._openDB[dbname];
-    }
-
-    _close(dbname) {
-        if (this._openDB[dbname]) {
-            this._openDB[dbname].close();
-            delete this._openDB[dbname];
-        }
-        return this._openDB[dbname];
-    }
-
-    _updateMeta() {
-        const _self = this,
-            fpath = path.join(this._datapath, 'meta.json'),
-            meta = this._meta;
-        return new JSONFile(meta).write(fpath + '.bak')
-            .then(() => {
-                return new JSONFile(meta).write(fpath);
-            })
-            .then(() => {
-                _self.emit('updated');
-            });
-    }
-
-    _getKey(db, time, channelUUID = undefined) {
-        const channel = this._meta.DataSet.DataChannels[db];
-
-        if (typeof time === 'number') {
-            time = Qty(time, channel.keyUnit);
-        }
-
-        assert(time instanceof Qty, `Key time must be Qty or number, is ${typeof time}`);
-
-        const timeStr = time.format(roundFormat(channel.keyPrecision));
-        return new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr + channelUUID || '';
-    }
-
-    _getArrayClass(typeString) {
-        switch (typeString) {
-        case 'Float32':
-            return Float32Array;
-        case 'Float64':
-            return Float32Array;
-        case 'Int32':
-            return Int32Array;
-        case 'Uint32':
-            return Uint32Array;
-        case 'Int16':
-            return Int32Array;
-        case 'Uint16':
-            return Uint32Array;
-        case 'Int8':
-            return Int8Array;
-        case 'Uint8':
-            return Uint8Array;
-        }
-    }
-
-    _checkAndConvertKey(db, key) {
-        if (typeof key === 'number') {
-            return this._getKey(db, key);
-        } else if (key instanceof Qty) {
-            return this._getKey(db, key.to('s').scalar);
-        } else if (typeof key === 'string') {
-            return this._getKey(db, Qty(key).to('s').scalar);
-        }
-        return key;
-    }
-
-    //
-    //
-    // Getters / Setters
-
-    get meta() {
-        return this._meta;
     }
 }
 

@@ -1,5 +1,5 @@
 const memwatch = require('memwatch-next'),
-    cl = require('../src/index').default,
+    cl = require('../../src/index').default,
     path = require('path');
 
 memwatch.on('leak', function(info) {

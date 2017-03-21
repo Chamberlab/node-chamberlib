@@ -1,15 +1,13 @@
 import chai from 'chai';
 chai.should();
 
-import cl from '../../../src/index';
+import cl from '../../../dist';
 
 describe('cl.nodes.transform.BaseTransformNode', () => {
-
     it('Reads DataEvents and passes them through the supplied function', (cb) => {
         const random = new cl.nodes.generators.Random(150),
-            transformer = new cl.nodes.transform.BaseTransformNode();
-
-        let events = [];
+            transformer = new cl.nodes.transform.BaseTransformNode(),
+            events = [];
 
         transformer.stream.on('data', (data) => {
             data.should.be.instanceOf(cl.events.DataEvent);
@@ -26,5 +24,4 @@ describe('cl.nodes.transform.BaseTransformNode', () => {
         random.stream.pipe(transformer.stream);
         random.startOutput();
     });
-
 });
