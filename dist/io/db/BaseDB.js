@@ -4,11 +4,21 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _assert = require('assert');
 
 var _assert2 = _interopRequireDefault(_assert);
+
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
+var _mathjs = require('mathjs');
+
+var _mathjs2 = _interopRequireDefault(_mathjs);
+
+var _jsQuantities = require('js-quantities');
+
+var _jsQuantities2 = _interopRequireDefault(_jsQuantities);
 
 var _tinyEmitter = require('tiny-emitter');
 
@@ -18,42 +28,144 @@ var _DataEvent = require('../../events/DataEvent');
 
 var _DataEvent2 = _interopRequireDefault(_DataEvent);
 
-var _Time = require('../../quantities/Time');
+var _JSONFile = require('../../io/file/JSONFile');
 
-var _Time2 = _interopRequireDefault(_Time);
+var _JSONFile2 = _interopRequireDefault(_JSONFile);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+const formatKey = decimals => {
+    return function (scalar) {
+        const pow = _mathjs2.default.pow(10, decimals),
+              str = `${(_mathjs2.default.round(scalar * pow) / pow).toFixed(decimals)}`;
+        return str;
+    };
+};
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+class BaseDB extends _tinyEmitter2.default {
+    constructor() {
+        super();
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var BaseDB = function (_Emitter) {
-    _inherits(BaseDB, _Emitter);
-
-    function BaseDB() {
-        _classCallCheck(this, BaseDB);
-
-        return _possibleConstructorReturn(this, (BaseDB.__proto__ || Object.getPrototypeOf(BaseDB)).call(this));
+        this._datapath = undefined;
+        this._meta = undefined;
     }
 
-    _createClass(BaseDB, [{
-        key: 'get',
-        value: function get(key) {
-            (0, _assert2.default)(key instanceof _Time2.default);
-        }
-    }, {
-        key: 'put',
-        value: function put(key, val) {
-            (0, _assert2.default)(key instanceof _Time2.default);
-            (0, _assert2.default)(val instanceof _DataEvent2.default);
-        }
-    }]);
+    get(key) {
+        (0, _assert2.default)(key instanceof _jsQuantities2.default);
+    }
 
-    return BaseDB;
-}(_tinyEmitter2.default);
+    put(key, val) {
+        (0, _assert2.default)(key instanceof _jsQuantities2.default);
+        (0, _assert2.default)(val instanceof _DataEvent2.default);
+    }
+
+    //
+    //
+    // internals
+
+    _createDB(db, meta) {
+        (0, _assert2.default)(meta instanceof Object, 'Meta object is required');
+
+        const _self = this;
+        this._meta.DataSet.DataChannels[db] = meta;
+        return this._updateMeta().then(() => {
+            _self._open(db);
+        });
+    }
+
+    _open(dbname) {
+        if (Object.keys(this._openDB) > 0) {
+            Object.keys(this._openDB).map(name => {
+                if (name !== dbname) {
+                    this._close(dbname);
+                }
+            });
+        }
+        if (!this._openDB[dbname]) {
+            this._openDB[dbname] = this._env.openDbi({
+                name: dbname,
+                create: true,
+                dupSort: true,
+                reverseKey: false,
+                integerKey: false,
+                dupFixed: false,
+                integerDup: false
+            });
+        }
+        return this._openDB[dbname];
+    }
+
+    _close(dbname) {
+        if (this._openDB[dbname]) {
+            this._openDB[dbname].close();
+            delete this._openDB[dbname];
+        }
+        return this._openDB[dbname];
+    }
+
+    _updateMeta() {
+        const _self = this,
+              fpath = _path2.default.join(this._datapath, 'meta.json'),
+              meta = this._meta;
+        return new _JSONFile2.default(meta).write(fpath + '.bak').then(() => {
+            return new _JSONFile2.default(meta).write(fpath);
+        }).then(() => {
+            _self.emit('updated');
+        });
+    }
+
+    _getKey(db, time, channelUUID = undefined) {
+        const channel = this._meta.DataSet.DataChannels[db];
+
+        if (typeof time === 'number') {
+            time = (0, _jsQuantities2.default)(time, channel.keyUnit);
+        }
+
+        (0, _assert2.default)(time instanceof _jsQuantities2.default, `Key time must be Qty or number, is ${typeof time}`);
+
+        const timeStr = time.format(formatKey(channel.keyPrecision));
+        return new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr + (channelUUID ? channelUUID.split('-').pop() : '');
+    }
+
+    _getArrayClass(typeString) {
+        switch (typeString) {
+            case 'Float32':
+                return Float32Array;
+            case 'Float64':
+                return Float32Array;
+            case 'Int32':
+                return Int32Array;
+            case 'Uint32':
+                return Uint32Array;
+            case 'Int16':
+                return Int32Array;
+            case 'Uint16':
+                return Uint32Array;
+            case 'Int8':
+                return Int8Array;
+            case 'Uint8':
+                return Uint8Array;
+        }
+    }
+
+    _checkAndConvertKey(db, key) {
+        if (typeof key === 'number') {
+            return this._getKey(db, key);
+        } else if (key instanceof _jsQuantities2.default) {
+            return this._getKey(db, key.to('s').scalar);
+        } else if (typeof key === 'string') {
+            return this._getKey(db, (0, _jsQuantities2.default)(key).to('s').scalar);
+        }
+        return key;
+    }
+
+    //
+    //
+    // Getters / Setters
+
+    get meta() {
+        return this._meta;
+    }
+}
 
 exports.default = BaseDB;
-//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImlvL2RiL0Jhc2VEQi5qcyJdLCJuYW1lcyI6WyJCYXNlREIiLCJrZXkiLCJ2YWwiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7O0FBQUE7Ozs7QUFDQTs7OztBQUNBOzs7O0FBQ0E7Ozs7Ozs7Ozs7OztJQUVNQSxNOzs7QUFDRixzQkFBYztBQUFBOztBQUFBO0FBRWI7Ozs7NEJBRUdDLEcsRUFBSztBQUNMLGtDQUFPQSw2QkFBUDtBQUNIOzs7NEJBRUdBLEcsRUFBS0MsRyxFQUFLO0FBQ1Ysa0NBQU9ELDZCQUFQO0FBQ0Esa0NBQU9DLGtDQUFQO0FBQ0g7Ozs7OztrQkFHVUYsTSIsImZpbGUiOiJpby9kYi9CYXNlREIuanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgYXNzZXJ0IGZyb20gJ2Fzc2VydCc7XG5pbXBvcnQgRW1pdHRlciBmcm9tICd0aW55LWVtaXR0ZXInO1xuaW1wb3J0IERhdGFFdmVudCBmcm9tICcuLi8uLi9ldmVudHMvRGF0YUV2ZW50JztcbmltcG9ydCBUaW1lIGZyb20gJy4uLy4uL3F1YW50aXRpZXMvVGltZSc7XG5cbmNsYXNzIEJhc2VEQiBleHRlbmRzIEVtaXR0ZXIge1xuICAgIGNvbnN0cnVjdG9yKCkge1xuICAgICAgICBzdXBlcigpO1xuICAgIH1cblxuICAgIGdldChrZXkpIHtcbiAgICAgICAgYXNzZXJ0KGtleSBpbnN0YW5jZW9mIFRpbWUpO1xuICAgIH1cblxuICAgIHB1dChrZXksIHZhbCkge1xuICAgICAgICBhc3NlcnQoa2V5IGluc3RhbmNlb2YgVGltZSk7XG4gICAgICAgIGFzc2VydCh2YWwgaW5zdGFuY2VvZiBEYXRhRXZlbnQpO1xuICAgIH1cbn1cblxuZXhwb3J0IGRlZmF1bHQgQmFzZURCOyJdfQ==
