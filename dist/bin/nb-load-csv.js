@@ -107,7 +107,7 @@ new Promise(function () {
             }
 
             let ms = _mathjs2.default.number(entry[0]),
-                values = new Float32Array(64);
+                values = new Float32Array(dataSize);
 
             entry.forEach(function (field, i) {
                 values[i] = _mathjs2.default.bignumber(field);

@@ -29,8 +29,8 @@ describe('cl.composition.Sonify', () => {
             frame = lmdb.getCurrentFrame(dbname, cursor);
             frame.value.forEach((val, i) => {
                 value = Qty(val, lmdb.meta.DataSet.DataChannels[dbname].units[i]);
-                if (value.gte(max) || value.lte(min)) {
-                    console.log(val, i, frame.time.toString());
+                if ((value.isCompatible(max) && value.gte(max)) || (value.isCompatible(max) && value.lte(min))) {
+                    debug(val, i, frame.time.toString());
                 }
             });
             secs = frame.time.scalar;

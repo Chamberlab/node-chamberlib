@@ -8,6 +8,10 @@ var _assert = require('assert');
 
 var _assert2 = _interopRequireDefault(_assert);
 
+var _uuidValidate = require('uuid-validate');
+
+var _uuidValidate2 = _interopRequireDefault(_uuidValidate);
+
 var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
@@ -36,9 +40,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 const formatKey = decimals => {
     return function (scalar) {
-        const pow = _mathjs2.default.pow(10, decimals),
-              str = `${(_mathjs2.default.round(scalar * pow) / pow).toFixed(decimals)}`;
-        return str;
+        const pow = _mathjs2.default.pow(10, decimals);
+        return `${(_mathjs2.default.round(scalar * pow) / pow).toFixed(decimals)}`;
     };
 };
 
@@ -124,7 +127,7 @@ class BaseDB extends _tinyEmitter2.default {
         (0, _assert2.default)(time instanceof _jsQuantities2.default, `Key time must be Qty or number, is ${typeof time}`);
 
         const timeStr = time.format(formatKey(channel.keyPrecision));
-        return new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr + (channelUUID ? channelUUID.split('-').pop() : '');
+        return ((0, _uuidValidate2.default)(channelUUID, 4) ? channelUUID.split('-').pop() : '') + new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr;
     }
 
     _getArrayClass(typeString) {

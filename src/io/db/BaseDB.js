@@ -1,4 +1,5 @@
 import assert from 'assert';
+import uuidValidate from 'uuid-validate';
 import path from 'path';
 import math from 'mathjs';
 import Qty from 'js-quantities';
@@ -8,9 +9,8 @@ import JSONFile from '../../io/file/JSONFile';
 
 const formatKey = decimals => {
     return function(scalar) {
-        const pow = math.pow(10, decimals),
-            str = `${(math.round(scalar * pow) / pow).toFixed(decimals)}`;
-        return str;
+        const pow = math.pow(10, decimals);
+        return `${(math.round(scalar * pow) / pow).toFixed(decimals)}`;
     };
 };
 
@@ -100,8 +100,8 @@ class BaseDB extends Emitter {
         assert(time instanceof Qty, `Key time must be Qty or number, is ${typeof time}`);
 
         const timeStr = time.format(formatKey(channel.keyPrecision));
-        return new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr +
-            (channelUUID ? channelUUID.split('-').pop() : '');
+        return (uuidValidate(channelUUID, 4) ? channelUUID.split('-').pop() : '') +
+            new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr;
     }
 
     _getArrayClass(typeString) {

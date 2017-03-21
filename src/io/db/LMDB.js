@@ -97,28 +97,29 @@ class LMDB extends BaseDB {
     }
 
     getCurrentEvents(db, cursorUUID) {
-        let res = this.getCurrentKeyValue(db, cursorUUID),
-            key = res.key.substr(0, res.key.length - 1),
-            events = [],
-            _self = this;
+        let channel = this._meta.DataSet.DataChannels[db],
+            res = this.getCurrentKeyValue(db, cursorUUID),
+            keyTime = res.key.length === channel.keySize + 12 ? res.key.substr(12) : res.key,
+            events = [];
         res.val.map((val, i) => {
             let evt = new DataEvent(
-                Qty(math.number(key), _self._meta.DataSet.DataChannels[db].keyUnit),
-                Qty(val, _self._meta.DataSet.DataChannels[db].units[i])
+                Qty(math.number(keyTime), channel.keyUnit),
+                Qty(val, channel.units[i])
             );
-            evt.parentUUID = _self._meta.DataSet.DataChannels[db].uuids[i];
+            evt.parentUUID = channel.uuids[i];
             events.push(evt);
         });
         return events;
     }
 
     getCurrentFrame(db, cursorUUID) {
-        let res = this.getCurrentKeyValue(db, cursorUUID),
+        let channel = this._meta.DataSet.DataChannels[db],
+            res = this.getCurrentKeyValue(db, cursorUUID),
             frame = new DataFrame(
-                Qty(math.number(res.key), this._meta.DataSet.DataChannels[db].keyUnit),
+                Qty(math.number(res.key), channel.keyUnit),
                 res.val
             );
-        frame.parentUUID = this._meta.DataSet.DataChannels[db].uuid;
+        frame.parentUUID = channel.uuid;
         return frame;
     }
 
@@ -131,25 +132,31 @@ class LMDB extends BaseDB {
 
         let res = null;
 
+        // TODO: simplify this, remove redundancies
+
         if (this._meta.DataSet.DataChannels[db].type.class === 'DataFrame') {
             let arrayClass = this._getArrayClass(this._meta.DataSet.DataChannels[db].type.type);
             this._cursors[cursorUUID].getCurrentBinary((_key, _val) => {
+                let keystr = _key.toString('ucs2');
+                keystr = keystr.substr(0, keystr.length - 1);
                 if (discardKey) {
                     res = new arrayClass(_val.buffer);
                 } else {
                     res = {
-                        key: _key.toString('ucs2'),
+                        key: keystr,
                         val: new arrayClass(_val.buffer)
                     };
                 }
             });
         } else {
             this._cursors[cursorUUID].getCurrentNumber((_key, _val) => {
+                let keystr = _key.toString('ucs2');
+                keystr = keystr.substr(0, keystr.length - 1);
                 if (discardKey) {
                     res = _val;
                 } else {
                     res = {
-                        key: _key.toString('ucs2'),
+                        key: keystr,
                         val: math.number(_val)
                     };
                 }
