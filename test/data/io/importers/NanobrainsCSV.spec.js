@@ -8,10 +8,9 @@ import cl from '../../../../dist';
 describe('cl.data.io.importers.NanobrainsCSV', () => {
     it('Reads and parses a nanobrains file', () => {
         let nano = new cl.io.importers.NanobrainsCSV();
-        let tstart = Date.now();
         return nano.read(path.join(__dirname, '..', '..', '..', 'assets', 'nanobrains.csv'))
             .then(() => {
-                Debug('cl:import')(`Read ${nano.data.at(0).size} CSV records in ${Date.now() - tstart} ms`);
+                Debug('cl:csv:stats')(`Read ${nano.data.at(0).size} CSV records`);
 
                 nano.data.should.be.instanceof(cl.data.DataSet);
                 nano.data.size.should.equal(65);

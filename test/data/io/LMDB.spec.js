@@ -9,7 +9,7 @@ import Chance from 'chance';
 import cl from '../../../dist';
 import * as fixtures from '../../fixtures';
 
-const debug = Debug('cl:stats'),
+const debug = Debug('cl:lmdb:stats'),
     chance = new Chance();
 
 describe('cl.data.io.LMDB', () => {
@@ -94,8 +94,7 @@ describe('cl.data.io.LMDB', () => {
 
     it('Stores 10k DataEvent objects', (cb) => {
         let dbname = title || chance.word({syllables: 3}),
-            channel = fixtures.makeDataChannel(10000),
-            tstart = Date.now();
+            channel = fixtures.makeDataChannel(10000);
 
         let txn = lmdb.begin(dbname, false);
         channel.all.map((event) => {
@@ -103,8 +102,7 @@ describe('cl.data.io.LMDB', () => {
         });
         lmdb.commit(txn);
 
-        debug(`LMDB: Stored 10k DataEvents in ${Date.now() - tstart} ms\n`);
-
+        debug('Stored 10k DataEvents');
         cb();
     });
 
@@ -119,7 +117,6 @@ describe('cl.data.io.LMDB', () => {
         });
         lmdb.commit(txn);
 
-        let tstart = Date.now();
         txn = lmdb.begin(dbname);
         channel.all.map((event, i) => {
             let res = lmdb.get(dbname, txn, event.time, event.parentUUID);
@@ -134,7 +131,7 @@ describe('cl.data.io.LMDB', () => {
         });
         lmdb.abort(txn);
 
-        debug(`LMDB: Retrieved 10k DataEvents in ${Date.now() - tstart} ms\n\n`);
+        debug('Retrieved 10k DataEvents');
 
         cb();
     });
