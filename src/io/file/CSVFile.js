@@ -4,6 +4,8 @@ import parse from 'csv-parse';
 class CSVFile extends BaseFile {
     constructor() {
         super();
+
+        this._data = undefined;
     }
 
     read(file, options) {
@@ -14,6 +16,10 @@ class CSVFile extends BaseFile {
 
     write() {
         throw new Error('CSV writing not implemented.');
+    }
+
+    get data() {
+        return this._data;
     }
 }
 

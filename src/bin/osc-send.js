@@ -1,5 +1,5 @@
 const memwatch = require('memwatch-next'),
-    cl = require('../src/index').default,
+    cl = require('../../dist').default,
     path = require('path'),
     lmdbOut = new cl.nodes.storage.LMDBNode(),
     osc = new cl.nodes.io.OSCNode(52777),
@@ -8,7 +8,7 @@ const memwatch = require('memwatch-next'),
 let outputUuid;
 
 memwatch.on('leak', function(info) {
-    console.log(`WARNING: ${info.reason} - Growth: ${info.growth}`);
+    process.stderr.write(`WARNING: ${info.reason} - Growth: ${info.growth}\n`);
 });
 
 lmdbOut.openDataSet(dataPath, '20151208_15h59m12s_nanobrain');

@@ -9,6 +9,7 @@ class DataEvent extends BaseEvent {
     }
 
     toObject() {
+        // TODO: time & value toObject?
         return { t: this.time, v: this.value };
     }
 }

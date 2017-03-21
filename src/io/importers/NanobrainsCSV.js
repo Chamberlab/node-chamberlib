@@ -1,6 +1,7 @@
 import Promise from 'bluebird';
 import transform from 'stream-transform';
 import Qty from 'js-quantities';
+import math from 'mathjs';
 
 import CSVFile from '../file/CSVFile';
 import DataSet from '../../data/DataSet';
@@ -28,22 +29,25 @@ class NanobrainsCSV extends CSVFile {
 
         return new Promise(function (resolve, reject) {
             let count = 0;
-            _self.data = new DataSet();
+            _self._data = new DataSet();
 
             writeStream = transform(function csvTransform(entry, cb) {
                 if (count > 2) {
-                    let ms = entry.shift();
                     entry.forEach(function (field, i) {
                         if (count === 3) {
                             _self.data.push(new DataChannel([], field));
                         } else {
                             _self.data.at(i).push(
-                                new DataEvent(Qty(parseFloat(ms), 'ms'), Qty(parseFloat(field), 'mV')));
+                                new DataEvent(
+                                    Qty(math.number(entry[0]), 'ms'),
+                                    Qty(math.number(field), 'mV')
+                                )
+                            );
                         }
                     });
                 }
                 count++;
-                return cb();
+                cb();
             }, function (err) {
                 if (err) {
                     reject(err);
