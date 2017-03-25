@@ -21,27 +21,36 @@ describe('cl.composition.Sonify', () => {
         }
 
         const lmdb = new cl.io.db.LMDB(dbpath),
-            txn = lmdb.begin(dbname), cursor = lmdb.cursor(dbname, txn),
-            min = Qty(-1.0, 'mV'), max = Qty(1.0, 'mV');
+            txn = lmdb.begin(dbname),
+            cursor = lmdb.cursor(dbname, txn),
+            min = Qty(-0.5, 'mV'),
+            max = Qty(0.5, 'mV'),
+            channel = lmdb.meta.DataSet.DataChannels[dbname];
 
-        let frame, value, secs = 0;
+        let frame, value, frames = 0;
         for (let hasnext = lmdb.gotoFirst(cursor); hasnext; hasnext = lmdb.gotoNext(cursor)) {
             frame = lmdb.getCurrentFrame(dbname, cursor);
             frame.value.forEach((val, i) => {
-                value = Qty(val, lmdb.meta.DataSet.DataChannels[dbname].units[i]);
-                if ((value.isCompatible(max) && value.gte(max)) || (value.isCompatible(max) && value.lte(min))) {
-                    debug(val, i, frame.time.toString());
+                value = Qty(val, channel.units[i]);
+                if (value.isCompatible(max) && value.isCompatible(min)) {
+                    if (value.gte(max)) {
+                        Debug('cl:trigger')(`${value} >= ${max} on ${channel.labels[i]} at ${frame.time}`);
+                    } else if (value.lte(min)) {
+                        Debug('cl:trigger')(`${value} <= ${min} on ${channel.labels[i]} at ${frame.time}`);
+                    }
                 }
             });
-            secs = frame.time.scalar;
-            if (secs % 30.0 === 0) {
-                debug(`Key position at ${secs.toFixed(3)} seconds`);
+
+            if (frames % 200000 === 0) {
+                debug(`Key position at ${frame.time} (${frames} data frames)`);
             }
+            frames += 1;
         }
 
-        debug(`Key position at ${secs.toFixed(3)} seconds`);
+        debug(`Key position at ${frame.time} (${frames} data frames)`);
 
         lmdb.closeCursor(cursor);
+        lmdb.commit(txn);
         lmdb.closeEnv();
 
         setTimeout(cb, 100);
