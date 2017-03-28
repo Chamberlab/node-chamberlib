@@ -15,10 +15,11 @@ class EventFilter extends BaseEventProcessor {
     }
 
     process(event) {
-        const e = super.process(event);
-
-        return this._matchValueFn(e) &&
-            (typeof this._matchTimeFn === 'function' ? this._matchTimeFn(e) : true);
+        return super.process(event)
+            .then(event => {
+                return this._matchValueFn(event) &&
+                    (typeof this._matchTimeFn === 'function' ? this._matchTimeFn(event) : true);
+            });
     }
 }
 

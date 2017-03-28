@@ -10,7 +10,8 @@ class BaseEventProcessor {
 
     process(event) {
         assert(event instanceof BaseEvent, `event must be BaseEvent, is ${typeof event}`);
-        return event;
+        return new Promise(resolve => resolve(event));
+
     }
 }
 
