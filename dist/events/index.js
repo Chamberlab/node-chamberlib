@@ -16,6 +16,10 @@ var _TonalEvent = require('./TonalEvent');
 
 var _TonalEvent2 = _interopRequireDefault(_TonalEvent);
 
+var _SpikeEvent = require('./SpikeEvent');
+
+var _SpikeEvent2 = _interopRequireDefault(_SpikeEvent);
+
 var _DataFrame = require('./DataFrame');
 
 var _DataFrame2 = _interopRequireDefault(_DataFrame);
@@ -26,5 +30,6 @@ exports.default = {
     BaseEvent: _BaseEvent2.default,
     DataEvent: _DataEvent2.default,
     TonalEvent: _TonalEvent2.default,
+    SpikeEvent: _SpikeEvent2.default,
     DataFrame: _DataFrame2.default
 };
