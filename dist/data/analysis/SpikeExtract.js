@@ -19,15 +19,16 @@ var _SpikeEvent2 = _interopRequireDefault(_SpikeEvent);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class SpikeExtract {
-    constructor(channels = 1, threshold = 0.5) {
+    constructor(channels = 1, threshold = 0.5, skip = 0) {
         this._channels = channels;
         this._threshold = threshold;
+        this._skip = skip;
         // extract from min to next min, save duration, peak point, channel info
 
         this._spikes = [];
         this._openSpikes = [];
 
-        for (let i = 0; i < channels; i += 1) {
+        for (let i = this._skip; i < channels; i += 1) {
             this._spikes.push([]);
             this._openSpikes.push(null);
         }
@@ -44,7 +45,9 @@ class SpikeExtract {
         const values = new Float32Array(this._channels);
         if (event.constructor.name === 'DataFrame') {
             event.value.forEach((val, i) => {
-                values[i] = val;
+                if (i >= this._skip) {
+                    values[i - this._skip] = val;
+                }
             });
         } else if (event.constructor.name === 'DataEvent') {
             if (channel === undefined) {
@@ -52,17 +55,20 @@ class SpikeExtract {
             }
         }
         values.forEach((val, i) => {
+            if (i >= this._skip) {
+                return;
+            }
             if (val >= this._threshold) {
                 const evt = new _DataEvent2.default(event.time, `${val} mV`);
-                if (this._openSpikes[i] === null) {
-                    this._openSpikes[i] = [evt];
+                if (this._openSpikes[i - this._skip] === null) {
+                    this._openSpikes[i - this._skip] = [evt];
                 } else {
-                    this._openSpikes[i].push(evt);
+                    this._openSpikes[i - this._skip].push(evt);
                 }
             } else {
-                if (Array.isArray(this._openSpikes[i])) {
-                    this._spikes[i].push(new _SpikeEvent2.default(this._openSpikes[i][0].time, this._openSpikes[i]));
-                    this._openSpikes[i] = null;
+                if (Array.isArray(this._openSpikes[i - this._skip])) {
+                    this._spikes[i - this._skip].push(new _SpikeEvent2.default(this._openSpikes[i - this._skip][0].time, this._openSpikes[i - this._skip]));
+                    this._openSpikes[i - this._skip] = null;
                 }
             }
         });

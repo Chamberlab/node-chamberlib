@@ -20,6 +20,9 @@ describe('cl.composition.Sonify', () => {
             return cb();
         }
 
+        const ld = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'data', 'spikes.json'))),
+            lds = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'data', 'allSpikes.json')));
+
         const lmdb = new cl.io.db.LMDB(dbpath),
             txn = lmdb.begin(dbname),
             cursor = lmdb.cursor(dbname, txn),
@@ -29,7 +32,7 @@ describe('cl.composition.Sonify', () => {
 
         // highest spike, spike count, spike mv sum
 
-        const extract = new cl.data.analysis.SpikeExtract(64, 0.7);
+        const extract = new cl.data.analysis.SpikeExtract(64, 0.07, 1);
 
         let frame, value, frames = 0;
         for (let hasnext = lmdb.gotoFirst(cursor); hasnext; hasnext = lmdb.gotoNext(cursor)) {
@@ -86,8 +89,8 @@ describe('cl.composition.Sonify', () => {
             return 0;
         });
 
-        fs.writeFile(path.join(__dirname, '..', '..', 'data', 'spikes.json'), JSON.encode(extract.spikes));
-        fs.writeFile(path.join(__dirname, '..', '..', 'data', 'allSpikes.json'), JSON.encode(allSpikes));
+        fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'spikes.json'), JSON.stringify(extract.spikes));
+        fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'allSpikes.json'), JSON.stringify(allSpikes));
 
         lmdb.closeCursor(cursor);
         lmdb.commit(txn);

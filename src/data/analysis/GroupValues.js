@@ -14,7 +14,7 @@ class GroupValues {
         return new Promise((resolve, reject) => {
             if (event instanceof DataFrame) {
                 event.value.forEach((val, i) => {
-                    const
+                    const group =
                     this._groupMapping[group].values.push();
                 });
                 resolve(event);
