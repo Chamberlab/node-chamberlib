@@ -27,9 +27,28 @@ describe('cl.composition.Sonify', () => {
             max = Qty(0.5, 'mV'),
             channel = lmdb.meta.DataSet.DataChannels[dbname];
 
+        // highest spike, spike count, spike mv sum
+
+        const extract = new cl.data.analysis.SpikeExtract(64, 0.7);
+
         let frame, value, frames = 0;
         for (let hasnext = lmdb.gotoFirst(cursor); hasnext; hasnext = lmdb.gotoNext(cursor)) {
             frame = lmdb.getCurrentFrame(dbname, cursor);
+
+            // cascade and switch master ruleset/system
+            // start on f, tonic is c
+
+            //let dist = new ValueDistribution({ quantize: 0.01 }); // percentage, detect modes for value distribution
+
+            // negative circle left (diminish b), positive circle right (augment #)
+
+            //dist.evaluate(frame);
+            extract.evaluate(frame);
+
+            // cutoff 0.2
+            // grundtonwechsel 1.0
+
+            /*
             frame.value.forEach((val, i) => {
                 value = Qty(val, channel.units[i]);
                 if (value.isCompatible(max) && value.isCompatible(min)) {
@@ -40,6 +59,7 @@ describe('cl.composition.Sonify', () => {
                     }
                 }
             });
+            */
 
             if (frames % 200000 === 0) {
                 debug(`Key position at ${frame.time} (${frames} data frames)`);
@@ -48,6 +68,26 @@ describe('cl.composition.Sonify', () => {
         }
 
         debug(`Key position at ${frame.time} (${frames} data frames)`);
+
+        const allSpikes = [];
+
+        extract.spikes.forEach((channel, i) => {
+            channel.forEach(spike => {
+                allSpikes.push({ channel: i, spike: spike });
+            });
+        });
+
+        allSpikes.sort((a, b) => {
+            if (a.spike.peak.time.gt(b.spike.peak.time)) {
+                return 1;
+            } else if (a.spike.peak.time.lt(b.spike.peak.time)) {
+                return -1;
+            }
+            return 0;
+        });
+
+        fs.writeFile(path.join(__dirname, '..', '..', 'data', 'spikes.json'), JSON.encode(extract.spikes));
+        fs.writeFile(path.join(__dirname, '..', '..', 'data', 'allSpikes.json'), JSON.encode(allSpikes));
 
         lmdb.closeCursor(cursor);
         lmdb.commit(txn);

@@ -25,7 +25,14 @@ class SpikeEvent extends _BaseEvent2.default {
     set value(value) {
         (0, _assert2.default)(Array.isArray(value), 'SpikeEvent value must be Array');
 
-        this._value = value;
+        this._value = value.sort((a, b) => {
+            if (a.time.gt(b.time)) {
+                return 1;
+            } else if (a.time.lt(b.time)) {
+                return -1;
+            }
+            return 0;
+        });
     }
 
     get value() {

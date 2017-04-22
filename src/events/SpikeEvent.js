@@ -12,7 +12,14 @@ class SpikeEvent extends BaseEvent {
     set value(value) {
         assert(Array.isArray(value), 'SpikeEvent value must be Array');
 
-        this._value = value;
+        this._value = value.sort((a, b) => {
+            if (a.time.gt(b.time)) {
+                return 1;
+            } else if (a.time.lt(b.time)) {
+                return -1;
+            }
+            return 0;
+        });
     }
 
     get value() {

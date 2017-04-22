@@ -1,7 +1,7 @@
 const chai = require('chai');
 chai.should();
 
-import cl from '../../../dist';
+import cl from '../../../src';
 import * as fixtures from '../../fixtures';
 import Qty from 'js-quantities';
 
