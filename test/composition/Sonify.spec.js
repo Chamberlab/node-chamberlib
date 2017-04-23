@@ -20,8 +20,13 @@ describe('cl.composition.Sonify', () => {
             return cb();
         }
 
-        const ld = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'data', 'spikes.json'))),
+        const st = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'data', 'stats.json'))),
+            ld = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'data', 'spikes.json'))),
             lds = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'data', 'allSpikes.json')));
+
+        st.forEach((stat, i) => {
+            debug(`Channel ${i} - Min: ${Qty(stat.min)} - Max: ${Qty(stat.max)}`);
+        });
 
         const lmdb = new cl.io.db.LMDB(dbpath),
             txn = lmdb.begin(dbname),
@@ -32,7 +37,8 @@ describe('cl.composition.Sonify', () => {
 
         // highest spike, spike count, spike mv sum
 
-        const extract = new cl.data.analysis.SpikeExtract(64, 0.07, 1);
+        const extract = new cl.data.analysis.SpikeExtract(64, 0.2, 1),
+            stats = new cl.data.analysis.Statistics(65);
 
         let frame, value, frames = 0;
         for (let hasnext = lmdb.gotoFirst(cursor); hasnext; hasnext = lmdb.gotoNext(cursor)) {
@@ -46,6 +52,7 @@ describe('cl.composition.Sonify', () => {
             // negative circle left (diminish b), positive circle right (augment #)
 
             //dist.evaluate(frame);
+            stats.evaluate(frame);
             extract.evaluate(frame);
 
             // cutoff 0.2
@@ -89,6 +96,7 @@ describe('cl.composition.Sonify', () => {
             return 0;
         });
 
+        fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'stats.json'), JSON.stringify(stats.stats));
         fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'spikes.json'), JSON.stringify(extract.spikes));
         fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'allSpikes.json'), JSON.stringify(allSpikes));
 
