@@ -45,7 +45,7 @@
     "d3": "^4.7.3",
     "debug": "^2.6.3",
     "js-quantities": "^1.6.6",
-    "jsdom": "^9.9.1",
+    "jsdom": "^10.0.0",
     "jsmidgen": "^0.1.5",
     "levenshtein": "^1.0.5",
     "mathjs": "^3.8.1",
