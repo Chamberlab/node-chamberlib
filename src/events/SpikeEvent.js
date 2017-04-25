@@ -34,7 +34,8 @@ class SpikeEvent extends BaseEvent {
         }
         let peakEvent = this.value[0];
         this.value.forEach(evt => {
-            if (evt.value.gt(peakEvent.value)) {
+            if ((evt.value.lt(Qty('0 mV')) && evt.value.lt(peakEvent.value)) ||
+                (evt.value.gt(Qty('0 mV')) && evt.value.gt(peakEvent.value))) {
                 peakEvent = evt;
             }
         });

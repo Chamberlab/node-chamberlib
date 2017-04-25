@@ -49,7 +49,7 @@ class SpikeExtract {
             if (Array.isArray(this._selectChannels) && this._selectChannels.indexOf(i) === -1) {
                 return;
             }
-            if (val >= this._threshold) {
+            if (val > 0 && val >= this._threshold || val < 0 && val <= this._threshold * -1.0) {
                 const evt = new _DataEvent2.default(event.time, `${val} mV`);
                 if (this._openSpikes[i] === null) {
                     this._openSpikes[i] = [evt];

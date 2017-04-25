@@ -53,7 +53,7 @@ class SpikeEvent extends _BaseEvent2.default {
         }
         let peakEvent = this.value[0];
         this.value.forEach(evt => {
-            if (evt.value.gt(peakEvent.value)) {
+            if (evt.value.lt((0, _jsQuantities2.default)('0 mV')) && evt.value.lt(peakEvent.value) || evt.value.gt((0, _jsQuantities2.default)('0 mV')) && evt.value.gt(peakEvent.value)) {
                 peakEvent = evt;
             }
         });
