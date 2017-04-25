@@ -169,6 +169,41 @@ describe('cl.composition.Sonify', () => {
             lastTime = data.spike.peak.time;
         });
 
-        setTimeout(cb, 100);
+        const tonalEvents = [];
+        spikeClusters.forEach(cluster => {
+            cluster.sort((a, b) => {
+                if (a.spike.peak.value.gt(b.spike.peak.value)) {
+                    return 1;
+                } else if (a.spike.peak.value.lt(b.spike.peak.value)) {
+                    return -1;
+                }
+                return 0;
+            }).forEach((evt, i) => {
+                if (i === 0) {
+                    const val = evt.spike.peak.value._scalar,
+                        note = new cl.harmonics.Note('C4'),
+                        intervalHigh = new cl.harmonics.Interval('5P'),
+                        intervalLow = new cl.harmonics.Interval('-5P');
+                    if (val > 0) {
+                        for (let n = 0; n < Math.round(val / 0.2); n+= 1) {
+                            note.transpose(intervalHigh, true);
+                        }
+                    } else if (val < 0) {
+                        for (let n = 0; n < Math.round(Math.abs(val) / 0.2); n += 1) {
+                            note.transpose(intervalLow, true);
+                        }
+                    }
+                    const event = new cl.events.TonalEvent(Qty(evt.spike.peak.time), note, Qty('0.25 s'));
+                    tonalEvents.push(event);
+                }
+            });
+        });
+
+        const dataChannel = new cl.data.DataChannel(tonalEvents, 'main', 'asdf'),
+            song = new cl.data.Song([dataChannel], 120, 'asssddddfffff');
+        song.toMidiFile(path.join(__dirname, '..', '..', 'data', 'out.mid'))
+            .then(() => {
+                setTimeout(cb, 1000);
+            });
     });
 });
