@@ -8,9 +8,17 @@ var _assert = require('assert');
 
 var _assert2 = _interopRequireDefault(_assert);
 
+var _jsQuantities = require('js-quantities');
+
+var _jsQuantities2 = _interopRequireDefault(_jsQuantities);
+
 var _BaseEvent = require('./BaseEvent');
 
 var _BaseEvent2 = _interopRequireDefault(_BaseEvent);
+
+var _DataEvent = require('./DataEvent');
+
+var _DataEvent2 = _interopRequireDefault(_DataEvent);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -62,6 +70,13 @@ class SpikeEvent extends _BaseEvent2.default {
     toObject() {
         // TODO: time & value toObject?
         return { t: this.time, v: this.value };
+    }
+
+    static fromObject(val) {
+        const spikeData = val._value.map(spike => {
+            return new _DataEvent2.default((0, _jsQuantities2.default)(spike._time), (0, _jsQuantities2.default)(spike._value));
+        });
+        return new SpikeEvent((0, _jsQuantities2.default)(val._time), spikeData);
     }
 }
 

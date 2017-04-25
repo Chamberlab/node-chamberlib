@@ -68,7 +68,7 @@ describe('cl.composition.Sonify', () => {
                 return i + 1;
             });
 
-            const spikeExtract = new cl.data.analysis.SpikeExtract(64, 0.1, selectChannels),
+            const spikeExtract = new cl.data.analysis.SpikeExtract(64, 0.05, selectChannels),
                 statsExtract = new cl.data.analysis.Statistics(65);
 
             if (!evaluate['stats']) {
@@ -157,13 +157,15 @@ describe('cl.composition.Sonify', () => {
             currentCluster = [];
 
         allSpikes.forEach((data, i) => {
-            if (currentCluster.length > 0 && data.spike.peak.time.sub(lastTime) >= Qty('1 ms')) {
+            if (currentCluster.length > 0 && data.spike.peak.time.sub(lastTime) >= Qty('0.1 ms')) {
                 spikeClusters.push(currentCluster);
+                debug(`Extracted Cluster at ${currentCluster[0].spike.time} with ${currentCluster.length} items`);
                 currentCluster = [];
+
             } else {
                 currentCluster.push(data);
             }
-            debug(`Spike #${i} delta T ${data.spike.time.peak.sub(lastTime)}`);
+            //debug(`Spike #${i} delta T ${data.spike.peak.time.sub(lastTime)}`);
             lastTime = data.spike.peak.time;
         });
 

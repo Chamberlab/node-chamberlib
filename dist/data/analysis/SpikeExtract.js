@@ -8,10 +8,6 @@ var _DataEvent = require('../../events/DataEvent');
 
 var _DataEvent2 = _interopRequireDefault(_DataEvent);
 
-var _DataFrame = require('../../events/DataFrame');
-
-var _DataFrame2 = _interopRequireDefault(_DataFrame);
-
 var _SpikeEvent = require('../../events/SpikeEvent');
 
 var _SpikeEvent2 = _interopRequireDefault(_SpikeEvent);
@@ -50,7 +46,7 @@ class SpikeExtract {
             }
         }
         values.forEach((val, i) => {
-            if (Array.isArray(this._selectChannels) && this._selectChannels.indexOf(i) !== -1) {
+            if (Array.isArray(this._selectChannels) && this._selectChannels.indexOf(i) === -1) {
                 return;
             }
             if (val >= this._threshold) {
