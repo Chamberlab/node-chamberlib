@@ -1,5 +1,7 @@
 import assert from 'assert';
+import Qty from 'js-quantities';
 import BaseEvent from './BaseEvent';
+import DataEvent from './DataEvent';
 
 class SpikeEvent extends BaseEvent {
     constructor(time, value) {
@@ -49,6 +51,13 @@ class SpikeEvent extends BaseEvent {
     toObject() {
         // TODO: time & value toObject?
         return {t: this.time, v: this.value};
+    }
+
+    static fromObject(val) {
+        const spikeData = val._value.map(spike => {
+            return new DataEvent(Qty(spike._time), Qty(spike._value));
+        });
+        return new SpikeEvent(Qty(val._time), spikeData);
     }
 }
 

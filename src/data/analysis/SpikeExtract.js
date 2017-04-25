@@ -1,5 +1,4 @@
 import DataEvent from '../../events/DataEvent';
-import DataFrame from '../../events/DataFrame';
 import SpikeEvent from '../../events/SpikeEvent';
 
 class SpikeExtract {
@@ -34,7 +33,7 @@ class SpikeExtract {
             }
         }
         values.forEach((val, i) => {
-            if (Array.isArray(this._selectChannels) && this._selectChannels.indexOf(i) !== -1) {
+            if (Array.isArray(this._selectChannels) && this._selectChannels.indexOf(i) === -1) {
                 return;
             }
             if (val >= this._threshold) {

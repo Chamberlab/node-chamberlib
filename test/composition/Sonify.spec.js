@@ -34,21 +34,24 @@ describe('cl.composition.Sonify', () => {
 
         if (fs.existsSync(statsPath)) {
             stats = JSON.parse(fs.readFileSync(statsPath));
-            stats.forEach((stat, i) => {
-                debug(`Channel ${i} - Min: ${Qty(stat.min)} - Max: ${Qty(stat.max)}`);
-            });
         } else {
             evaluate['stats'] = true;
         }
 
         if (fs.existsSync(channelSpikesPath)) {
-            channelSpikes = JSON.parse(fs.readFileSync(channelSpikesPath));
+            channelSpikes = JSON.parse(fs.readFileSync(channelSpikesPath)).map(channel => {
+                return channel.map(spikeEvent => {
+                    return cl.events.SpikeEvent.fromObject(spikeEvent);
+                });
+            });
         } else {
             evaluate['channelSpikes'] = true;
         }
 
         if (fs.existsSync(allSpikesPath)) {
-            allSpikes = JSON.parse(fs.readFileSync(allSpikesPath));
+            allSpikes = JSON.parse(fs.readFileSync(allSpikesPath)).map(spikeEvent => {
+                return { channel: spikeEvent.channel, spike: cl.events.SpikeEvent.fromObject(spikeEvent.spike) };
+            });
         } else {
             evaluate['allSpikes'] = true;
         }
@@ -57,14 +60,15 @@ describe('cl.composition.Sonify', () => {
 
             const lmdb = new cl.io.db.LMDB(dbpath),
                 txn = lmdb.begin(dbname),
-                cursor = lmdb.cursor(dbname, txn),
-                min = Qty(-0.5, 'mV'),
-                max = Qty(0.5, 'mV'),
-                channel = lmdb.meta.DataSet.DataChannels[dbname];
+                cursor = lmdb.cursor(dbname, txn);
 
             // highest spike, spike count, spike mv sum
 
-            const spikeExtract = new cl.data.analysis.SpikeExtract(64, 0.2, 1),
+            const selectChannels = new Array(64).fill(null).map((v, i) => {
+                return i + 1;
+            });
+
+            const spikeExtract = new cl.data.analysis.SpikeExtract(64, 0.1, selectChannels),
                 statsExtract = new cl.data.analysis.Statistics(65);
 
             if (!evaluate['stats']) {
@@ -75,7 +79,7 @@ describe('cl.composition.Sonify', () => {
                 debug('Using existing channel spikes data');
             }
 
-            let frame, value, frames = 0;
+            let frame, frames = 0;
             for (let hasnext = lmdb.gotoFirst(cursor); hasnext; hasnext = lmdb.gotoNext(cursor)) {
                 frame = lmdb.getCurrentFrame(dbname, cursor);
 
@@ -106,13 +110,15 @@ describe('cl.composition.Sonify', () => {
             debug(`Key position at ${frame.time} (${frames} data frames)`);
 
             if (evaluate['stats']) {
+                stats = statsExtract.stats.splice(1, 64);
                 fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'stats.json'),
-                    JSON.stringify(statsExtract.stats));
+                    JSON.stringify(stats));
             }
 
             if (evaluate['channelSpikes']) {
+                channelSpikes = spikeExtract.spikes;
                 fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'channelSpikes.json'),
-                    JSON.stringify(spikeExtract.spikes));
+                    JSON.stringify(channelSpikes));
             }
 
             lmdb.closeCursor(cursor);
@@ -124,7 +130,7 @@ describe('cl.composition.Sonify', () => {
         if (evaluate['allSpikes'] && channelSpikes) {
             allSpikes = [];
 
-            channelSpikes.spikes.forEach((channel, i) => {
+            channelSpikes.forEach((channel, i) => {
                 channel.forEach(spike => {
                     allSpikes.push({ channel: i, spike: spike });
                 });
@@ -141,6 +147,25 @@ describe('cl.composition.Sonify', () => {
 
             fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'allSpikes.json'), JSON.stringify(allSpikes));
         }
+
+        stats.forEach((stat, i) => {
+            debug(`Channel ${i} - Min: ${Qty(stat.min)} - Max: ${Qty(stat.max)}`);
+        });
+
+        let lastTime = Qty('0s'),
+            spikeClusters = [],
+            currentCluster = [];
+
+        allSpikes.forEach((data, i) => {
+            if (currentCluster.length > 0 && data.spike.peak.time.sub(lastTime) >= Qty('1 ms')) {
+                spikeClusters.push(currentCluster);
+                currentCluster = [];
+            } else {
+                currentCluster.push(data);
+            }
+            debug(`Spike #${i} delta T ${data.spike.time.peak.sub(lastTime)}`);
+            lastTime = data.spike.peak.time;
+        });
 
         setTimeout(cb, 100);
     });
