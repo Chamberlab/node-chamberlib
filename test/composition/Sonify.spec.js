@@ -8,65 +8,32 @@ import fs from 'fs';
 import uuid4 from 'uuid4';
 
 import cl from '../../src';
+import CompositionHelper from '../helpers/CompositionHelper';
 
 const debug = Debug('cl:test:Sonify');
 
 describe('cl.composition.Sonify', () => {
-    it('Sonify NanoBrain signals', () => {
-        const statsPath = path.join(__dirname, '..', '..',
-                'data', `${process.env.OUTPUT_BASENAME}-stats.json`),
-            channelSpikesPath = path.join(__dirname, '..', '..',
-                'data', `${process.env.OUTPUT_BASENAME}-channelSpikes.json`),
-            flattenedSpikesPath = path.join(__dirname, '..', '..',
-                'data', `${process.env.OUTPUT_BASENAME}-flattenedSpikes.json`),
-            evaluate = {
-                stats: false,
-                channelSpikes: false,
-                allSpikes: false
-            };
+    it('sonifies NanoBrain signals', () => {
+        const baseCachePath = path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME);
 
-        let _stats, _channelSpikes, _flattenedSpikes;
+        let _stats, _channelSpikes, _flattenedSpikes, _evaluate;
 
-        return cl.composition.Utilities.loadStats(statsPath)
-            .then(stats => {
-                if (stats) {
-                    _stats = stats;
-                } else {
-                    evaluate['stats'] = true;
-                }
-            })
-            .then(() => {
-                return cl.composition.Utilities.loadChannelSpikes(channelSpikesPath)
-                    .then(channelSpikes => {
-                        if (channelSpikes) {
-                            _channelSpikes = channelSpikes;
-                        } else {
-                            evaluate['channelSpikes'] = true;
-                        }
-                    });
-            })
-            .then(() => {
-                return cl.composition.Utilities.loadFlattenedSpikes(flattenedSpikesPath)
-                    .then(flattenedSpikes => {
-                        if (flattenedSpikes) {
-                            _flattenedSpikes = flattenedSpikes;
-                        } else {
-                            evaluate['flattenedSpikes'] = true;
-                        }
-                    });
+        return CompositionHelper.readCache(baseCachePath)
+            .then(res => {
+                [_stats, _channelSpikes, _flattenedSpikes, _evaluate] = res;
             })
             .then(() => {
                 if (!_stats || !_channelSpikes) {
                     if (process.env.PARSE_SPIKETRAINS) {
                         const spikeTrainFile = path.join(__dirname, '..', '..', 'data', process.env.SPIKETRAIN_FILE);
-                        return cl.composition.Utilities.parseSpiketrains(spikeTrainFile, evaluate);
+                        return cl.composition.DataParsing.parseSpiketrains(spikeTrainFile, evaluate);
                     } else {
                         const dbname = process.env.NB_DBNAME || 'test',
                             dbpath = path.join(__dirname, '..', '..', 'data', 'lmdb', dbname);
                         return new Promise(resolve => {
                             fs.exists(dbpath, exists => {
                                 if (exists) {
-                                    return resolve(cl.composition.Utilities.parseLMDBFrames(dbname, dbpath, evaluate));
+                                    return resolve(cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, evaluate));
                                 }
                                 debug('No Nanobrains DB in data, skipping...');
                                 resolve();
@@ -78,22 +45,20 @@ describe('cl.composition.Sonify', () => {
             .then(res => {
                 if (res) {
                     [_stats, _channelSpikes] = res;
-                    return cl.composition.Utilities.storeStats(_stats, statsPath)
-                        .then(() => cl.composition.Utilities.storeChannelSpikes(
-                            _channelSpikes, channelSpikesPath));
                 }
             })
             .then(() => {
-                if (evaluate['flattenedSpikes'] && _channelSpikes) {
-                    return cl.composition.Utilities.flattenChannels(_channelSpikes)
+                if (_evaluate.flattenedSpikes && _channelSpikes) {
+                    return cl.composition.DataManipulation.flattenChannels(_channelSpikes)
                         .then(flattenedSpikes => {
                             if (flattenedSpikes) {
                                 _flattenedSpikes = flattenedSpikes;
-                                return cl.composition.Utilities.storeFlattenedSpikes(
-                                    flattenedSpikes, flattenedSpikesPath);
                             }
                         });
                 }
+            })
+            .then(() => {
+                return CompositionHelper.writeCache(baseCachePath, _evaluate, _stats, _channelSpikes, _flattenedSpikes);
             })
             .then(() => {
                 if (Array.isArray(_stats)) {
@@ -103,7 +68,7 @@ describe('cl.composition.Sonify', () => {
                 }
             })
             .then(() => {
-                return cl.composition.Utilities.makeClusters(_flattenedSpikes, '0.01 ms');
+                return cl.composition.DataManipulation.makeClusters(_flattenedSpikes, '0.01 ms');
             })
             .then(spikeClusters => {
                 const tonalEvents = [],
