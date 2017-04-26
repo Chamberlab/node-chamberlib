@@ -28,7 +28,9 @@ class SpikeExtract {
                 values[i] = val;
             });
         } else if (event.constructor.name === 'DataEvent') {
-            if (channel === undefined) {
+            if (typeof channel === 'number') {
+                values[channel] = event.value.scalar;
+            } else {
                 values[0] = event.value;
             }
         }

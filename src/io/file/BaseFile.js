@@ -63,11 +63,18 @@ class BaseFile {
         if (stream) {
             return fs.createReadStream(this.fullpath);
         } else {
-            return Promise.promisify(fs.readFile)(this.fullpath)
-                .then((data) => {
-                    _self._data = data;
-                    return _self.data;
+            return new Promise((resolve, reject) => {
+                fs.readFile(this.fullpath, (err, data) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(data);
                 });
+            })
+            .then((data) => {
+                _self._data = data;
+                return _self.data;
+            });
         }
     }
 

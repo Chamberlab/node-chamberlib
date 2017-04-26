@@ -6,10 +6,11 @@ class JSONFile extends BaseFile {
     }
 
     read(file) {
-        return super.read(file).then(data => {
-            this.data = JSON.parse(data);
-            return this.data;
-        });
+        return super.read(file)
+            .then(data => {
+                this.data = JSON.parse(data);
+                return this.data;
+            });
     }
 
     write(file, data = undefined) {

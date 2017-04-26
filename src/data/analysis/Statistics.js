@@ -1,4 +1,5 @@
 import Qty from 'js-quantities';
+import assert from 'assert';
 
 class Statistics {
     constructor(channels) {
@@ -11,16 +12,31 @@ class Statistics {
         });
     }
 
-    evaluate(frame) {
-        frame.value.forEach((val, i) => {
-            const qty = Qty(val, 'mV');
-            if (qty.gt(this._stats[i].max)) {
-                this._stats[i].max = Qty(qty);
+    evaluate(data, channel = undefined) {
+        assert(typeof data !== 'undefined');
+
+        const _self = this;
+
+        function recordValue(val, channel) {
+            const qty = typeof val === 'object' && val.constructor.name === 'Qty' ? val : Qty(val, 'mV');
+            if (qty.gt(_self._stats[channel].max)) {
+                _self._stats[channel].max = Qty(qty);
             }
-            if (qty.lt(this._stats[i].min)) {
-                this._stats[i].min = Qty(qty);
+            if (qty.lt(_self._stats[channel].min)) {
+                _self._stats[channel].min = Qty(qty);
             }
-        });
+        }
+
+        if (data.constructor.name === 'DataFrame') {
+            data.value.forEach((val, i) => {
+                recordValue(val, i);
+            });
+        } else if (data.constructor.name === 'DataEvent') {
+            assert(typeof channel === 'number');
+            recordValue(data.value, channel);
+        } else {
+            throw new Error(`Unsupported type: ${data.constructor.name}`);
+        }
     }
 
     get stats() {
