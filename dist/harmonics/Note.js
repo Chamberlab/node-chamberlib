@@ -110,7 +110,8 @@ class Note {
         (0, _assert2.default)(interval instanceof _Interval2.default, `Invalid interval of type ${typeof interval}`);
 
         let noteString = this.toString(),
-            newval = tt.transpose(noteString, interval.toString());
+            intervalString = interval.toString(),
+            newval = tt.transpose(noteString, intervalString);
 
         if (simplify) {
             newval = tn.simplify(newval);
