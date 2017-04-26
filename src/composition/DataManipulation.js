@@ -1,5 +1,4 @@
 import Qty from 'js-quantities';
-import Debug from 'debug';
 
 class DataManipulation {
     static flattenChannels(channelSpikes) {
@@ -34,7 +33,6 @@ class DataManipulation {
             flattenedSpikes.forEach(data => {
                 if (currentCluster.length > 0 && data.spike.peak.time.sub(lastTime) >= Qty(maxTimeDifference)) {
                     spikeClusters.push(currentCluster);
-                    Debug('cl:composition:Utilities')(`Extracted Cluster at ${currentCluster[0].spike.time} with ${currentCluster.length} items`);
                     currentCluster = [];
                 }
                 currentCluster.push(data);

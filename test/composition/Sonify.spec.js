@@ -24,11 +24,11 @@ describe('cl.composition.Sonify', () => {
             })
             .then(() => {
                 if (!_stats || !_channelSpikes) {
-                    if (process.env.PARSE_SPIKETRAINS) {
+                    if (process.env.SPIKETRAIN_FILE) {
                         const spikeTrainFile = path.join(__dirname, '..', '..', 'data', process.env.SPIKETRAIN_FILE);
                         return cl.composition.DataParsing.parseSpiketrains(spikeTrainFile, evaluate);
-                    } else {
-                        const dbname = process.env.NB_DBNAME || 'test',
+                    } else if (process.env.NB_DBNAME) {
+                        const dbname = process.env.NB_DBNAME,
                             dbpath = path.join(__dirname, '..', '..', 'data', 'lmdb', dbname);
                         return new Promise(resolve => {
                             fs.exists(dbpath, exists => {
@@ -68,11 +68,17 @@ describe('cl.composition.Sonify', () => {
                 }
             })
             .then(() => {
-                return cl.composition.DataManipulation.makeClusters(_flattenedSpikes, '0.01 ms');
+                return cl.composition.DataManipulation.makeClusters(_flattenedSpikes, process.env.MAX_CLUSTER_SPACING);
             })
             .then(spikeClusters => {
+                if (Array.isArray(spikeClusters)) {
+                    spikeClusters.forEach(cluster => {
+                        Debug('cl:composition:Utilities')
+                            (`Extracted Cluster at approx. ${cluster[0].spike.peak.time} with ${cluster.length} items`);
+                    });
+                }
                 const tonalEvents = [],
-                    scale = new cl.harmonics.Scale('C', 'lydian'),
+                    scale = new cl.harmonics.Scale(process.env.SCALE_KEY || 'C', process.env.SCALE_NAME || 'lydian'),
                     noteMap = {
                         '0.10': 0,
                         '0.15': 1,
@@ -92,11 +98,11 @@ describe('cl.composition.Sonify', () => {
                         }
                         return 0;
                     }).forEach((evt, i) => {
-                        let val = evt.spike.peak.value.scalar,
+                        let tonalEvent, val = evt.spike.peak.value.scalar,
                             stringVal = (parseFloat((Math.abs(val) * 2.0).toPrecision(1)) * 0.5).toPrecision(2),
                             note = scale.notes[noteMap[stringVal]] ? scale.notes[noteMap[stringVal]] : undefined,
-                            intervalHigh = new cl.harmonics.Interval('5P'),
-                            intervalLow = new cl.harmonics.Interval('-5P');
+                            intervalHigh = new cl.harmonics.Interval(process.env.INTERVAL_NAME || '5P'),
+                            intervalLow = new cl.harmonics.Interval(`-${process.env.INTERVAL_NAME || '5P'}`);
 
                         if (!note) {
                             note = scale.notes[0];
@@ -115,7 +121,12 @@ describe('cl.composition.Sonify', () => {
                                 }
                             }
 
-                            tonalEvents.push(new cl.events.TonalEvent(Qty(evt.spike.peak.time), note, Qty('0.25 s')));
+                            tonalEvent = new cl.events.TonalEvent(
+                                Qty(evt.spike.peak.time),
+                                note,
+                                Qty(process.env.DEFAULT_NOTE_LENGTH || '0.25 s')
+                            );
+                            tonalEvents.push(tonalEvent);
                         }
                     });
                 });

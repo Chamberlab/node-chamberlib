@@ -8,10 +8,6 @@ var _jsQuantities = require('js-quantities');
 
 var _jsQuantities2 = _interopRequireDefault(_jsQuantities);
 
-var _debug = require('debug');
-
-var _debug2 = _interopRequireDefault(_debug);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class DataManipulation {
@@ -47,7 +43,6 @@ class DataManipulation {
             flattenedSpikes.forEach(data => {
                 if (currentCluster.length > 0 && data.spike.peak.time.sub(lastTime) >= (0, _jsQuantities2.default)(maxTimeDifference)) {
                     spikeClusters.push(currentCluster);
-                    (0, _debug2.default)('cl:composition:Utilities')(`Extracted Cluster at ${currentCluster[0].spike.time} with ${currentCluster.length} items`);
                     currentCluster = [];
                 }
                 currentCluster.push(data);
