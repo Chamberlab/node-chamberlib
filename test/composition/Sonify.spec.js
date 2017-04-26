@@ -22,7 +22,7 @@ describe('cl.composition.Sonify', () => {
         };
 
 
-        let stats, channelSpikes, allSpikes;
+        let _stats, _channelSpikes, _allSpikes;
 
         if (!fs.existsSync(dbpath)) {
             debug('No Nanobrains DB in data, skipping...');
@@ -34,13 +34,13 @@ describe('cl.composition.Sonify', () => {
             allSpikesPath = path.join(__dirname, '..', '..', 'data', 'allSpikes.json');
 
         if (fs.existsSync(statsPath)) {
-            stats = JSON.parse(fs.readFileSync(statsPath));
+            _stats = JSON.parse(fs.readFileSync(statsPath));
         } else {
             evaluate['stats'] = true;
         }
 
         if (fs.existsSync(channelSpikesPath)) {
-            channelSpikes = JSON.parse(fs.readFileSync(channelSpikesPath)).map(channel => {
+            _channelSpikes = JSON.parse(fs.readFileSync(channelSpikesPath)).map(channel => {
                 return channel.map(spikeEvent => {
                     return cl.events.SpikeEvent.fromObject(spikeEvent);
                 });
@@ -50,7 +50,7 @@ describe('cl.composition.Sonify', () => {
         }
 
         if (fs.existsSync(allSpikesPath)) {
-            allSpikes = JSON.parse(fs.readFileSync(allSpikesPath)).map(spikeEvent => {
+            _allSpikes = JSON.parse(fs.readFileSync(allSpikesPath)).map(spikeEvent => {
                 return { channel: spikeEvent.channel, spike: cl.events.SpikeEvent.fromObject(spikeEvent.spike) };
             });
         } else {
@@ -58,7 +58,7 @@ describe('cl.composition.Sonify', () => {
         }
 
         new Promise((resolve, reject) => {
-            if (!stats || !channelSpikes) {
+            if (!_stats || !_channelSpikes) {
 
                 function parseSpiketrains() {
                     const spikeFile = new cl.io.importers.SpiketrainsOE();
@@ -66,6 +66,8 @@ describe('cl.composition.Sonify', () => {
                         .then(channels => {
                             const spikeExtract = new cl.data.analysis.SpikeExtract(channels.length, 0.1),
                                 statsExtract = new cl.data.analysis.Statistics(channels.length);
+
+                            let stats, channelSpikes;
 
                             channels.map((channel, i) => {
                                 channel._items.map(dataEvent => {
@@ -92,7 +94,7 @@ describe('cl.composition.Sonify', () => {
                             }
 
                             return new Promise(res => {
-                                setTimeout(() => res(), 1000);
+                                setTimeout(() => res([stats, channelSpikes]), 1000);
                             })
                         });
 
@@ -123,7 +125,7 @@ describe('cl.composition.Sonify', () => {
                             debug('Using existing channel spikes data');
                         }
 
-                        let frame, frames = 0;
+                        let stats, channelSpikes, frame, frames = 0;
                         for (let hasnext = lmdb.gotoFirst(cursor); hasnext; hasnext = lmdb.gotoNext(cursor)) {
                             frame = lmdb.getCurrentFrame(dbname, cursor);
 
@@ -169,17 +171,17 @@ describe('cl.composition.Sonify', () => {
                         lmdb.commit(txn);
                         lmdb.closeEnv();
 
-                        resolve();
+                        resolve([stats, channelSpikes]);
                     });
                 }
 
-                if (true) {
+                if (process.env.PARSE_SPIKETRAINS) {
                     parseSpiketrains()
-                        .then(() => resolve())
+                        .then(res => resolve(res))
                         .catch(err => reject(err));
                 } else {
                     parseLMDBFrames()
-                        .then(() => resolve())
+                        .then(res => resolve(res))
                         .catch(err => reject(err));
                 }
 
@@ -187,46 +189,70 @@ describe('cl.composition.Sonify', () => {
                 resolve();
             }
         })
-        .then(() => {
-            if (evaluate['allSpikes'] && channelSpikes) {
-                allSpikes = [];
+        .then(res => {
+            [_stats, _channelSpikes] = res;
+            function flattenChannels(channelSpikes) {
+                return new Promise((resolve, reject) => {
+                    const allSpikes = [];
 
-                channelSpikes.forEach((channel, i) => {
-                    channel.forEach(spike => {
-                        allSpikes.push({ channel: i, spike: spike });
+                    channelSpikes.forEach((channel, i) => {
+                        channel.forEach(spike => {
+                            allSpikes.push({channel: i, spike: spike});
+                        });
+                    });
+
+                    allSpikes.sort((a, b) => {
+                        if (a.spike.peak.time.gt(b.spike.peak.time)) {
+                            return 1;
+                        } else if (a.spike.peak.time.lt(b.spike.peak.time)) {
+                            return -1;
+                        }
+                        return 0;
+                    });
+
+                    fs.writeFile(path.join(__dirname, '..', '..', 'data', 'allSpikes.json'), JSON.stringify(allSpikes), err => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        resolve(allSpikes);
                     });
                 });
-
-                allSpikes.sort((a, b) => {
-                    if (a.spike.peak.time.gt(b.spike.peak.time)) {
-                        return 1;
-                    } else if (a.spike.peak.time.lt(b.spike.peak.time)) {
-                        return -1;
-                    }
-                    return 0;
-                });
-
-                fs.writeFileSync(path.join(__dirname, '..', '..', 'data', 'allSpikes.json'), JSON.stringify(allSpikes));
             }
 
-            stats.forEach((stat, i) => {
+            if (evaluate['allSpikes'] && _channelSpikes) {
+                return flattenChannels(_channelSpikes);
+            }
+        })
+        .then(allSpikes => {
+            _allSpikes = allSpikes;
+            _stats.forEach((stat, i) => {
                 debug(`Channel ${i} - Min: ${Qty(stat.min)} - Max: ${Qty(stat.max)}`);
             });
+        })
+        .then(() => {
 
-            let lastTime = Qty('0s'),
-                spikeClusters = [],
-                currentCluster = [];
-
-            allSpikes.forEach((data, i) => {
-                if (currentCluster.length > 0 && data.spike.peak.time.sub(lastTime) >= Qty('0.1 ms')) {
-                    spikeClusters.push(currentCluster);
-                    debug(`Extracted Cluster at ${currentCluster[0].spike.time} with ${currentCluster.length} items`);
+            function makeClusters(allSpikes) {
+                let lastTime = Qty('0s'),
+                    spikeClusters = [],
                     currentCluster = [];
-                }
-                currentCluster.push(data);
-                // debug(`Spike #${i} delta T ${data.spike.peak.time.sub(lastTime)}`);
-                lastTime = data.spike.peak.time;
-            });
+
+                allSpikes.forEach((data, i) => {
+                    if (currentCluster.length > 0 && data.spike.peak.time.sub(lastTime) >= Qty('0.1 ms')) {
+                        spikeClusters.push(currentCluster);
+                        debug(`Extracted Cluster at ${currentCluster[0].spike.time} with ${currentCluster.length} items`);
+                        currentCluster = [];
+                    }
+                    currentCluster.push(data);
+                    // debug(`Spike #${i} delta T ${data.spike.peak.time.sub(lastTime)}`);
+                    lastTime = data.spike.peak.time;
+                });
+
+                return Promise.resolve(spikeClusters);
+            }
+
+            return makeClusters(_allSpikes);
+        })
+        .then(spikeClusters => {
 
             const scale = new cl.harmonics.Scale('C', 'lydian'),
                 notes = scale.notes;
@@ -251,7 +277,7 @@ describe('cl.composition.Sonify', () => {
                     }
                     return 0;
                 }).forEach((evt, i) => {
-                    if (i < 3) {
+                    if (i < 7) {
                         const val = evt.spike.peak.value.scalar,
                             stringVal = (parseFloat((Math.abs(val) * 2.0).toPrecision(1)) * 0.5).toPrecision(2),
                             note = scale.notes[noteMap[stringVal]] ? scale.notes[noteMap[stringVal]] : undefined,
