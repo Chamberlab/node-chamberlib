@@ -1,9 +1,10 @@
 import * as d3 from 'd3';
-import jsdom from 'jsdom';
+import jsdom from 'jsdom/lib/old-api';
 import Promise from 'bluebird';
 import Qty from 'js-quantities';
 
 // FIXME: update this to use d3 4.x
+// FIXME: update to new jsdom api
 
 class BaseGraph {
     constructor() {

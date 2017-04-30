@@ -8,9 +8,9 @@ var _d = require('d3');
 
 var d3 = _interopRequireWildcard(_d);
 
-var _jsdom = require('jsdom');
+var _oldApi = require('jsdom/lib/old-api');
 
-var _jsdom2 = _interopRequireDefault(_jsdom);
+var _oldApi2 = _interopRequireDefault(_oldApi);
 
 var _bluebird = require('bluebird');
 
@@ -25,6 +25,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 // FIXME: update this to use d3 4.x
+// FIXME: update to new jsdom api
 
 class BaseGraph {
     constructor() {
@@ -71,7 +72,7 @@ class BaseGraph {
         d3env.width = Math.ceil(d3env.duration.scalar * d3env.config.pixelsPerSecond);
         d3env.height = d3env.config.displayDimensions.height - d3env.config.margins.top - d3env.config.margins.bottom;
         d3env.d3 = Object.assign({}, d3);
-        return _jsdom2.default.env({
+        return _oldApi2.default.env({
             features: { QuerySelector: true }, html: '<!DOCTYPE html><html><head></head><body>' + '<script src="http://d3js.org/d3.v3.min.js"></script></body></html>',
             done: function (err, window) {
                 window.d3 = d3env.d3.select(window.document);
