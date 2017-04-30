@@ -5,7 +5,7 @@ class CircleOfFifths {
     constructor(key = 'C') {
         this._currentNote = new Note(key);
         this._rotation = 0;
-        this._position = 0;
+        this._position = 2;
     }
 
     // TODO: fix negative rotation
@@ -17,47 +17,55 @@ class CircleOfFifths {
         } else if (steps < 0) {
             interval = new Interval('m-4');
         }
+
         if (!interval) {
             return;
         }
 
-        for (let n = 0; n !== steps; n+= Math.sign(steps)) {
+        for (let n = 0; n !== steps; n += Math.sign(steps)) {
             this._rotation += Math.sign(steps);
             if (this._rotation > 11) {
-                this._position += 1;
                 this._rotation = 0;
-                if (this._position > 3) {
-                    this._position = 3;
+                if (!this.shift(1)) {
                     this._rotation = 11;
                     continue;
                 }
             } else if (this._rotation < 0) {
-                this._position -= 1;
                 this._rotation = 11;
-                if (this._position < 0) {
-                    this._position = 0;
+                if (!this.shift(-1)) {
                     this._rotation = 0;
                     continue;
                 }
             }
             this._currentNote.transpose(interval, true);
         }
+
+        return true;
     }
 
     shift(steps = 1) {
         let interval;
         if (steps > 0) {
-            interval = new Interval('5P');
+            interval = new Interval('m3');
         } else if (steps < 0) {
-            interval = new Interval('m-4');
+            interval = new Interval('m-3');
         }
+
         if (!interval) {
-            return;
+            return false;
         }
+
         for (let n = 0; n !== steps; n += Math.sign(steps)) {
-            for (let s = 0; s !== 12 * Math.sign(steps); s += Math.sign(steps)) {
-                this.rotate(Math.sign(steps));
+            this._position += Math.sign(steps);
+            if (this._position > 4) {
+                this._position = 4;
+                return false;
+            } else if (this._position < 0) {
+                this._position = 0;
+                return false;
             }
+            this._currentNote.transpose(interval, true);
+            return true;
         }
     }
 
