@@ -10,7 +10,7 @@ class CircleOfFifths {
 
     // TODO: fix negative rotation
 
-    rotate(steps = 1) {
+    rotate(steps = 1, shift = false) {
         let interval;
         if (steps > 0) {
             interval = new Interval('5P');
@@ -26,13 +26,13 @@ class CircleOfFifths {
             this._rotation += Math.sign(steps);
             if (this._rotation > 11) {
                 this._rotation = 0;
-                if (!this.shift(1)) {
+                if (shift && !this.shift(1)) {
                     this._rotation = 11;
                     continue;
                 }
             } else if (this._rotation < 0) {
                 this._rotation = 11;
-                if (!this.shift(-1)) {
+                if (shift && !this.shift(-1)) {
                     this._rotation = 0;
                     continue;
                 }

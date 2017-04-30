@@ -22,18 +22,36 @@ describe('cl.harmonics.CircleOfFifths', () => {
         cof.coordinates.s.should.equal(3);
     });
 
-    it('rotates 12 steps upwards', () => {
+    it('rotates 12 steps upwards without auto shifting', () => {
         const cof = new cl.harmonics.CircleOfFifths('C');
         cof.rotate(12);
+        cof.note.should.be.instanceof(cl.harmonics.Note);
+        cof.note.toString().should.equal('C');
+        cof.coordinates.r.should.equal(0);
+        cof.coordinates.s.should.equal(2);
+    });
+
+    it('rotates 12 steps upwards with auto shifting', () => {
+        const cof = new cl.harmonics.CircleOfFifths('C');
+        cof.rotate(12, true);
         cof.note.should.be.instanceof(cl.harmonics.Note);
         cof.note.toString().should.equal('D#');
         cof.coordinates.r.should.equal(0);
         cof.coordinates.s.should.equal(3);
     });
 
-    it('rotates 16 steps upwards', () => {
+    it('rotates 16 steps upwards without auto shifting', () => {
         const cof = new cl.harmonics.CircleOfFifths('C');
         cof.rotate(16);
+        cof.note.should.be.instanceof(cl.harmonics.Note);
+        cof.note.toString().should.equal('E');
+        cof.coordinates.r.should.equal(4);
+        cof.coordinates.s.should.equal(2);
+    });
+
+    it('rotates 16 steps upwards with auto shifting', () => {
+        const cof = new cl.harmonics.CircleOfFifths('C');
+        cof.rotate(16, true);
         cof.note.should.be.instanceof(cl.harmonics.Note);
         cof.note.toString().should.equal('G');
         cof.coordinates.r.should.equal(4);
