@@ -13,16 +13,17 @@ import CompositionHelper from '../helpers/CompositionHelper';
 const debug = Debug('cl:test:Sonify');
 
 describe('cl.composition.Sonify', () => {
-    it('sonifies NanoBrain signals', () => {
+    it('translates multi-channel sequences of mV spikes to SVG, PNG and MIDI', () => {
         if (!process.env.OUTPUT_BASENAME) {
             debug('Not configured, skipping test.');
             return;
         }
-        const baseCachePath = path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME);
-        const cacheBasePaths = {
-            lmdb: path.join(__dirname, '..', '..', 'data', 'lmdb'),
-            spiketrains: path.join(__dirname, '..', '..', 'data', 'spiketrains')
-        };
+
+        const baseCachePath = path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME),
+            cacheBasePaths = {
+                lmdb: path.join(__dirname, '..', '..', 'data', 'lmdb'),
+                spiketrains: path.join(__dirname, '..', '..', 'data', 'spiketrains')
+            };
 
         let _stats, _channelSpikes, _flattenedSpikes, _evaluate, _title = ['spikes', process.env.OUTPUT_BASENAME];
 
@@ -171,9 +172,11 @@ describe('cl.composition.Sonify', () => {
                     cluster.forEach((evt, i) => {
                         const mapVal = Math.abs(evt.spike.peak.value.scalar),
                             sign = Math.sign(evt.spike.peak.value.scalar);
+
                         if (mapVal >= 0.4) {
                             clusterStats.synchronous += 1;
                         }
+
                         if (mapVal >= 0.1) {
                             const stringVal = (parseFloat((Math.abs(evt.spike.peak.value.scalar) * 2.0)
                                 .toPrecision(1)) * 0.5).toPrecision(2);
