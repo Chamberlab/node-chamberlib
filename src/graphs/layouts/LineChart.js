@@ -21,14 +21,14 @@ class LineChart extends BaseGraph {
             .x((d) => { return x(d.x); })
             .y((d) => { return y(d.y); });
 
-        x.domain([d3env.minX, d3env.maxX]);
-        y.domain([d3env.minY, d3env.maxY]);
+        x.domain([d3env.minX.scalar, d3env.maxX.scalar]);
+        y.domain([d3env.minY.scalar, d3env.maxY.scalar]);
 
         let colourList = new ColourTable(layerData.length, 5);
 
         if (d3env.layoutConfig.xAxis.show) {
             d3env.xAxis = d3env.d3.svg.axis().scale(x)
-                .orient('bottom').ticks(d3env.maxX / d3env.layoutConfig.xAxis.scaleTicks);
+                .orient('bottom').ticks(d3env.maxX.scalar / d3env.layoutConfig.xAxis.scaleTicks);
             g.append('g')
                 .attr('class', 'x axis')
                 .style('color', d3env.layoutConfig.xAxis.colour)
@@ -53,7 +53,7 @@ class LineChart extends BaseGraph {
 
         if (d3env.layoutConfig.yAxis.show) {
             d3env.yAxis = d3env.d3.svg.axis().scale(y)
-                .orient('left').ticks(d3env.maxY / d3env.layoutConfig.yAxis.scaleTicks);
+                .orient('left').ticks(d3env.maxY.scalar / d3env.layoutConfig.yAxis.scaleTicks);
             g.append('g')
                 .attr('class', 'y axis')
                 .style('color', d3env.layoutConfig.yAxis.colour)

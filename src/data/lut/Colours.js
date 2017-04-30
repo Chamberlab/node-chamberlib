@@ -2,7 +2,7 @@ import Levenshtein from 'levenshtein';
 import Chance from 'chance';
 
 class Colours {
-    constructor(size, minDistance, minSum = 255) {
+    constructor(size, minDistance, minSum = 255, allowRepetitions = false) {
         const chance = new Chance();
 
         this._colours = [];
@@ -25,7 +25,7 @@ class Colours {
                 }
             }
 
-            if (min_d > minDistance) {
+            if (allowRepetitions || min_d > minDistance) {
                 this._colours.push(c.toString());
             }
         }
