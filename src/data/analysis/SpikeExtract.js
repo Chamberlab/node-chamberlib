@@ -2,9 +2,10 @@ import DataEvent from '../../events/DataEvent';
 import SpikeEvent from '../../events/SpikeEvent';
 
 class SpikeExtract {
-    constructor(channels = 1, threshold = 0.5, selectChannels = undefined) {
+    constructor(channels = 1, threshold = 0.5, selectChannels = undefined, maxValue = Number.MAX_SAFE_INTEGER) {
         this._channels = channels;
         this._threshold = threshold;
+        this._maxValue = maxValue;
         this._selectChannels = selectChannels;
         // extract from min to next min, save duration, peak point, channel info
 
@@ -38,7 +39,7 @@ class SpikeExtract {
             if (Array.isArray(this._selectChannels) && this._selectChannels.indexOf(i) === -1) {
                 return;
             }
-            if ((val > 0 && val >= this._threshold) || (val < 0 && val <= this._threshold * -1.0)) {
+            if (Math.abs(val) >= Math.abs(this._threshold) && Math.abs(val) <= Math.abs(this._maxValue)) {
                 const evt = new DataEvent(event.time, `${val} mV`);
                 if (this._openSpikes[i] === null) {
                     this._openSpikes[i] = [evt];

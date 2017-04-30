@@ -27,7 +27,7 @@ var _Statistics2 = _interopRequireDefault(_Statistics);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class DataParsing {
-    static parseLMDBFrames(dbname, dbpath, evaluate, lowCut = 0.0) {
+    static parseLMDBFrames(dbname, dbpath, evaluate, lowCut = 0.01, highCut = Number.MAX_SAFE_INTEGER) {
         return new Promise(resolve => {
             const lmdb = new _LMDB2.default(dbpath),
                   txn = lmdb.begin(dbname),
@@ -36,7 +36,7 @@ class DataParsing {
             const selectChannels = new Array(64).fill(null).map((v, i) => {
                 return i + 1;
             }),
-                  spikeExtract = new _SpikeExtract2.default(64, lowCut, selectChannels),
+                  spikeExtract = new _SpikeExtract2.default(64, lowCut, selectChannels, highCut),
                   statsExtract = new _Statistics2.default(65);
 
             if (!evaluate.stats) {
@@ -76,10 +76,10 @@ class DataParsing {
         });
     }
 
-    static parseSpiketrains(spiketrainFile, evaluate, lowCut = 0.0) {
+    static parseSpiketrains(spiketrainFile, evaluate, lowCut = 0.01, highCut = Number.MAX_SAFE_INTEGER) {
         const spikeFile = new _SpiketrainsOE2.default();
         return spikeFile.read(spiketrainFile).then(channels => {
-            const spikeExtract = new _SpikeExtract2.default(channels.length, lowCut),
+            const spikeExtract = new _SpikeExtract2.default(channels.length, lowCut, highCut),
                   statsExtract = new _Statistics2.default(channels.length);
 
             channels.map((channel, i) => {

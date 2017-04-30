@@ -16,17 +16,17 @@ describe('cl.composition.Sonify', () => {
     it('sonifies NanoBrain signals', () => {
         const baseCachePath = path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME);
 
-        let _stats, _channelSpikes, _flattenedSpikes, _evaluate;
+        let _stats, _channelSpikes, _flattenedSpikes, _evaluate, _title = ['spikes', process.env.OUTPUT_BASENAME];
 
         return CompositionHelper.readCache(baseCachePath)
             .then(res => {
                 [_stats, _channelSpikes, _flattenedSpikes, _evaluate] = res;
             })
             .then(() => {
-                if (process.env.FORCE_MERGE || !_stats || !_channelSpikes) {
+                if (!_stats || !_channelSpikes) {
                     if (process.env.SPIKETRAIN_FILE) {
                         const spikeTrainFile = path.join(__dirname, '..', '..', 'data', process.env.SPIKETRAIN_FILE);
-                        return cl.composition.DataParsing.parseSpiketrains(spikeTrainFile, _evaluate);
+                        return cl.composition.DataParsing.parseSpiketrains(spikeTrainFile, _evaluate, 0.1);
                     }
                 }
             })
@@ -36,7 +36,7 @@ describe('cl.composition.Sonify', () => {
                 }
             })
             .then(() => {
-                if (process.env.FORCE_MERGE || !_stats || !_channelSpikes) {
+                if (!_stats || !_channelSpikes) {
                     if (process.env.NB_DBNAME) {
                         const dbname = process.env.NB_DBNAME,
                             dbpath = path.join(__dirname, '..', '..', 'data', 'lmdb', dbname);
@@ -68,8 +68,8 @@ describe('cl.composition.Sonify', () => {
             })
             .then(() => {
                 return CompositionHelper.plotSpikes(
-                    _channelSpikes, path.join(__dirname, '..', '..', 'data'), 'channels',
-                    cl.graphs.layouts.ScatterPlot);
+                    _channelSpikes, path.join(__dirname, '..', '..', 'data'), `${_title.join('-')}-channels`,
+                    cl.graphs.layouts.ScatterPlot, process.env.PLOT_SEPARATE_CHANNELS);
             })
             .then(() => {
                 if (_evaluate.flattenedSpikes && _channelSpikes) {
@@ -88,8 +88,8 @@ describe('cl.composition.Sonify', () => {
                 return CompositionHelper.plotSpikes([_flattenedSpikes.map(s => {
                         return s.spike;
                     })],
-                    path.join(__dirname, '..', '..', 'data'), 'flattened',
-                    cl.graphs.layouts.ScatterPlot);
+                    path.join(__dirname, '..', '..', 'data'), `${_title.join('-')}-flattened`,
+                    cl.graphs.layouts.ScatterPlot, false);
             })
             .then(() => {
                 if (Array.isArray(_stats)) {

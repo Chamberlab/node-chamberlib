@@ -1,7 +1,7 @@
 {
   "quantize": false,
   "radius": 2,
-  "alpha": 0.8,
+  "alpha": 0.5,
   "xAxis": {
     "show": true,
     "colour": "#cccccc",

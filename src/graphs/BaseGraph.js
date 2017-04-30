@@ -56,8 +56,7 @@ class BaseGraph {
 
         d3env.width = Math.ceil(d3env.duration.scalar * d3env.config.pixelsPerSecond);
         d3env.height = d3env.config.displayDimensions.height - d3env.config.margins.top - d3env.config.margins.bottom;
-        d3env.d3 = {};
-        Object.assign(d3env.d3, d3);
+        d3env.d3 = Object.assign({}, d3);
         return jsdom.env({
             features: {QuerySelector: true}, html: '<!DOCTYPE html><html><head></head><body>' +
             '<script src="http://d3js.org/d3.v3.min.js"></script></body></html>',

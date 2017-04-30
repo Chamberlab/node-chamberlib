@@ -36,7 +36,7 @@ class ScatterPlot extends _BaseGraph2.default {
         x.domain([d3env.minX.scalar, d3env.maxX.scalar]);
         y.domain([d3env.minY.scalar, d3env.maxY.scalar]);
 
-        let colourList = new _Colours2.default(layerData.length, 5);
+        let colourList = new _Colours2.default(layerData.length, 5, 255, layerData.length > 64);
 
         if (d3env.layoutConfig.xAxis.show) {
             d3env.xAxis = d3env.d3.svg.axis().scale(x).orient('bottom').ticks(d3env.maxX.scalar / d3env.layoutConfig.xAxis.scaleTicks);

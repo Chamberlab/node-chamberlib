@@ -15,7 +15,7 @@ var _chance2 = _interopRequireDefault(_chance);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class Colours {
-    constructor(size, minDistance, minSum = 255) {
+    constructor(size, minDistance, minSum = 255, allowRepetitions = false) {
         const chance = new _chance2.default();
 
         this._colours = [];
@@ -37,7 +37,7 @@ class Colours {
                 }
             }
 
-            if (min_d > minDistance) {
+            if (allowRepetitions || min_d > minDistance) {
                 this._colours.push(c.toString());
             }
         }
