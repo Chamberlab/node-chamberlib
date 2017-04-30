@@ -114,9 +114,9 @@ class BaseGraph {
         return _bluebird2.default.map(dataSet.all, _bluebird2.default.coroutine(function* (channel) {
             let last_t = 0.0,
                 events = channel.all.sort(function (a, b) {
-                if (a.time.normalized() > b.time.normalized()) {
+                if (a.time.scalar > b.time.scalar) {
                     return 1;
-                } else if (a.time.normalized() < b.time.normalized()) {
+                } else if (a.time.scalar < b.time.scalar) {
                     return -1;
                 }
                 return 0;
@@ -127,16 +127,16 @@ class BaseGraph {
             _self.d3env.channelTitles.push(channel.title);
             _self.d3env.layerStats.push(stats);
 
-            _self.d3env.duration = Math.max(_self.d3env.duration, stats.duration.normalized());
-            _self.d3env.maxX = Math.max(_self.d3env.maxX, stats.time.max.normalized());
-            _self.d3env.minX = Math.min(_self.d3env.minX, stats.time.min.normalized());
-            _self.d3env.maxY = Math.max(_self.d3env.maxY, stats.value.max.asUnit('mV'));
-            _self.d3env.minY = Math.min(_self.d3env.minY, stats.value.min.asUnit('mV'));
+            _self.d3env.duration = Math.max(_self.d3env.duration, stats.duration.scalar);
+            _self.d3env.maxX = Math.max(_self.d3env.maxX, stats.time.max.scalar);
+            _self.d3env.minX = Math.min(_self.d3env.minX, stats.time.min.scalar);
+            _self.d3env.maxY = Math.max(_self.d3env.maxY, stats.value.max.scalar);
+            _self.d3env.minY = Math.min(_self.d3env.minY, stats.value.min.scalar);
 
             events = yield _bluebird2.default.map(events, function (event) {
-                _self.d3env.layerRes = Math.min(Math.max(event.time.normalized() - last_t, _self.config.layerResolutionLimit), _self.config.layerResolutionLimit);
-                last_t = event.time.normalized();
-                return { x: event.time.normalized(), y: event.value.asUnit('mV') };
+                _self.d3env.layerRes = Math.min(Math.max(event.time.scalar - last_t, _self.config.layerResolutionLimit), _self.config.layerResolutionLimit);
+                last_t = event.time.scalar;
+                return { x: event.time.scalar, y: event.value.scalar };
             });
 
             _self.d3env.layerCount += 1;

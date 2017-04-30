@@ -23,17 +23,27 @@ describe('cl.composition.Sonify', () => {
                 [_stats, _channelSpikes, _flattenedSpikes, _evaluate] = res;
             })
             .then(() => {
-                if (!_stats || !_channelSpikes) {
+                if (process.env.FORCE_MERGE || !_stats || !_channelSpikes) {
                     if (process.env.SPIKETRAIN_FILE) {
                         const spikeTrainFile = path.join(__dirname, '..', '..', 'data', process.env.SPIKETRAIN_FILE);
-                        return cl.composition.DataParsing.parseSpiketrains(spikeTrainFile, evaluate);
-                    } else if (process.env.NB_DBNAME) {
+                        return cl.composition.DataParsing.parseSpiketrains(spikeTrainFile, _evaluate);
+                    }
+                }
+            })
+            .then(res => {
+                if (res) {
+                    [_stats, _channelSpikes] = res;
+                }
+            })
+            .then(() => {
+                if (process.env.FORCE_MERGE || !_stats || !_channelSpikes) {
+                    if (process.env.NB_DBNAME) {
                         const dbname = process.env.NB_DBNAME,
                             dbpath = path.join(__dirname, '..', '..', 'data', 'lmdb', dbname);
                         return new Promise(resolve => {
                             fs.exists(dbpath, exists => {
                                 if (exists) {
-                                    return resolve(cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, evaluate));
+                                    return resolve(cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, _evaluate));
                                 }
                                 debug('No Nanobrains DB in data, skipping...');
                                 resolve();
@@ -44,8 +54,20 @@ describe('cl.composition.Sonify', () => {
             })
             .then(res => {
                 if (res) {
-                    [_stats, _channelSpikes] = res;
+                    if (process.env.FORCE_MERGE) {
+                        let [stats, channelSpikes] = res;
+                        _stats = _stats.concat(stats.splice(1, 64));
+                        _channelSpikes = _channelSpikes.concat(channelSpikes);
+                    } else {
+                        [_stats, _channelSpikes] = res;
+                        _stats = _stats.splice(1, 64);
+                    }
                 }
+            })
+            .then(() => {
+                return CompositionHelper.plotSpikes(
+                    _channelSpikes, path.join(__dirname, '..', '..', 'data'), 'channels',
+                    cl.graphs.layouts.ScatterPlot);
             })
             .then(() => {
                 if (_evaluate.flattenedSpikes && _channelSpikes) {
@@ -59,6 +81,13 @@ describe('cl.composition.Sonify', () => {
             })
             .then(() => {
                 return CompositionHelper.writeCache(baseCachePath, _evaluate, _stats, _channelSpikes, _flattenedSpikes);
+            })
+            .then(() => {
+                return CompositionHelper.plotSpikes([_flattenedSpikes.map(s => {
+                        return s.spike;
+                    })],
+                    path.join(__dirname, '..', '..', 'data'), 'flattened',
+                    cl.graphs.layouts.ScatterPlot);
             })
             .then(() => {
                 if (Array.isArray(_stats)) {
@@ -138,8 +167,10 @@ describe('cl.composition.Sonify', () => {
                     song = new cl.data.Song([dataChannel], 120, uuid4());
                 return song.toMidiFile(path.join(__dirname, '..', '..', 'data', `${process.env.OUTPUT_BASENAME}.mid`));
             })
+            /*
             .catch(err => {
                 throw err;
             });
+            */
     });
 });

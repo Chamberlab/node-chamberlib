@@ -15,36 +15,36 @@ class DataChannel extends BaseCollection {
 
     get stats() {
         let s = {
-            avg: 0.0, duration: 0.0, items: 0,
-            time: { min: Number.MAX_SAFE_INTEGER, max: Number.MIN_SAFE_INTEGER },
-            value: { min: Number.MAX_SAFE_INTEGER, max: Number.MIN_SAFE_INTEGER }
+            avg: Qty(0.0, 'mV'), duration: Qty(0.0, 's'), items: 0,
+            time: { min: Qty(Number.MAX_SAFE_INTEGER, 's'), max: Qty(Number.MIN_SAFE_INTEGER, 's') },
+            value: { min: Qty(Number.MAX_SAFE_INTEGER, 'mV'), max: Qty(Number.MIN_SAFE_INTEGER, 'mV') }
         };
         this._items.map(function (item) {
             let time = item.time,
                 value = item.value;
 
-            s.avg += value.scalar;
+            s.avg = s.avg.add(value);
             s.items++;
 
-            if (time < s.time.min) {
-                s.time.min = time.scalar;
-            } else if (time > s.time.max) {
-                s.time.max = time.scalar;
+            if (time.lt(s.time.min)) {
+                s.time.min = time;
+            } else if (time.gt(s.time.max)) {
+                s.time.max = time;
             }
 
-            if (value < s.value.min) {
-                s.value.min = value.scalar;
-            } else if (value > s.value.max) {
-                s.value.max = value.scalar;
+            if (value.lt(s.value.min)) {
+                s.value.min = value;
+            } else if (value.gt(s.value.max)) {
+                s.value.max = value;
             }
         });
 
-        s.avg = s.avg / s.items;
-        s.duration = Qty(s.time.max - s.time.min, 's');
-        s.time.min = Qty(s.time.min, 's');
-        s.time.max = Qty(s.time.max, 's');
-        s.value.min = Qty(s.value.min, 'mV');
-        s.value.max = Qty(s.value.max, 'mV');
+        s.avg = s.items > 0 ? Qty(s.avg.scalar / s.items, 'mV') : Qty(0, 'mV');
+        s.duration = s.time.max.sub(s.time.min);
+        //s.time.min = Qty(s.time.min, 's');
+        //s.time.max = Qty(s.time.max, 's');
+        //s.value.min = Qty(s.value.min, 'mV');
+        //s.value.max = Qty(s.value.max, 'mV');
 
         return s;
     }

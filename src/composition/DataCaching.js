@@ -5,14 +5,15 @@ import assert from 'assert';
 import SpikeEvent from '../events/SpikeEvent';
 
 class DataCaching {
-    static storeStats(statsExtract, filePath) {
+    static storeStats(stats, filePath, spliceStart = undefined, spliceEnd = undefined) {
         // TODO: check why this is not working with instanceof, would be safer for refactoring
-        assert(statsExtract.constructor.name === 'Statistics', 'Argument Error: statsExtract type mismatch');
+        assert(Array.isArray(stats), 'Argument Error: stats type mismatch');
         assert(typeof filePath === 'string', 'Argument Error: Invalid filePath');
 
-        let stats;
         return new Promise((resolve, reject) => {
-            stats = statsExtract.stats.splice(1, 64);
+            if (typeof spliceStart === 'number' && typeof spliceEnd === 'number') {
+                stats = stats.splice(spliceStart, spliceEnd);
+            }
             fs.writeFile(filePath, JSON.stringify(stats), err => {
                 if (err) {
                     return reject(err);
@@ -42,13 +43,11 @@ class DataCaching {
         });
     }
 
-    static storeChannelSpikes(spikeExtract, filePath) {
-        assert(spikeExtract.constructor.name === 'SpikeExtract', 'Argument Error: spikeExtract type mismatch');
+    static storeChannelSpikes(channelSpikes, filePath) {
+        assert(Array.isArray(channelSpikes), 'Argument Error: channelSpikes type mismatch');
         assert(typeof filePath === 'string', 'Argument Error: Invalid filePath');
 
-        let channelSpikes;
         return new Promise((resolve, reject) => {
-            channelSpikes = spikeExtract.spikes;
             fs.writeFile(filePath, JSON.stringify(channelSpikes), err => {
                 if (err) {
                     return reject(err);

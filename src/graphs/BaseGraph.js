@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import jsdom from 'jsdom';
 import Promise from 'bluebird';
+import Qty from 'js-quantities';
 
 // FIXME: update this to use d3 4.x
 
@@ -14,42 +15,46 @@ class BaseGraph {
     }
 
 
-    draw(dataSet) {
+    draw(dataSet, drawSeparateChannels = false) {
         const _self = this;
+        let d3env;
         return _self.prepareData(dataSet)
             .then(function (res) {
                 _self.layerData = res;
-                let d3env;
-                return Promise.map(_self.layerData, (ld, i) => {
-                    d3env = Object.assign({}, _self.d3env);
-                    d3env.layerData = [ld];
-                    d3env.layerCount = 1;
-                    d3env.layerStats = [_self.d3env.layerStats[i]];
-                    d3env.channels = [_self.d3env.channels[i]];
-                    d3env.channelTitle = [_self.d3env.channelTitles[i]].join('-');
-                    // console.log(`Creating graph for channel ${d3env.channelTitle}`);
-                    return Promise.promisify(_self.jsdomEnv)(d3env, d3env.layerData, d3env.g,
-                        _self.drawContent, _self.quantize ? _self.quantizeData : null)
-                        .then((data) => {
-                            return { data: data, title: d3env.channelTitle };
-                        });
-                }, {concurrency: 1})
-                .then((graphs) => {
-                    // console.log('Creating graph for all channels');
-                    return Promise.promisify(_self.jsdomEnv)(_self.d3env, _self.layerData, d3env.g,
-                        _self.drawContent, _self.quantize ? _self.quantizeData : null)
-                        .then((data) => {
-                            graphs.push({ data: data, title: 'all' });
-                            return graphs;
-                        });
-                });
+                d3env = Object.assign({}, _self.d3env);
+                if (drawSeparateChannels) {
+                    return Promise.map(_self.layerData, (ld, i) => {
+                        d3env.layerData = [ld];
+                        d3env.layerCount = 1;
+                        d3env.layerStats = [_self.d3env.layerStats[i]];
+                        d3env.channels = [_self.d3env.channels[i]];
+                        d3env.channelTitle = [_self.d3env.channelTitles[i]].join('-');
+                        // console.log(`Creating graph for channel ${d3env.channelTitle}`);
+                        return Promise.promisify(_self.jsdomEnv)(d3env, d3env.layerData, d3env.g,
+                            _self.drawContent, _self.quantize ? _self.quantizeData : null)
+                            .then((data) => {
+                                return {data: data, title: d3env.channelTitle};
+                            });
+                    }, {concurrency: 1});
+                } else {
+                    return [];
+                }
+            })
+            .then((graphs) => {
+                // console.log('Creating graph for all channels');
+                return Promise.promisify(_self.jsdomEnv)(_self.d3env, _self.layerData, d3env.g,
+                    _self.drawContent, _self.quantize ? _self.quantizeData : null)
+                    .then((data) => {
+                        graphs.push({ data: data, title: 'all' });
+                        return graphs;
+                    });
             });
     }
 
     jsdomEnv(d3env, layerData, g, drawContent, quantizeData, cb) {
         // TODO: update d3 to version 4
 
-        d3env.width = Math.ceil(d3env.duration * d3env.config.pixelsPerSecond);
+        d3env.width = Math.ceil(d3env.duration.scalar * d3env.config.pixelsPerSecond);
         d3env.height = d3env.config.displayDimensions.height - d3env.config.margins.top - d3env.config.margins.bottom;
         d3env.d3 = {};
         Object.assign(d3env.d3, d3);
@@ -107,21 +112,27 @@ class BaseGraph {
         this.d3env.layerCount = 0;
         this.d3env.layerMax = 0;
         this.d3env.layerStats = [];
-        this.d3env.minX = Number.MAX_VALUE;
-        this.d3env.minY = Number.MAX_VALUE;
-        this.d3env.maxX = Number.MIN_VALUE;
-        this.d3env.maxY = Number.MIN_VALUE;
-        this.d3env.duration = 0;
-        this.d3env.layerRes = Number.MAX_SAFE_INTEGER;
+        this.d3env.minX = Qty(Number.MAX_SAFE_INTEGER, 's');
+        this.d3env.minY = Qty(Number.MAX_SAFE_INTEGER, 'mV');
+        this.d3env.maxX = Qty(Number.MIN_SAFE_INTEGER, 's');
+        this.d3env.maxY = Qty(Number.MIN_SAFE_INTEGER, 'mV');
+        this.d3env.duration = Qty(0, 's');
+        this.d3env.layerRes = Qty(Number.MAX_SAFE_INTEGER, 's');
         this.d3env.channels = [];
         this.d3env.channelTitles = [];
 
+        const eventData = [];
+
         return Promise.map(dataSet.all, Promise.coroutine(function* (channel) {
-            let last_t = 0.0,
+            if (channel.length === 0) {
+                return;
+            }
+
+            let last_t = Qty(0.0, 's'),
                 events = channel.all.sort(function (a, b) {
-                    if (a.time.normalized() > b.time.normalized()) {
+                    if (a.time.gt(b.time)) {
                         return 1;
-                    } else if (a.time.normalized() < b.time.normalized()) {
+                    } else if (a.time.lt(b.time)) {
                         return -1;
                     }
                     return 0;
@@ -132,38 +143,44 @@ class BaseGraph {
             _self.d3env.channelTitles.push(channel.title);
             _self.d3env.layerStats.push(stats);
 
-            _self.d3env.duration = Math.max(_self.d3env.duration, stats.duration.normalized());
-            _self.d3env.maxX = Math.max(_self.d3env.maxX, stats.time.max.normalized());
-            _self.d3env.minX = Math.min(_self.d3env.minX, stats.time.min.normalized());
-            _self.d3env.maxY = Math.max(_self.d3env.maxY, stats.value.max.asUnit('mV'));
-            _self.d3env.minY = Math.min(_self.d3env.minY, stats.value.min.asUnit('mV'));
+            _self.d3env.duration = Qty(Math.max(_self.d3env.duration.scalar, stats.duration.scalar), 's');
+            _self.d3env.maxX = Qty(Math.max(_self.d3env.maxX.scalar, stats.time.max.scalar), 's');
+            _self.d3env.minX = Qty(Math.min(_self.d3env.minX.scalar, stats.time.min.scalar), 's');
+            _self.d3env.maxY = Qty(Math.max(_self.d3env.maxY.scalar, stats.value.max.scalar), 'mV');
+            _self.d3env.minY = Qty(Math.min(_self.d3env.minY.scalar, stats.value.min.scalar), 'mV');
 
             events = yield Promise.map(events, function (event) {
-                _self.d3env.layerRes = Math.min(Math.max(event.time.normalized() - last_t,
-                    _self.config.layerResolutionLimit), _self.config.layerResolutionLimit);
-                last_t = event.time.normalized();
-                return { x: event.time.normalized(), y: event.value.asUnit('mV') };
+
+                _self.d3env.layerRes = Qty(Math.min(Math.max(event.time.sub(last_t).scalar,
+                    _self.config.layerResolutionLimit), _self.config.layerResolutionLimit), 's');
+                _self.d3env.duration = Qty(Math.max(_self.d3env.duration.scalar, event.time.scalar), 's');
+                last_t = event.time;
+                return { x: event.time.scalar, y: event.value.scalar };
             });
 
             _self.d3env.layerCount += 1;
 
+            eventData.push(events);
             return events;
-        }));
+        }))
+        .then(() => {
+            return eventData;
+        });
     }
 
 
     quantizeData(layerData, d3env) {
-        let lsteps = Math.ceil(d3env.duration / d3env.layerRes),
+        let lsteps = Math.ceil(d3env.duration.scalar / d3env.layerRes.scalar),
             quantizedLayers = [];
 
         while (layerData.length > 0) {
             let ld = layerData.shift(),
                 quant = [];
             for (let n = 0; n < lsteps; n += 1) {
-                quant.push({x: n * d3env.layerRes, y: 0.0});
+                quant.push({x: n * d3env.layerRes.scalar, y: 0.0});
             }
             for (let t = 0; t < ld.length && t < quant.length; t += 1) {
-                let idx = Math.floor(ld[t].x / d3env.layerRes);
+                let idx = Math.floor(ld[t].x / d3env.layerRes.scalar);
                 if (ld[t] && quant[idx] && ld[t].y > quant[idx].y) {
                     quant[idx].y = ld[t].y;
                 }

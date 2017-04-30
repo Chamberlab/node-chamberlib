@@ -59,7 +59,7 @@ class DataParsing {
         const spikeFile = new SpiketrainsOE();
         return spikeFile.read(spiketrainFile)
             .then(channels => {
-                const spikeExtract = new SpikeExtract(channels.length, 0.1),
+                const spikeExtract = new SpikeExtract(channels.length, 0.0),
                     statsExtract = new Statistics(channels.length);
 
                 channels.map((channel, i) => {
