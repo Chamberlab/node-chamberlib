@@ -67,9 +67,13 @@ class Chord extends _BaseCollection2.default {
     }
 
     set tonic(tonic) {
-        (0, _assert2.default)(typeof tonic === 'string', `Tonic must be string, is ${typeof tonic}`);
+        (0, _assert2.default)(typeof tonic === 'string' || tonic instanceof _Note2.default, `Tonic must be string or Note, is ${typeof tonic}`);
 
-        this._tonic = tonic;
+        if (typeof tonic === 'string') {
+            this._tonic = new _Note2.default(tonic);
+        } else {
+            this._tonic = tonic;
+        }
     }
 
     get octave() {

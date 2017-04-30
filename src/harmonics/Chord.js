@@ -43,9 +43,13 @@ class Chord extends BaseCollection {
     }
 
     set tonic(tonic) {
-        assert(typeof tonic === 'string', `Tonic must be string, is ${typeof tonic}`);
+        assert(typeof tonic === 'string' || tonic instanceof Note, `Tonic must be string or Note, is ${typeof tonic}`);
 
-        this._tonic = tonic;
+        if (typeof tonic === 'string') {
+            this._tonic = new Note(tonic);
+        } else {
+            this._tonic = tonic;
+        }
     }
 
 

@@ -12,6 +12,10 @@ var _CircleOfFifths = require('./CircleOfFifths');
 
 var _CircleOfFifths2 = _interopRequireDefault(_CircleOfFifths);
 
+var _CircleOfScales = require('./CircleOfScales');
+
+var _CircleOfScales2 = _interopRequireDefault(_CircleOfScales);
+
 var _Note = require('./Note');
 
 var _Note2 = _interopRequireDefault(_Note);
@@ -29,6 +33,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = {
     Chord: _Chord2.default,
     CircleOfFifths: _CircleOfFifths2.default,
+    CircleOfScales: _CircleOfScales2.default,
     Note: _Note2.default,
     Scale: _Scale2.default,
     Interval: _Interval2.default

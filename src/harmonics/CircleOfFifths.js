@@ -8,8 +8,6 @@ class CircleOfFifths {
         this._position = 2;
     }
 
-    // TODO: fix negative rotation
-
     rotate(steps = 1, shift = false) {
         let interval;
         if (steps > 0) {

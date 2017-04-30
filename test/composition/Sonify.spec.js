@@ -146,6 +146,11 @@ describe('cl.composition.Sonify', () => {
                 const tonalEvents = [],
                     cofDegree = new cl.harmonics.CircleOfFifths('C'),
                     cofMode = new cl.harmonics.CircleOfFifths('C'),
+                    cos = new cl.harmonics.CircleOfScales(),
+                    defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
+                    lowThreshold = '0.1 mV',
+                    syncThreshold = '0.4 mV',
+                    degModeThreshold = '0.45 mV',
                     noteIndexMap = {
                         '-0.10': 0,
                         '0.10': 1,
@@ -156,15 +161,17 @@ describe('cl.composition.Sonify', () => {
                         '0.40': 6
                     };
 
-                // rotate mode to G
+                // rotate mode and scale to G
                 cofMode.rotate(1);
+                cos.rotate(1);
 
                 spikeClusters.forEach((cluster, cn) => {
                     const clusterStats = {
                         min_active: 0,
                         med_active: 0,
                         max_active: 0,
-                        synchronous: 0,
+                        synchronous_pos: 0,
+                        synchronous_neg: 0,
                         time: undefined,
                         spikes_pos: [],
                         spikes_neg: []
@@ -173,13 +180,15 @@ describe('cl.composition.Sonify', () => {
                         const mapVal = Math.abs(evt.spike.peak.value.scalar),
                             sign = Math.sign(evt.spike.peak.value.scalar);
 
-                        if (mapVal >= 0.4) {
-                            clusterStats.synchronous += 1;
+                        if (evt.spike.peak.value.gte(Qty(syncThreshold))) {
+                            clusterStats.synchronous_pos += 1;
+                        } else if (evt.spike.peak.value.lte(Qty(Qty(syncThreshold).scalar * sign, 'mV'))) {
+                            clusterStats.synchronous_neg += 1;
                         }
 
-                        if (mapVal >= 0.1) {
-                            const stringVal = (parseFloat((Math.abs(evt.spike.peak.value.scalar) * 2.0)
-                                .toPrecision(1)) * 0.5).toPrecision(2);
+                        if (mapVal >= Qty(lowThreshold).scalar) {
+                            const stringVal = (parseFloat(evt.spike.peak.value.scalar * 2.0)
+                                .toPrecision(1) * 0.5).toPrecision(2);
                             const spike = {
                                 string: stringVal,
                                 peak: evt.spike.peak,
@@ -195,7 +204,8 @@ describe('cl.composition.Sonify', () => {
                         }
                     });
 
-                    debug(`Cluster #${cn}: ${clusterStats.synchronous} synchronous spikes`);
+                    debug(`Cluster #${cn}: ${clusterStats.synchronous_pos} synchronous positive spikes`);
+                    debug(`Cluster #${cn}: ${clusterStats.synchronous_neg} synchronous negative spikes`);
 
                     if (clusterStats.spikes_pos.length === 0 && clusterStats.spikes_neg.length === 0) {
                         return;
@@ -210,42 +220,61 @@ describe('cl.composition.Sonify', () => {
                         return 0;
                     };
 
+                    clusterStats.spikes_pos.sort(sortAbs);
+                    clusterStats.spikes_neg.sort(sortAbs);
+
+                    let peakPos = clusterStats.spikes_pos.length > 0 ?
+                            clusterStats.spikes_pos[0].peak.value : Qty(0.0, 'mV'),
+                        peakNeg = clusterStats.spikes_neg.length > 0 ?
+                            clusterStats.spikes_neg[0].peak.value : Qty(0.0, 'mV');
+
                     if (clusterStats.spikes_pos.length > 0) {
-                        clusterStats.spikes_pos.sort(sortAbs);
-                        if (!clusterStats.time) {
-                            clusterStats.time = clusterStats.spikes_pos[0].peak.time;
-                        }
-
-                        if (clusterStats.spikes_pos[0].peak.value.scalar >= 0.45) {
-                            let rotationSteps = Math.floor(clusterStats.synchronous * 0.5);
-                            debug(`Cluster #${cn}: Rotate degree ${rotationSteps} steps clockwise`);
-                            cofDegree.rotate(rotationSteps);
-                        }
+                        clusterStats.time = clusterStats.spikes_pos[0].peak.time;
+                    } else if (clusterStats.spikes_neg.length > 0 &&
+                        Math.abs(peakNeg.scalar) > Math.abs(peakPos.scalar)) {
+                        clusterStats.time = clusterStats.spikes_neg[0].peak.time;
                     }
 
-                    if (clusterStats.spikes_neg.length > 0) {
-                        clusterStats.spikes_neg.sort(sortAbs);
-                        if (!clusterStats.time || clusterStats.spikes_neg[0].peak.time.lt(clusterStats.time)) {
-                            clusterStats.time = clusterStats.spikes_neg[0].peak.time;
-                        }
+                    const makeChord = () => {
+                        let chord = new cl.harmonics.Chord('Maj7', cos.tonic);
+                        debug(`Cluster #${cn}: Generate chord ${chord.type} with tonic ${chord.tonic.toString()}`);
+                        chord.notes.map(note => {
+                            note.octave = 4;
+                            let tonalEvent = new cl.events.TonalEvent(clusterStats.time, note, Qty(defaultNoteLength));
+                            tonalEvents.push(tonalEvent);
+                        });
+                    };
 
-                        if (clusterStats.spikes_neg[0].peak.value.scalar >= 0.45) {
-                            let rotationSteps = Math.floor(clusterStats.synchronous * 0.5);
-                            debug(`Cluster #${cn}: Rotate mode ${rotationSteps} steps counterclockwise`);
-                            cofMode.rotate(rotationSteps * -1.0);
-                        }
-                    }
-
-                    let scale = new cl.harmonics.Scale(cofMode.note.toString(), process.env.SCALE_NAME || 'major'),
-                        chord = new cl.harmonics.Chord('Maj7', cofDegree.note.toString());
-
-                    debug(`Cluster #${cn}: Generate chord ${chord.type} with tonic ${chord.tonic}`);
-                    chord.notes.map(note => {
-                        note.octave = 4;
-                        let tonalEvent = new cl.events.TonalEvent(clusterStats.time, note,
-                            Qty(process.env.DEFAULT_NOTE_LENGTH || '0.25 s')
-                        );
+                    if (peakPos.gte(Qty(degModeThreshold)) && peakPos.gt(peakNeg)) {
+                        let rotationSteps = Math.floor(clusterStats.synchronous_pos * 0.5);
+                        debug(`Cluster #${cn}: Rotate degree ${rotationSteps} steps clockwise`);
+                        cofDegree.rotate(rotationSteps);
+                        cos.rotate(rotationSteps);
+                        clusterStats.spikes_pos.splice(0, 1);
+                        makeChord();
+                    } else if (peakNeg.gte(Qty(degModeThreshold)) && peakNeg.gt(peakPos)) {
+                        let rotationSteps = Math.floor(clusterStats.synchronous_neg * 0.5);
+                        debug(`Cluster #${cn}: Rotate mode ${rotationSteps} steps counterclockwise`);
+                        cofMode.rotate(rotationSteps * -1.0);
+                        cos.rotate(rotationSteps * -1.0);
+                        clusterStats.spikes_neg.splice(0, 1);
+                        let tonic = cos.tonic;
+                        tonic.octave = 4;
+                        let tonalEvent = new cl.events.TonalEvent(clusterStats.time, tonic, Qty(defaultNoteLength));
                         tonalEvents.push(tonalEvent);
+                    }
+
+                    clusterStats.spikes_pos.concat(clusterStats.spikes_neg).forEach(spike => {
+                        if (noteIndexMap[spike.string] && cos.scale.notes[noteIndexMap[spike.string]]) {
+                            let note = cos.scale.notes[noteIndexMap[spike.string]];
+                            note.octave = 4;
+                            let tonalEvent = new cl.events.TonalEvent(
+                                spike.peak.time, note, Qty(defaultNoteLength)
+                            );
+                            debug(`Cluster #${cn}: Adding TonalEvent ${tonalEvent.value.toString()} at ` +
+                                `${tonalEvent.time.toString()} for value ${spike.peak.value.toString()}`);
+                            tonalEvents.push(tonalEvent);
+                        }
                     });
                 });
 
