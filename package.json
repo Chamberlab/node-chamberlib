@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "bluebird": "^3.4.6",
-    "chance": "^1.0.4",
+    "chance": "^1.0.8",
     "csv-parse": "^1.1.7",
     "d3": "^3.5.17",
     "debug": "^2.6.3",
