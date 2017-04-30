@@ -43,7 +43,9 @@ describe('cl.composition.Sonify', () => {
                         return new Promise(resolve => {
                             fs.exists(dbpath, exists => {
                                 if (exists) {
-                                    return resolve(cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, _evaluate));
+                                    return resolve(
+                                        cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, _evaluate, 0.1)
+                                    );
                                 }
                                 debug('No Nanobrains DB in data, skipping...');
                                 resolve();
