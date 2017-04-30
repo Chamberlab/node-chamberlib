@@ -14,6 +14,10 @@ const debug = Debug('cl:test:Sonify');
 
 describe('cl.composition.Sonify', () => {
     it('sonifies NanoBrain signals', () => {
+        if (!process.env.OUTPUT_BASENAME) {
+            debug('Not configured, skipping test.');
+            return;
+        }
         const baseCachePath = path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME);
         const cacheBasePaths = {
             lmdb: path.join(__dirname, '..', '..', 'data', 'lmdb'),
