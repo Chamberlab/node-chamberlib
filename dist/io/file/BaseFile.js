@@ -83,7 +83,14 @@ class BaseFile {
         if (stream) {
             return _fs2.default.createReadStream(this.fullpath);
         } else {
-            return _bluebird2.default.promisify(_fs2.default.readFile)(this.fullpath).then(data => {
+            return new _bluebird2.default((resolve, reject) => {
+                _fs2.default.readFile(this.fullpath, (err, data) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(data);
+                });
+            }).then(data => {
                 _self._data = data;
                 return _self.data;
             });

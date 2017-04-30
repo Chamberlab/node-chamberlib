@@ -97,7 +97,7 @@ class MidiFile {
             lt.map(event => {
                 const event_val = event.value.value;
 
-                if (event.value.time.eq(last_v)) {
+                if (!event.value.time.eq(last_v)) {
                     last_v = event.value.time;
                     ticks = event.value.time.to('s').scalar * ticksPerSec;
                 }

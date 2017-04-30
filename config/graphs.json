@@ -1,6 +1,6 @@
 {
-  "layerResolutionLimit": 0.1,
-  "pixelsPerSecond": 40,
+  "layerResolutionLimit": 0.01,
+  "pixelsPerSecond": 60,
   "displayDimensions": {
     "width": 1920,
     "height": 1080
