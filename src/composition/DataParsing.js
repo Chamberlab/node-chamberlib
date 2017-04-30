@@ -7,7 +7,7 @@ import SpikeExtract from '../data/analysis/SpikeExtract';
 import Statistics from '../data/analysis/Statistics';
 
 class DataParsing {
-    static parseLMDBFrames(dbname, dbpath, evaluate) {
+    static parseLMDBFrames(dbname, dbpath, evaluate, lowCut = 0.01, highCut = Number.MAX_SAFE_INTEGER) {
         return new Promise(resolve => {
             const lmdb = new LMDB(dbpath),
                 txn = lmdb.begin(dbname),
@@ -16,7 +16,7 @@ class DataParsing {
             const selectChannels = new Array(64).fill(null).map((v, i) => {
                     return i + 1;
                 }),
-                spikeExtract = new SpikeExtract(64, 0.1, selectChannels),
+                spikeExtract = new SpikeExtract(64, lowCut, selectChannels, highCut),
                 statsExtract = new Statistics(65);
 
             if (!evaluate.stats) {
@@ -55,11 +55,11 @@ class DataParsing {
         });
     }
 
-    static parseSpiketrains(spiketrainFile, evaluate) {
+    static parseSpiketrains(spiketrainFile, evaluate, lowCut = 0.01, highCut = Number.MAX_SAFE_INTEGER) {
         const spikeFile = new SpiketrainsOE();
         return spikeFile.read(spiketrainFile)
             .then(channels => {
-                const spikeExtract = new SpikeExtract(channels.length, 0.1),
+                const spikeExtract = new SpikeExtract(channels.length, lowCut, highCut),
                     statsExtract = new Statistics(channels.length);
 
                 channels.map((channel, i) => {

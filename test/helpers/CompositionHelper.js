@@ -1,3 +1,6 @@
+import uuid4 from 'uuid4';
+import fs from 'fs';
+import path from 'path';
 import cl from '../../src';
 
 class CompositionHelper {
@@ -67,6 +70,16 @@ class CompositionHelper {
                     return cl.composition.DataCaching.storeFlattenedSpikes(flattenedSpikes, flattenedSpikesPath);
                 }
             });
+    }
+
+    static plotSpikes(spikeData, basePath, title, graphClass, separateChannels) {
+        const dataSet = new cl.data.DataSet(spikeData.map((channel, i) => {
+            return new cl.data.DataChannel(channel.map(spike => {
+                return spike.peak;
+            }), `channel-${i}`, uuid4());
+        }), title, uuid4());
+        const plotter = new cl.graphs.DataPlotter(dataSet, basePath, title);
+        return plotter.generateChart(graphClass, separateChannels);
     }
 }
 

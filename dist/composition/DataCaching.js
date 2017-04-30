@@ -23,14 +23,15 @@ var _SpikeEvent2 = _interopRequireDefault(_SpikeEvent);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class DataCaching {
-    static storeStats(statsExtract, filePath) {
+    static storeStats(stats, filePath, spliceStart = undefined, spliceEnd = undefined) {
         // TODO: check why this is not working with instanceof, would be safer for refactoring
-        (0, _assert2.default)(statsExtract.constructor.name === 'Statistics', 'Argument Error: statsExtract type mismatch');
+        (0, _assert2.default)(Array.isArray(stats), 'Argument Error: stats type mismatch');
         (0, _assert2.default)(typeof filePath === 'string', 'Argument Error: Invalid filePath');
 
-        let stats;
         return new Promise((resolve, reject) => {
-            stats = statsExtract.stats.splice(1, 64);
+            if (typeof spliceStart === 'number' && typeof spliceEnd === 'number') {
+                stats = stats.splice(spliceStart, spliceEnd);
+            }
             _fs2.default.writeFile(filePath, JSON.stringify(stats), err => {
                 if (err) {
                     return reject(err);
@@ -60,13 +61,11 @@ class DataCaching {
         });
     }
 
-    static storeChannelSpikes(spikeExtract, filePath) {
-        (0, _assert2.default)(spikeExtract.constructor.name === 'SpikeExtract', 'Argument Error: spikeExtract type mismatch');
+    static storeChannelSpikes(channelSpikes, filePath) {
+        (0, _assert2.default)(Array.isArray(channelSpikes), 'Argument Error: channelSpikes type mismatch');
         (0, _assert2.default)(typeof filePath === 'string', 'Argument Error: Invalid filePath');
 
-        let channelSpikes;
         return new Promise((resolve, reject) => {
-            channelSpikes = spikeExtract.spikes;
             _fs2.default.writeFile(filePath, JSON.stringify(channelSpikes), err => {
                 if (err) {
                     return reject(err);
