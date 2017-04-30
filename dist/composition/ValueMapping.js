@@ -16,6 +16,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class ValueMapping {
     constructor(lut) {
+        // lower spike half mapped to scale, upper shifts system, maps to specific chords or rules
         this.lut = lut;
     }
 

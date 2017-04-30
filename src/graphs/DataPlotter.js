@@ -13,12 +13,12 @@ class DataPlotter {
         this.filename = filename;
     }
 
-    generateChart(layoutClass) {
+    generateChart(layoutClass, drawSeparateChannels = false) {
         assert(layoutClass.prototype instanceof BaseGraph);
 
         const _self = this;
         const chart = new layoutClass();
-        return chart.draw(this.dataSet)
+        return chart.draw(this.dataSet, drawSeparateChannels)
             .then(function (data) {
                 if (Array.isArray(data)) {
                     return Promise.map(data, (gd) => {

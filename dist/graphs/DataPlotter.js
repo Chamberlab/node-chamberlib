@@ -41,12 +41,12 @@ class DataPlotter {
         this.filename = filename;
     }
 
-    generateChart(layoutClass) {
+    generateChart(layoutClass, drawSeparateChannels = false) {
         (0, _assert2.default)(layoutClass.prototype instanceof _BaseGraph2.default);
 
         const _self = this;
         const chart = new layoutClass();
-        return chart.draw(this.dataSet).then(function (data) {
+        return chart.draw(this.dataSet, drawSeparateChannels).then(function (data) {
             if (Array.isArray(data)) {
                 return _bluebird2.default.map(data, gd => {
                     return _self.writeImages(gd.data, `${gd.title}-${chart.constructor.name}`);

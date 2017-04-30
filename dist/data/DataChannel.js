@@ -33,36 +33,36 @@ class DataChannel extends _BaseCollection2.default {
 
     get stats() {
         let s = {
-            avg: 0.0, duration: 0.0, items: 0,
-            time: { min: Number.MAX_SAFE_INTEGER, max: Number.MIN_SAFE_INTEGER },
-            value: { min: Number.MAX_SAFE_INTEGER, max: Number.MIN_SAFE_INTEGER }
+            avg: (0, _jsQuantities2.default)(0.0, 'mV'), duration: (0, _jsQuantities2.default)(0.0, 's'), items: 0,
+            time: { min: (0, _jsQuantities2.default)(Number.MAX_SAFE_INTEGER, 's'), max: (0, _jsQuantities2.default)(Number.MIN_SAFE_INTEGER, 's') },
+            value: { min: (0, _jsQuantities2.default)(Number.MAX_SAFE_INTEGER, 'mV'), max: (0, _jsQuantities2.default)(Number.MIN_SAFE_INTEGER, 'mV') }
         };
         this._items.map(function (item) {
             let time = item.time,
                 value = item.value;
 
-            s.avg += value.scalar;
+            s.avg = s.avg.add(value);
             s.items++;
 
-            if (time < s.time.min) {
-                s.time.min = time.scalar;
-            } else if (time > s.time.max) {
-                s.time.max = time.scalar;
+            if (time.lt(s.time.min)) {
+                s.time.min = time;
+            } else if (time.gt(s.time.max)) {
+                s.time.max = time;
             }
 
-            if (value < s.value.min) {
-                s.value.min = value.scalar;
-            } else if (value > s.value.max) {
-                s.value.max = value.scalar;
+            if (value.lt(s.value.min)) {
+                s.value.min = value;
+            } else if (value.gt(s.value.max)) {
+                s.value.max = value;
             }
         });
 
-        s.avg = s.avg / s.items;
-        s.duration = (0, _jsQuantities2.default)(s.time.max - s.time.min, 's');
-        s.time.min = (0, _jsQuantities2.default)(s.time.min, 's');
-        s.time.max = (0, _jsQuantities2.default)(s.time.max, 's');
-        s.value.min = (0, _jsQuantities2.default)(s.value.min, 'mV');
-        s.value.max = (0, _jsQuantities2.default)(s.value.max, 'mV');
+        s.avg = s.items > 0 ? (0, _jsQuantities2.default)(s.avg.scalar / s.items, 'mV') : (0, _jsQuantities2.default)(0, 'mV');
+        s.duration = s.time.max.sub(s.time.min);
+        //s.time.min = Qty(s.time.min, 's');
+        //s.time.max = Qty(s.time.max, 's');
+        //s.value.min = Qty(s.value.min, 'mV');
+        //s.value.max = Qty(s.value.max, 'mV');
 
         return s;
     }

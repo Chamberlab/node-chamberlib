@@ -21,6 +21,17 @@ export function makeDataEvent() {
     );
 }
 
+export function makeDataFrame(values = 64, valMin = 0.0, valMax = 1.0, unit = 'ms') {
+    const data = new Float32Array(values);
+    for (let i = 0; i < data.length; i += 1) {
+        data[i] = chance.floating({min: -2, max: 2});
+    }
+    return new events.DataFrame(
+        chance.floating({min: valMin, max: valMax}) + unit,
+        data
+    );
+}
+
 export function makeEvenlySpacedDataEvents(count = 256, deltaTime = '0.25 s', valMin = 0.0, valMax = 1.0) {
     const dataEvents = [];
 
@@ -32,6 +43,16 @@ export function makeEvenlySpacedDataEvents(count = 256, deltaTime = '0.25 s', va
     }
 
     return dataEvents;
+}
+
+export function makeEvenlySpacedDataFrames(count = 256, deltaTime = '0.25 s', valMin = 0.0, valMax = 1.0) {
+    const dataFrames = [];
+
+    for (let i = 0; i < count; i += 1) {
+        dataFrames.push(makeDataFrame());
+    }
+
+    return dataFrames;
 }
 
 export function makeTime(startAtZero = false, max) {
