@@ -129,7 +129,8 @@ describe('cl.composition.Sonify', () => {
             .then(() => {
                 if (Array.isArray(_stats)) {
                     _stats.forEach((stat, i) => {
-                        debug(`Channel ${i} - Min: ${Qty(stat.min)} - Max: ${Qty(stat.max)}`);
+                        debug(`Channel ${i} - Min: ${Qty(stat.min)} - Max: ${Qty(stat.max)} - Avg: ${Qty(stat.avg)}` +
+                            ` - Avg pos.: ${Qty(stat.avg_pos)} - Avg neg.: ${Qty(stat.avg_pos)}`);
                     });
                 }
             })
@@ -150,6 +151,7 @@ describe('cl.composition.Sonify', () => {
                     lowThreshold = '0.1 mV',
                     syncThreshold = '0.4 mV',
                     degModeThreshold = '0.45 mV',
+                    chordList = ['Cmaj7', 'Fmaj7#11', 'Gdom7', 'Dm7', 'Am7', 'Em7', 'Bm7b5'],
                     noteIndexMap = {
                         '-0.10': 0,
                         '0.10': 1,
@@ -234,8 +236,7 @@ describe('cl.composition.Sonify', () => {
                         clusterStats.time = clusterStats.spikes_neg[0].peak.time;
                     }
 
-                    let chordDegree = 0,
-                        chordList = ['Cmaj7', 'Fmaj7#11', 'Gdom7', 'Dm7', 'Am7', 'Em7', 'Bm7b5'];
+                    let chordDegree = 0;
 
                     const makeChord = () => {
                         let chord = new cl.harmonics.Chord(chordList[chordDegree]);
