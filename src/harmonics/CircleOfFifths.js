@@ -2,8 +2,8 @@ import Note from './Note';
 import Interval from './Interval';
 
 class CircleOfFifths {
-    constructor(key = 'C') {
-        this._currentNote = new Note(key);
+    constructor(key = 'C', octave = undefined) {
+        this._currentNote = new Note(key, octave);
         this._rotation = 0;
         this._position = 2;
     }

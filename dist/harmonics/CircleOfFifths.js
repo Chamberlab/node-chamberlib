@@ -15,8 +15,8 @@ var _Interval2 = _interopRequireDefault(_Interval);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class CircleOfFifths {
-    constructor(key = 'C') {
-        this._currentNote = new _Note2.default(key);
+    constructor(key = 'C', octave = undefined) {
+        this._currentNote = new _Note2.default(key, octave);
         this._rotation = 0;
         this._position = 2;
     }

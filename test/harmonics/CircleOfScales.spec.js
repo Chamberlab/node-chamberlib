@@ -8,11 +8,10 @@ describe('cl.harmonics.CircleOfScales', () => {
         const cos = new cl.harmonics.CircleOfScales();
         cos.rotate(1);
         cos.key.should.equal('G major');
-        cos.tonic.should.equal('G');
+        cos.tonic.key.should.equal('G');
         cos.mode.should.equal('major');
-        // cos.chord.should.equal('major');
         cos.scale.should.be.instanceof(cl.harmonics.Scale);
-        cos.scale.key.should.equal('G');
+        cos.scale.key.should.equal('G1');
         cos.scale.name.should.equal('major');
         cos.scale.notes.length.should.equal(7);
         cos.scale.notes[0].should.be.instanceof(cl.harmonics.Note);
@@ -32,7 +31,7 @@ describe('cl.harmonics.CircleOfScales', () => {
         const cos = new cl.harmonics.CircleOfScales();
         cos.rotate(-1);
         cos.key.should.equal('F major');
-        cos.scale.key.should.equal('F');
+        cos.scale.key.should.equal('F1');
         cos.scale.name.should.equal('major');
         cos.coordinates.r.should.equal(-1);
     });
@@ -41,9 +40,9 @@ describe('cl.harmonics.CircleOfScales', () => {
         const cos = new cl.harmonics.CircleOfScales();
         cos.rotate(-6);
         cos.key.should.equal('Gb major');
-        cos.tonic.should.equal('Gb');
+        cos.tonic.key.should.equal('Gb');
         cos.mode.should.equal('major');
-        cos.scale.key.should.equal('Gb');
+        cos.scale.key.should.equal('Gb1');
         cos.scale.name.should.equal('major');
         cos.coordinates.r.should.equal(-6);
     });

@@ -5,10 +5,9 @@ import Note from './Note';
 
 class Scale {
     constructor(key, name) {
-        this.name = name;
         this.key = key;
+        this.name = name;
     }
-
 
     get key() {
         return this._key;
@@ -30,9 +29,9 @@ class Scale {
         this._name = name;
     }
 
-
     get notes() {
-        return tonal.scale(`${this.key} ${this.name}`).map(function (name) {
+        const data = tonal.scale.get(this.name, this.key);
+        return data.map((name) => {
             return new Note(name);
         });
     }

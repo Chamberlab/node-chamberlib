@@ -144,8 +144,7 @@ describe('cl.composition.Sonify', () => {
                     });
                 }
                 const tonalEvents = [],
-                    cofDegree = new cl.harmonics.CircleOfFifths('C'),
-                    cofMode = new cl.harmonics.CircleOfFifths('C'),
+                    startOctave = 2,
                     cos = new cl.harmonics.CircleOfScales(),
                     defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
                     lowThreshold = '0.1 mV',
@@ -160,10 +159,6 @@ describe('cl.composition.Sonify', () => {
                         '0.30': 5,
                         '0.40': 6
                     };
-
-                // rotate mode and scale to G
-                cofMode.rotate(1);
-                cos.rotate(1);
 
                 spikeClusters.forEach((cluster, cn) => {
                     const clusterStats = {
@@ -204,8 +199,12 @@ describe('cl.composition.Sonify', () => {
                         }
                     });
 
-                    debug(`Cluster #${cn}: ${clusterStats.synchronous_pos} synchronous positive spikes`);
-                    debug(`Cluster #${cn}: ${clusterStats.synchronous_neg} synchronous negative spikes`);
+                    if (clusterStats.synchronous_pos > 0) {
+                        Debug(`cluster:${cn}`)(`${clusterStats.synchronous_pos} synchronous positive spikes`);
+                    }
+                    if (clusterStats.synchronous_neg > 0) {
+                        Debug(`cluster:${cn}`)(`${clusterStats.synchronous_neg} synchronous negative spikes`);
+                    }
 
                     if (clusterStats.spikes_pos.length === 0 && clusterStats.spikes_neg.length === 0) {
                         return;
@@ -235,45 +234,42 @@ describe('cl.composition.Sonify', () => {
                         clusterStats.time = clusterStats.spikes_neg[0].peak.time;
                     }
 
+                    let chordDegree = 0,
+                        chordList = ['Cmaj7', 'Fmaj7#11', 'Gdom7', 'Dm7', 'Am7', 'Em7', 'Bm7b5'];
+
                     const makeChord = () => {
-                        let chord = new cl.harmonics.Chord('Maj7', cos.tonic);
-                        debug(`Cluster #${cn}: Generate chord ${chord.type} with tonic ${chord.tonic.toString()}`);
-                        chord.notes.map(note => {
-                            note.octave = 4;
+                        let chord = new cl.harmonics.Chord(chordList[chordDegree]);
+                        Debug(`cluster:${cn}`)(`Generating chord ${chord.type} with tonic ${chord.tonic.toString()}`);
+                        chord.getNotesFromOctave(1).map(note => {
                             let tonalEvent = new cl.events.TonalEvent(clusterStats.time, note, Qty(defaultNoteLength));
                             tonalEvents.push(tonalEvent);
                         });
                     };
 
                     if (peakPos.gte(Qty(degModeThreshold)) && peakPos.gt(peakNeg)) {
-                        let rotationSteps = Math.floor(clusterStats.synchronous_pos * 0.5);
-                        debug(`Cluster #${cn}: Rotate degree ${rotationSteps} steps clockwise`);
-                        cofDegree.rotate(rotationSteps);
-                        cos.rotate(rotationSteps);
+                        chordDegree = Math.min(Math.floor(clusterStats.synchronous_pos * 0.5), 6);
+                        Debug(`cluster:${cn}`)(`Setting degree to ${chordDegree}`);
                         clusterStats.spikes_pos.splice(0, 1);
                         makeChord();
                     } else if (peakNeg.gte(Qty(degModeThreshold)) && peakNeg.gt(peakPos)) {
                         let rotationSteps = Math.floor(clusterStats.synchronous_neg * 0.5);
-                        debug(`Cluster #${cn}: Rotate mode ${rotationSteps} steps counterclockwise`);
-                        cofMode.rotate(rotationSteps * -1.0);
+                        Debug(`cluster:${cn}`)(`Rotating mode ${rotationSteps} steps counterclockwise`);
                         cos.rotate(rotationSteps * -1.0);
                         clusterStats.spikes_neg.splice(0, 1);
-                        let tonic = cos.tonic;
-                        tonic.octave = 4;
-                        let tonalEvent = new cl.events.TonalEvent(clusterStats.time, tonic, Qty(defaultNoteLength));
-                        tonalEvents.push(tonalEvent);
                     }
 
                     clusterStats.spikes_pos.concat(clusterStats.spikes_neg).forEach(spike => {
                         if (noteIndexMap[spike.string] && cos.scale.notes[noteIndexMap[spike.string]]) {
-                            let note = cos.scale.notes[noteIndexMap[spike.string]];
-                            note.octave = 4;
-                            let tonalEvent = new cl.events.TonalEvent(
-                                spike.peak.time, note, Qty(defaultNoteLength)
-                            );
-                            debug(`Cluster #${cn}: Adding TonalEvent ${tonalEvent.value.toString()} at ` +
-                                `${tonalEvent.time.toString()} for value ${spike.peak.value.toString()}`);
-                            tonalEvents.push(tonalEvent);
+                            let cof = new cl.harmonics.CircleOfFifths('G', startOctave);
+                            cof.rotate(noteIndexMap[spike.string]);
+                            if (cof.note) {
+                                let tonalEvent = new cl.events.TonalEvent(
+                                    spike.peak.time, cof.note, Qty(defaultNoteLength)
+                                );
+                                Debug(`cluster:${cn}`)(`Adding TonalEvent ${tonalEvent.value.toString()} at ` +
+                                    `${tonalEvent.time.toString()} for value ${spike.peak.value.toString()}`);
+                                tonalEvents.push(tonalEvent);
+                            }
                         }
                     });
                 });
@@ -285,10 +281,8 @@ describe('cl.composition.Sonify', () => {
                     song = new cl.data.Song([dataChannel], 120, uuid4());
                 return song.toMidiFile(path.join(__dirname, '..', '..', 'data', `${_title.join('-')}.mid`));
             })
-            /*
             .catch(err => {
                 throw err;
             });
-            */
     });
 });

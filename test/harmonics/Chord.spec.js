@@ -8,7 +8,7 @@ describe('cl.harmonics.Chord', () => {
         let chord = new cl.harmonics.Chord('Maj7', 'C');
 
         chord.type.should.equal('Maj7');
-        chord.tonic.should.equal('C');
+        chord.tonic.key.should.equal('C');
 
         chord.notes.length.should.equal(4);
         'CEGB'.split('').forEach((key, i) => {
@@ -24,7 +24,7 @@ describe('cl.harmonics.Chord', () => {
 
         chords.length.should.equal(1);
         chords[0].type.should.equal('Maj7');
-        chords[0].tonic.should.equal('C');
+        chords[0].tonic.key.should.equal('C');
     });
 
     it('Lists all available chords', () => {

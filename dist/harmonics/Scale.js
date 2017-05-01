@@ -22,8 +22,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class Scale {
     constructor(key, name) {
-        this.name = name;
         this.key = key;
+        this.name = name;
     }
 
     get key() {
@@ -47,7 +47,8 @@ class Scale {
     }
 
     get notes() {
-        return tonal.scale(`${this.key} ${this.name}`).map(function (name) {
+        const data = tonal.scale.get(this.name, this.key);
+        return data.map(name => {
             return new _Note2.default(name);
         });
     }
