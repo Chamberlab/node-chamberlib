@@ -1,6 +1,7 @@
 import fs from 'fs';
 import Debug from 'debug';
 import assert from 'assert';
+import Qty from 'js-quantities';
 
 import SpikeEvent from '../events/SpikeEvent';
 
@@ -40,6 +41,23 @@ class DataCaching {
                     resolve();
                 }
             });
+        })
+        .then(rawStats => {
+            if (rawStats) {
+                return rawStats.map((stats) => {
+                    return {
+                        min: Qty(stats.min.scalar, stats.min._units),
+                        max: Qty(stats.max.scalar, stats.max._units),
+                        avg: Qty(stats.avg.scalar, stats.avg._units),
+                        avg_pos: Qty(stats.avg_pos.scalar, stats.avg_pos._units),
+                        avg_neg: Qty(stats.avg_neg.scalar, stats.avg_neg._units),
+                        distribution: stats.distribution.map(entry => {
+                            entry.range = Qty(entry.range.scalar, entry.range._units);
+                            return entry;
+                        })
+                    };
+                });
+            }
         });
     }
 

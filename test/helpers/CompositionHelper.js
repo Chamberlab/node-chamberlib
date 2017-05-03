@@ -1,6 +1,4 @@
 import uuid4 from 'uuid4';
-import fs from 'fs';
-import path from 'path';
 import cl from '../../src';
 
 class CompositionHelper {

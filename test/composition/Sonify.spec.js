@@ -78,7 +78,7 @@ describe('cl.composition.Sonify', () => {
                             fs.exists(dbpath, exists => {
                                 if (exists) {
                                     return resolve(
-                                        cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, _evaluate, 0.1)
+                                        cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, _evaluate, 0.05)
                                     );
                                 }
                                 debug('No Nanobrains DB in data, skipping...');
@@ -129,8 +129,12 @@ describe('cl.composition.Sonify', () => {
             .then(() => {
                 if (Array.isArray(_stats)) {
                     _stats.forEach((stat, i) => {
-                        debug(`Channel ${i} - Min: ${Qty(stat.min)} - Max: ${Qty(stat.max)} - Avg: ${Qty(stat.avg)}` +
-                            ` - Avg pos.: ${Qty(stat.avg_pos)} - Avg neg.: ${Qty(stat.avg_pos)}`);
+                        debug(`Channel ${i} - Min: ${Qty(stat.min)} - Max: ${Qty(stat.max)} - Avg: ${Qty(stat.avg || '0 mV')}` +
+                            ` - Avg pos.: ${Qty(stat.avg_pos || '0 mV')} - Avg neg.: ${Qty(stat.avg_pos || '0 mV')}`);
+                        const ranges = stat.distribution.map(entry => {
+                            return `${entry.range}:${entry.count}`;
+                        });
+                        debug(`Channel ${i} - Ranges: ${ranges.join(' ')}`);
                     });
                 }
             })
@@ -146,7 +150,7 @@ describe('cl.composition.Sonify', () => {
                 }
                 const tonalEvents = [],
                     startOctave = 2,
-                    cos = new cl.harmonics.CircleOfScales(),
+                    cos = new cl.harmonics.CircleOfScales(startOctave),
                     defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
                     lowThreshold = '0.1 mV',
                     syncThreshold = '0.4 mV',
@@ -160,7 +164,77 @@ describe('cl.composition.Sonify', () => {
                         '0.25': 4,
                         '0.30': 5,
                         '0.40': 6
+                    },
+                    rootNoteIndexMap = {
+                        '0.60': -1,
+                        '0.65': 1,
+                        '0.70': 2,
+                        '0.75': 3,
+                        '0.80': 4,
+                        '0.85': 4,
+                        '0.90': 4,
+                        '0.95': 4,
+                        '1.00': -3,
+                        '1.05': -3,
+                        '1.10': -3,
+                        '1.15': -3,
+                        '1.20': -3,
+                        '1.25': -3,
+                        '1.30': -3,
+                        '1.35': -3,
+                        '1.40': -4,
+                        '1.45': -4,
+                        '1.50': -4,
+                        '1.55': -4,
+                        '1.60': -4,
+                        '1.65': -4,
+                        '1.75': -4,
+                        '1.80': 5,
+                        '1.85': 5,
+                        '1.90': 5,
+                        '1.95': 5,
+                        '2.00': 5,
+                        '2.05': 5,
+                        '2.10': 5,
+                        '2.15': 5,
+                        '2.20': 6
                     };
+                    /*
+                    rootNoteIndexMap = {
+                        '0.60': 'F',
+                        '0.65': 'G',
+                        '0.70': 'D',
+                        '0.75': 'A',
+                        '0.80': 'E',
+                        '0.85': 'E',
+                        '0.90': 'E',
+                        '0.95': 'E',
+                        '1.00': 'Eb',
+                        '1.05': 'Eb',
+                        '1.10': 'Eb',
+                        '1.15': 'Eb',
+                        '1.20': 'Eb',
+                        '1.25': 'Eb',
+                        '1.30': 'Eb',
+                        '1.35': 'Eb',
+                        '1.40': 'Ab',
+                        '1.45': 'Ab',
+                        '1.50': 'Ab',
+                        '1.55': 'Ab',
+                        '1.60': 'Ab',
+                        '1.70': 'Ab',
+                        '1.75': 'Ab',
+                        '1.80': 'Bb',
+                        '1.85': 'Bb',
+                        '1.90': 'Bb',
+                        '1.95': 'Bb',
+                        '2.00': 'Bb',
+                        '2.05': 'Bb',
+                        '2.10': 'Bb',
+                        '2.15': 'Bb',
+                        '2.20': 'F#'
+                    };
+                    */
 
                 spikeClusters.forEach((cluster, cn) => {
                     const clusterStats = {
@@ -184,8 +258,8 @@ describe('cl.composition.Sonify', () => {
                         }
 
                         if (mapVal >= Qty(lowThreshold).scalar) {
-                            const stringVal = (parseFloat(evt.spike.peak.value.scalar * 2.0)
-                                .toPrecision(1) * 0.5).toPrecision(2);
+                            const stringVal = (parseFloat((evt.spike.peak.value.scalar * 2.0).toFixed(1)) * 0.5)
+                                .toFixed(2);
                             const spike = {
                                 string: stringVal,
                                 peak: evt.spike.peak,
@@ -193,9 +267,9 @@ describe('cl.composition.Sonify', () => {
                                 index: i,
                                 sign: sign
                             };
-                            if (sign > 0) {
+                            if (sign > 0) { // && clusterStats.spikes_pos.length < 6) {
                                 clusterStats.spikes_pos.push(spike);
-                            } else if (sign < 0) {
+                            } else if (sign < 0) { // && clusterStats.spikes_neg.length < 6) {
                                 clusterStats.spikes_neg.push(spike);
                             }
                         }
@@ -236,7 +310,8 @@ describe('cl.composition.Sonify', () => {
                         clusterStats.time = clusterStats.spikes_neg[0].peak.time;
                     }
 
-                    let chordDegree = 0;
+                    let chordDegree = 0,
+                        rootNoteCos = new cl.harmonics.CircleOfScales(startOctave);
 
                     const makeChord = () => {
                         let chord = new cl.harmonics.Chord(chordList[chordDegree]);
@@ -247,21 +322,9 @@ describe('cl.composition.Sonify', () => {
                         });
                     };
 
-                    if (peakPos.gte(Qty(degModeThreshold)) && peakPos.gt(peakNeg)) {
-                        chordDegree = Math.min(Math.floor(clusterStats.synchronous_pos * 0.5), 6);
-                        Debug(`cluster:${cn}`)(`Setting degree to ${chordDegree}`);
-                        clusterStats.spikes_pos.splice(0, 1);
-                        makeChord();
-                    } else if (peakNeg.gte(Qty(degModeThreshold)) && peakNeg.gt(peakPos)) {
-                        let rotationSteps = Math.floor(clusterStats.synchronous_neg * 0.5);
-                        Debug(`cluster:${cn}`)(`Rotating mode ${rotationSteps} steps counterclockwise`);
-                        cos.rotate(rotationSteps * -1.0);
-                        clusterStats.spikes_neg.splice(0, 1);
-                    }
-
-                    clusterStats.spikes_pos.concat(clusterStats.spikes_neg).forEach(spike => {
+                    const makeNote = (spike) => {
                         if (noteIndexMap[spike.string] && cos.scale.notes[noteIndexMap[spike.string]]) {
-                            let cof = new cl.harmonics.CircleOfFifths('G', startOctave);
+                            let cof = new cl.harmonics.CircleOfFifths(rootNoteCos.tonic.key, startOctave);
                             cof.rotate(noteIndexMap[spike.string]);
                             if (cof.note) {
                                 let tonalEvent = new cl.events.TonalEvent(
@@ -272,6 +335,35 @@ describe('cl.composition.Sonify', () => {
                                 tonalEvents.push(tonalEvent);
                             }
                         }
+                    };
+
+                    if (clusterStats.spikes_pos.length > 0 && rootNoteIndexMap[clusterStats.spikes_pos[0].string]) {
+                        rootNoteCos = new cl.harmonics.CircleOfScales(startOctave);
+                        rootNoteCos.rotate(rootNoteIndexMap[clusterStats.spikes_pos[0].string]);
+                    }
+
+                    if (peakPos.gte(Qty(degModeThreshold)) && peakPos.gt(peakNeg)) {
+                        chordDegree = Math.min(Math.floor(clusterStats.synchronous_pos * 0.5), 6);
+                        Debug(`cluster:${cn}`)(`Setting degree to ${chordDegree}`);
+                        clusterStats.spikes_pos.splice(0, 1);
+                        makeChord();
+                    } else if (peakNeg.gte(Qty(degModeThreshold)) && peakNeg.gt(peakPos)) {
+                        let rotationSteps = Math.floor(clusterStats.synchronous_neg * 0.5);
+                        Debug(`cluster:${cn}`)(`Rotating mode ${rotationSteps} steps counterclockwise`);
+                        cos.rotate(rotationSteps * -1.0);
+                        makeNote(clusterStats.spikes_neg.splice(0, 1));
+                    } else {
+                        /*
+                        if (peakPos.gt(peakNeg)) {
+                            makeNote(clusterStats.spikes_pos.splice(0, 1));
+                        } else {
+                            makeNote(clusterStats.spikes_neg.splice(0, 1));
+                        }
+                        */
+                    }
+
+                    clusterStats.spikes_pos.concat(clusterStats.spikes_neg).sort(sortAbs).forEach(spike => {
+                        makeNote(spike);
                     });
                 });
 
