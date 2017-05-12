@@ -1,5 +1,6 @@
+import cl from '../';
+
 const memwatch = require('memwatch-next'),
-    cl = require('../../dist').default,
     path = require('path'),
     Qty = require('js-quantities');
 
@@ -9,11 +10,11 @@ memwatch.on('leak', function(info) {
 
 const lmdbOut = new cl.nodes.storage.LMDBNode(),
     lmdbIn = new cl.nodes.storage.LMDBNode(),
-    quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(0.1, 's') });
+    quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(0.05, 's') });
 
-lmdbOut.openDataSet(path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain'), '20151208_15h59m12s_nanobrain');
+lmdbOut.openDataSet(path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain'), '20151208_15h59m12s_nanobrain');
 lmdbIn.createDataSet(
-    path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain-reduced'), 2.0, '20151208_15h59m12s_nanobrain');
+    path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain-reduced-0-05'), 2.0, '20151208_15h59m12s_nanobrain');
 
 lmdbIn.on('done', () => {
     process.stdout.write('done!\n');

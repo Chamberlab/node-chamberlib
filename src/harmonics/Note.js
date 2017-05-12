@@ -8,13 +8,14 @@ import * as tn from 'tonal-note';
 import Interval from './Interval';
 
 class Note {
-    constructor(key = 'C', octave = undefined) {
+    constructor(key = 'C', octave = undefined, velocity = 1.0) {
         if (key && octave) {
             this.fromString(key);
             this.octave = octave;
         } else {
             this.fromString(key);
         }
+        this.velocity = velocity;
     }
 
 
@@ -137,6 +138,17 @@ class Note {
         assert(typeof val === 'number', `Octave value must be number, is ${typeof val}`);
 
         this._octave = val;
+    }
+
+
+    get velocity() {
+        return this._velocity;
+    }
+
+    set velocity(val) {
+        assert(typeof val === 'number', `Velocity value must be number, is ${typeof val}`);
+
+        this._velocity = val;
     }
 }
 

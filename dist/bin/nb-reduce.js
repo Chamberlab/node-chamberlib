@@ -1,7 +1,12 @@
 'use strict';
 
+var _ = require('../');
+
+var _2 = _interopRequireDefault(_);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 const memwatch = require('memwatch-next'),
-      cl = require('../../dist').default,
       path = require('path'),
       Qty = require('js-quantities');
 
@@ -9,12 +14,12 @@ memwatch.on('leak', function (info) {
     process.stderr.write(`WARNING: ${info.reason} - Growth: ${info.growth}\n`);
 });
 
-const lmdbOut = new cl.nodes.storage.LMDBNode(),
-      lmdbIn = new cl.nodes.storage.LMDBNode(),
-      quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(0.1, 's') });
+const lmdbOut = new _2.default.nodes.storage.LMDBNode(),
+      lmdbIn = new _2.default.nodes.storage.LMDBNode(),
+      quantize = new _2.default.nodes.transform.QuantizeTime({ steps: Qty(0.05, 's') });
 
-lmdbOut.openDataSet(path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain'), '20151208_15h59m12s_nanobrain');
-lmdbIn.createDataSet(path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain-reduced'), 2.0, '20151208_15h59m12s_nanobrain');
+lmdbOut.openDataSet(path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain'), '20151208_15h59m12s_nanobrain');
+lmdbIn.createDataSet(path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain-reduced-0-05'), 2.0, '20151208_15h59m12s_nanobrain');
 
 lmdbIn.on('done', () => {
     process.stdout.write('done!\n');

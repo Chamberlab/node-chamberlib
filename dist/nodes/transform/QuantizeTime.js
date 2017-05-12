@@ -34,23 +34,30 @@ class QuantizeTime extends _BaseTransformNode2.default {
             _self = this;
         const transformFunction = function (event) {
             _self.addStats('in', event.constructor.name);
-            if (event.time.sub(lastFrameTime).gt(options.steps)) {
-                lastFrameTime.add(options.steps);
+            if (event.time.sub(lastFrameTime).gte(options.steps)) {
                 let evt,
                     frameTime = (0, _jsQuantities2.default)(lastFrameTime);
+                lastFrameTime = lastFrameTime.add(options.steps);
                 if (event instanceof _DataEvent2.default) {
+                    if (Object.keys(values).length === 0) {
+                        return;
+                    }
                     Object.keys(values).map(key => {
                         evt = new _DataEvent2.default(frameTime, (0, _jsQuantities2.default)(values[key].length ? _mathjs2.default.mean(values[key]) : 0.0));
                         evt.parentUUID = key;
                         values[key] = [];
                     });
                 } else if (event instanceof _DataFrame2.default) {
+                    if (!Array.isArray(values)) {
+                        return;
+                    }
                     let arr = new Float32Array(event.value.length).fill(0.0);
                     evt = new _DataFrame2.default(frameTime, arr.map((v, i) => {
-                        return _mathjs2.default.mean(values[i]);
+                        let val = _mathjs2.default.mean(values[i]);
+                        values[i] = [];
+                        return val;
                     }));
                     evt.parentUUID = event.parentUUID;
-                    values = [];
                 }
                 _self.stream.queue(evt);
                 _self.addStats('out', event.constructor.name);
@@ -62,11 +69,13 @@ class QuantizeTime extends _BaseTransformNode2.default {
                     }
                     values[event.parentUUID].push(event.value);
                 } else if (event instanceof _DataFrame2.default) {
-                    if (!Array.isArray(values)) {
-                        values = new Array(event.value.length).fill([]);
+                    if (!Array.isArray(values) || values.length === 0) {
+                        values = new Array(event.value.length).fill(null).map(() => {
+                            return [];
+                        });
                     }
                     event.value.map((v, i) => {
-                        values[i] = v;
+                        values[i].push(v);
                     });
                 }
             }

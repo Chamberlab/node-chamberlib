@@ -101,7 +101,7 @@ class BaseDB extends Emitter {
 
         const timeStr = time.format(formatKey(channel.keyPrecision));
         return (uuidValidate(channelUUID, 4) ? channelUUID.split('-').pop() : '') +
-            new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr;
+            new Array(channel.keySize - timeStr.length + 1).fill(0).join('') + timeStr;
     }
 
     _getArrayClass(typeString) {

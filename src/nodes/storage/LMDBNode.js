@@ -195,7 +195,7 @@ class LMDBNode extends BaseNode {
         return input.uuid;
     }
 
-    createOutput(channelKey, startTime = Qty('0s'), endTime = Qty('0s'), convertFrames = false) {
+    createOutput(channelKey, startTime = Qty('0 s'), endTime = Qty('0 s'), convertFrames = false) {
         assert(this._lmdb !== null);
 
         assert(typeof channelKey === 'string');
@@ -254,7 +254,7 @@ class LMDBNode extends BaseNode {
             }
             if (output.eventBuffer.length > 0) {
                 let event = output.eventBuffer.shift();
-                if (output.endTime.gt(Qty('0s')) && event.time.gte(output.endTime)) {
+                if (output.endTime.gt(Qty('0 s')) && event.time.gte(output.endTime)) {
                     return this.endOutput(uuid);
                 }
                 output.stream.queue(event);

@@ -127,7 +127,7 @@ class BaseDB extends _tinyEmitter2.default {
         (0, _assert2.default)(time instanceof _jsQuantities2.default, `Key time must be Qty or number, is ${typeof time}`);
 
         const timeStr = time.format(formatKey(channel.keyPrecision));
-        return ((0, _uuidValidate2.default)(channelUUID, 4) ? channelUUID.split('-').pop() : '') + new Array(channel.keySize - timeStr.length).fill(0).join('') + timeStr;
+        return ((0, _uuidValidate2.default)(channelUUID, 4) ? channelUUID.split('-').pop() : '') + new Array(channel.keySize - timeStr.length + 1).fill(0).join('') + timeStr;
     }
 
     _getArrayClass(typeString) {

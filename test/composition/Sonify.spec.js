@@ -19,7 +19,8 @@ describe('cl.composition.Sonify', () => {
             return;
         }
 
-        const baseCachePath = path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME),
+        const scaleValues = parseFloat(process.env.SCALE_VALUES) || 1.0,
+            baseCachePath = path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME),
             cacheBasePaths = {
                 lmdb: path.join(__dirname, '..', '..', 'data', 'lmdb'),
                 spiketrains: path.join(__dirname, '..', '..', 'data', 'spiketrains')
@@ -148,12 +149,12 @@ describe('cl.composition.Sonify', () => {
                             (`Extracted Cluster at approx. ${cluster[0].spike.peak.time} with ${cluster.length} items`);
                     });
                 }
-                const tonalEvents = [],
-                    startOctave = 2,
+                let tonalEvents = new Array(Math.ceil(64 / (process.env.CHANNEL_GROUPING || 1))).fill(null);
+                const startOctave = 2,
                     cos = new cl.harmonics.CircleOfScales(startOctave),
                     defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
                     lowThreshold = '0.1 mV',
-                    syncThreshold = '0.4 mV',
+                    syncThreshold = '0.2 mV',
                     degModeThreshold = '0.45 mV',
                     chordList = ['Cmaj7', 'Fmaj7#11', 'Gdom7', 'Dm7', 'Am7', 'Em7', 'Bm7b5'],
                     noteIndexMap = {
@@ -236,6 +237,10 @@ describe('cl.composition.Sonify', () => {
                     };
                     */
 
+                tonalEvents = tonalEvents.map(() => {
+                    return [];
+                });
+
                 spikeClusters.forEach((cluster, cn) => {
                     const clusterStats = {
                         min_active: 0,
@@ -248,7 +253,7 @@ describe('cl.composition.Sonify', () => {
                         spikes_neg: []
                     };
                     cluster.forEach((evt, i) => {
-                        const mapVal = Math.abs(evt.spike.peak.value.scalar),
+                        const mapVal = Math.abs(evt.spike.peak.value.scalar * scaleValues),
                             sign = Math.sign(evt.spike.peak.value.scalar);
 
                         if (evt.spike.peak.value.gte(Qty(syncThreshold))) {
@@ -258,12 +263,13 @@ describe('cl.composition.Sonify', () => {
                         }
 
                         if (mapVal >= Qty(lowThreshold).scalar) {
-                            const stringVal = (parseFloat((evt.spike.peak.value.scalar * 2.0).toFixed(1)) * 0.5)
+                            const stringVal = (parseFloat((evt.spike.peak.value.scalar * 2.0).toFixed(1)) * 0.5 * scaleValues)
                                 .toFixed(2);
                             const spike = {
                                 string: stringVal,
-                                peak: evt.spike.peak,
-                                channel: evt.channel,
+                                peak: new cl.events.DataEvent(evt.spike.peak.time,
+                                    Qty(evt.spike.peak.value.scalar * scaleValues, 'mV')),
+                                channel: Math.floor(evt.channel / (process.env.CHANNEL_GROUPING || 1)),
                                 index: i,
                                 sign: sign
                             };
@@ -287,9 +293,9 @@ describe('cl.composition.Sonify', () => {
                     }
 
                     const sortAbs = (a, b) => {
-                        if (Math.abs(a.peak.value.scalar) < Math.abs(b.peak.value.scalar)) {
+                        if (Math.abs(a.peak.value.scalar * scaleValues) < Math.abs(b.peak.value.scalar * scaleValues)) {
                             return 1;
-                        } else if (Math.abs(a.peak.value.scalar) > Math.abs(b.peak.value.scalar)) {
+                        } else if (Math.abs(a.peak.value.scalar * scaleValues) > Math.abs(b.peak.value.scalar * scaleValues)) {
                             return -1;
                         }
                         return 0;
@@ -306,19 +312,19 @@ describe('cl.composition.Sonify', () => {
                     if (clusterStats.spikes_pos.length > 0) {
                         clusterStats.time = clusterStats.spikes_pos[0].peak.time;
                     } else if (clusterStats.spikes_neg.length > 0 &&
-                        Math.abs(peakNeg.scalar) > Math.abs(peakPos.scalar)) {
+                        Math.abs(peakNeg.scalar * scaleValues) > Math.abs(peakPos.scalar * scaleValues)) {
                         clusterStats.time = clusterStats.spikes_neg[0].peak.time;
                     }
 
                     let chordDegree = 0,
                         rootNoteCos = new cl.harmonics.CircleOfScales(startOctave);
 
-                    const makeChord = () => {
+                    const makeChord = (spike) => {
                         let chord = new cl.harmonics.Chord(chordList[chordDegree]);
                         Debug(`cluster:${cn}`)(`Generating chord ${chord.type} with tonic ${chord.tonic.toString()}`);
                         chord.getNotesFromOctave(1).map(note => {
                             let tonalEvent = new cl.events.TonalEvent(clusterStats.time, note, Qty(defaultNoteLength));
-                            tonalEvents.push(tonalEvent);
+                            tonalEvents[spike.channel].push(tonalEvent);
                         });
                     };
 
@@ -330,9 +336,10 @@ describe('cl.composition.Sonify', () => {
                                 let tonalEvent = new cl.events.TonalEvent(
                                     spike.peak.time, cof.note, Qty(defaultNoteLength)
                                 );
+                                tonalEvent.value.velocity = Math.min(Math.abs(spike.peak.value.scalar), 1.0);
                                 Debug(`cluster:${cn}`)(`Adding TonalEvent ${tonalEvent.value.toString()} at ` +
                                     `${tonalEvent.time.toString()} for value ${spike.peak.value.toString()}`);
-                                tonalEvents.push(tonalEvent);
+                                tonalEvents[spike.channel].push(tonalEvent);
                             }
                         }
                     };
@@ -345,13 +352,12 @@ describe('cl.composition.Sonify', () => {
                     if (peakPos.gte(Qty(degModeThreshold)) && peakPos.gt(peakNeg)) {
                         chordDegree = Math.min(Math.floor(clusterStats.synchronous_pos * 0.5), 6);
                         Debug(`cluster:${cn}`)(`Setting degree to ${chordDegree}`);
-                        clusterStats.spikes_pos.splice(0, 1);
-                        makeChord();
+                        makeChord(clusterStats.spikes_pos.splice(0, 1)[0]);
                     } else if (peakNeg.gte(Qty(degModeThreshold)) && peakNeg.gt(peakPos)) {
                         let rotationSteps = Math.floor(clusterStats.synchronous_neg * 0.5);
                         Debug(`cluster:${cn}`)(`Rotating mode ${rotationSteps} steps counterclockwise`);
                         cos.rotate(rotationSteps * -1.0);
-                        makeNote(clusterStats.spikes_neg.splice(0, 1));
+                        makeNote(clusterStats.spikes_neg.splice(0, 1)[0]);
                     } else {
                         /*
                         if (peakPos.gt(peakNeg)) {
@@ -370,12 +376,15 @@ describe('cl.composition.Sonify', () => {
                 return tonalEvents;
             })
             .then(tonalEvents => {
-                const dataChannel = new cl.data.DataChannel(tonalEvents, process.env.OUTPUT_BASENAME, uuid4()),
-                    song = new cl.data.Song([dataChannel], 120, uuid4());
+                const song = new cl.data.Song(tonalEvents.map(channel => {
+                    return new cl.data.DataChannel(channel, process.env.OUTPUT_BASENAME, uuid4());
+                }), 120, uuid4());
                 return song.toMidiFile(path.join(__dirname, '..', '..', 'data', `${_title.join('-')}.mid`));
-            })
+            });
+            /*
             .catch(err => {
                 throw err;
             });
+            */
     });
 });

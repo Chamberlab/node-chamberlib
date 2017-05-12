@@ -104,9 +104,9 @@ class MidiFile {
 
                 if (event_val instanceof _Note2.default) {
                     if (event.on) {
-                        track.addNoteOn(0, event_val.toMidi(), ticks - last_ticks);
+                        track.addNoteOn(0, event_val.toMidi(), ticks - last_ticks, Math.round(event_val.velocity * 128));
                     } else {
-                        track.addNoteOff(0, event_val.toMidi(), ticks - last_ticks);
+                        track.addNoteOff(0, event_val.toMidi(), ticks - last_ticks, Math.round(event_val.velocity * 128));
                     }
                 }
 

@@ -24,6 +24,10 @@ var _DataEvent = require('../../events/DataEvent');
 
 var _DataEvent2 = _interopRequireDefault(_DataEvent);
 
+var _DataFrame = require('../../events/DataFrame');
+
+var _DataFrame2 = _interopRequireDefault(_DataFrame);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class OSCNode extends _BaseNode2.default {
@@ -57,7 +61,10 @@ class OSCNode extends _BaseNode2.default {
                 this.addStats('out', event.constructor.name);
                 return event;
             } else {
-                // TODO: implement n-dimensional values
+                let frame = new _DataFrame2.default(time, new Float32Array(data.args));
+                frame.parentUUID = _self._channels[data.address].uuid;
+                this.addStats('out', frame.constructor.name);
+                return frame;
             }
         });
     }

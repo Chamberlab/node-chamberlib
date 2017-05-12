@@ -16,6 +16,10 @@ var _assert = require('assert');
 
 var _assert2 = _interopRequireDefault(_assert);
 
+var _jsQuantities = require('js-quantities');
+
+var _jsQuantities2 = _interopRequireDefault(_jsQuantities);
+
 var _SpikeEvent = require('../events/SpikeEvent');
 
 var _SpikeEvent2 = _interopRequireDefault(_SpikeEvent);
@@ -58,6 +62,22 @@ class DataCaching {
                     resolve();
                 }
             });
+        }).then(rawStats => {
+            if (rawStats) {
+                return rawStats.map(stats => {
+                    return {
+                        min: (0, _jsQuantities2.default)(stats.min.scalar, stats.min._units),
+                        max: (0, _jsQuantities2.default)(stats.max.scalar, stats.max._units),
+                        avg: (0, _jsQuantities2.default)(stats.avg.scalar, stats.avg._units),
+                        avg_pos: (0, _jsQuantities2.default)(stats.avg_pos.scalar, stats.avg_pos._units),
+                        avg_neg: (0, _jsQuantities2.default)(stats.avg_neg.scalar, stats.avg_neg._units),
+                        distribution: stats.distribution.map(entry => {
+                            entry.range = (0, _jsQuantities2.default)(entry.range.scalar, entry.range._units);
+                            return entry;
+                        })
+                    };
+                });
+            }
         });
     }
 

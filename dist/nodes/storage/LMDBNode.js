@@ -222,7 +222,7 @@ class LMDBNode extends _BaseNode2.default {
         return input.uuid;
     }
 
-    createOutput(channelKey, startTime = (0, _jsQuantities2.default)('0s'), endTime = (0, _jsQuantities2.default)('0s'), convertFrames = false) {
+    createOutput(channelKey, startTime = (0, _jsQuantities2.default)('0 s'), endTime = (0, _jsQuantities2.default)('0 s'), convertFrames = false) {
         (0, _assert2.default)(this._lmdb !== null);
 
         (0, _assert2.default)(typeof channelKey === 'string');
@@ -281,7 +281,7 @@ class LMDBNode extends _BaseNode2.default {
             }
             if (output.eventBuffer.length > 0) {
                 let event = output.eventBuffer.shift();
-                if (output.endTime.gt((0, _jsQuantities2.default)('0s')) && event.time.gte(output.endTime)) {
+                if (output.endTime.gt((0, _jsQuantities2.default)('0 s')) && event.time.gte(output.endTime)) {
                     return this.endOutput(uuid);
                 }
                 output.stream.queue(event);

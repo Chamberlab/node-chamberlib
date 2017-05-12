@@ -4,6 +4,7 @@ import Qty from 'js-quantities';
 import BaseNode from '../BaseNode';
 import OSC from '../../io/net/OSC';
 import DataEvent from '../../events/DataEvent';
+import DataFrame from '../../events/DataFrame';
 
 class OSCNode extends BaseNode {
     constructor(localPort, localIp = '127.0.0.1', broadcast = false) {
@@ -36,7 +37,10 @@ class OSCNode extends BaseNode {
                 this.addStats('out', event.constructor.name);
                 return event;
             } else {
-                // TODO: implement n-dimensional values
+                let frame = new DataFrame(time, new Float32Array(data.args));
+                frame.parentUUID = _self._channels[data.address].uuid;
+                this.addStats('out', frame.constructor.name);
+                return frame;
             }
         });
     }

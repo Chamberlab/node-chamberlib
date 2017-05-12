@@ -3,7 +3,7 @@ const memwatch = require('memwatch-next'),
     path = require('path'),
     lmdbOut = new cl.nodes.storage.LMDBNode(),
     osc = new cl.nodes.io.OSCNode(52777),
-    dataPath = path.resolve('../data/lmdb/20151208_15h59m12s_nanobrain-reduced');
+    dataPath = path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain-reduced');
 
 let outputUuid;
 
