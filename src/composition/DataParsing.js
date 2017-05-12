@@ -45,7 +45,9 @@ class DataParsing {
                 frames += 1;
             }
 
-            Debug('cl:composition:Utilities')(`Key position at ${frame.time} (${frames} data frames)`);
+            if (frame) {
+                Debug('cl:composition:Utilities')(`Key position at ${frame.time} (${frames} data frames)`);
+            }
 
             lmdb.closeCursor(cursor);
             lmdb.commit(txn);

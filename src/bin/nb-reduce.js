@@ -10,13 +10,22 @@ memwatch.on('leak', function(info) {
 
 const lmdbOut = new cl.nodes.storage.LMDBNode(),
     lmdbIn = new cl.nodes.storage.LMDBNode(),
-    quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(0.05, 's') });
+    quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(0.01, 's') });
 
 lmdbOut.openDataSet(path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain'), '20151208_15h59m12s_nanobrain');
 lmdbIn.createDataSet(
-    path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain-reduced-0-05'), 2.0, '20151208_15h59m12s_nanobrain');
+    path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain-reduced-0-01'), 2.0, '20151208_15h59m12s_nanobrain');
+
+lmdbOut.on('done', () => {
+    console.log(lmdbOut.stats);
+    lmdbOut.endOutput(outputUuid);
+    process.stdout.write('done!\n');
+    process.exit(0);
+});
 
 lmdbIn.on('done', () => {
+    console.log(lmdbIn.stats);
+    //lmdbOut.endOutput(outputUuid);
     process.stdout.write('done!\n');
     process.exit(0);
 });

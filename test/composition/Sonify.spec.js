@@ -74,12 +74,12 @@ describe('cl.composition.Sonify', () => {
                 if (!_stats || !_channelSpikes) {
                     if (process.env.NB_DBNAME) {
                         const dbname = process.env.NB_DBNAME,
-                            dbpath = path.join(__dirname, '..', '..', 'data', 'lmdb', dbname);
+                            dbpath = path.join(__dirname, '..', '..', 'data', 'lmdb', process.env.NB_DBFOLDER || dbname);
                         return new Promise(resolve => {
                             fs.exists(dbpath, exists => {
                                 if (exists) {
                                     return resolve(
-                                        cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, _evaluate, 0.05)
+                                        cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, _evaluate, 0.01)
                                     );
                                 }
                                 debug('No Nanobrains DB in data, skipping...');
@@ -153,7 +153,7 @@ describe('cl.composition.Sonify', () => {
                 const startOctave = 2,
                     cos = new cl.harmonics.CircleOfScales(startOctave),
                     defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
-                    lowThreshold = '0.1 mV',
+                    lowThreshold = '0.01 mV',
                     syncThreshold = '0.2 mV',
                     degModeThreshold = '0.45 mV',
                     chordList = ['Cmaj7', 'Fmaj7#11', 'Gdom7', 'Dm7', 'Am7', 'Em7', 'Bm7b5'],
@@ -263,7 +263,7 @@ describe('cl.composition.Sonify', () => {
                         }
 
                         if (mapVal >= Qty(lowThreshold).scalar) {
-                            const stringVal = (parseFloat((evt.spike.peak.value.scalar * 2.0).toFixed(1)) * 0.5 * scaleValues)
+                            const stringVal = (parseFloat((evt.spike.peak.value.scalar * 2.0 * scaleValues).toFixed(1)) * 0.5)
                                 .toFixed(2);
                             const spike = {
                                 string: stringVal,
@@ -341,6 +341,8 @@ describe('cl.composition.Sonify', () => {
                                     `${tonalEvent.time.toString()} for value ${spike.peak.value.toString()}`);
                                 tonalEvents[spike.channel].push(tonalEvent);
                             }
+                        } else {
+                            Debug(`cluster:${cn}`)(`NOT adding TonalEvent for value ${spike.peak.value.toString()} with str ${spike.string}`);
                         }
                     };
 
