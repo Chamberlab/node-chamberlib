@@ -38,7 +38,8 @@ class DataCaching {
             }
             _fs2.default.writeFile(filePath, JSON.stringify(stats), err => {
                 if (err) {
-                    return reject(err);
+                    //return reject(err);
+                    (0, _debug2.default)('cl:composition:Utilities')(`Unable to store stats: ${err.message}`);
                 }
                 resolve();
             });
@@ -88,7 +89,8 @@ class DataCaching {
         return new Promise((resolve, reject) => {
             _fs2.default.writeFile(filePath, JSON.stringify(channelSpikes), err => {
                 if (err) {
-                    return reject(err);
+                    //return reject(err);
+                    (0, _debug2.default)('cl:composition:Utilities')(`Unable to store channel spikes: ${err.message}`);
                 }
                 resolve();
             });
@@ -126,7 +128,8 @@ class DataCaching {
         return new Promise((resolve, reject) => {
             _fs2.default.writeFile(filePath, JSON.stringify(flattenedSpikes), err => {
                 if (err) {
-                    return reject(err);
+                    //return reject(err);
+                    (0, _debug2.default)('cl:composition:Utilities')(`Unable to store flattened spikes: ${err.message}`);
                 }
                 resolve(flattenedSpikes);
             });
