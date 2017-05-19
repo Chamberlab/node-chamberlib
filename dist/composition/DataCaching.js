@@ -28,7 +28,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class DataCaching {
     static storeStats(stats, filePath, spliceStart = undefined, spliceEnd = undefined) {
-        // TODO: check why this is not working with instanceof, would be safer for refactoring
         (0, _assert2.default)(Array.isArray(stats), 'Argument Error: stats type mismatch');
         (0, _assert2.default)(typeof filePath === 'string', 'Argument Error: Invalid filePath');
 

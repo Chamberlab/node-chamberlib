@@ -16,12 +16,21 @@ memwatch.on('leak', function (info) {
 
 const lmdbOut = new _2.default.nodes.storage.LMDBNode(),
       lmdbIn = new _2.default.nodes.storage.LMDBNode(),
-      quantize = new _2.default.nodes.transform.QuantizeTime({ steps: Qty(0.05, 's') });
+      quantize = new _2.default.nodes.transform.QuantizeTime({ steps: Qty(parseFLoat(process.env.TIME_SCALE), 's') });
 
-lmdbOut.openDataSet(path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain'), '20151208_15h59m12s_nanobrain');
-lmdbIn.createDataSet(path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain-reduced-0-05'), 2.0, '20151208_15h59m12s_nanobrain');
+lmdbOut.openDataSet(path.resolve(`../../data/lmdb/${process.env.LMDB_FOLDER}`), process.env.LMDB_DBNAME);
+lmdbIn.createDataSet(path.resolve(`../../data/lmdb/${process.env.LMDB_FOLDER}-reduced-${process.env.TIME_SCALE.toString().replace('.', '-')}`), 2.0, process.env.LMDB_DBNAME);
+
+lmdbOut.on('done', () => {
+    console.log(lmdbOut.stats);
+    lmdbOut.endOutput(outputUuid);
+    process.stdout.write('done!\n');
+    process.exit(0);
+});
 
 lmdbIn.on('done', () => {
+    console.log(lmdbIn.stats);
+    //lmdbOut.endOutput(outputUuid);
     process.stdout.write('done!\n');
     process.exit(0);
 });
@@ -31,10 +40,11 @@ lmdbIn.on('error', err => {
     process.exit(err.code);
 });
 
-const outputUuid = lmdbOut.createOutput('20151208_15h59m12s_nanobrain'),
-      inputUuid = lmdbIn.createInput({
-    '20151208_15h59m12s_nanobrain': lmdbOut.meta.DataSet.DataChannels['20151208_15h59m12s_nanobrain']
-}, true);
+const conf = {};
+conf[process.env.LMDB_DBNAME] = lmdbOut.meta.DataSet.DataChannels[process.env.LMDB_DBNAME];
+
+const outputUuid = lmdbOut.createOutput(process.env.LMDB_DBNAME),
+      inputUuid = lmdbIn.createInput(conf, true);
 
 lmdbOut.outputs[outputUuid].stream.pipe(quantize.stream).pipe(lmdbIn.inputs[inputUuid].stream);
 

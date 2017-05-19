@@ -10,11 +10,12 @@ memwatch.on('leak', function(info) {
 
 const lmdbOut = new cl.nodes.storage.LMDBNode(),
     lmdbIn = new cl.nodes.storage.LMDBNode(),
-    quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(0.01, 's') });
+    quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(parseFLoat(process.env.TIME_SCALE), 's') });
 
-lmdbOut.openDataSet(path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain'), '20151208_15h59m12s_nanobrain');
+lmdbOut.openDataSet(path.resolve(`../../data/lmdb/${process.env.LMDB_FOLDER}`), process.env.LMDB_DBNAME);
 lmdbIn.createDataSet(
-    path.resolve('../../data/lmdb/20151208_15h59m12s_nanobrain-reduced-0-01'), 2.0, '20151208_15h59m12s_nanobrain');
+    path.resolve(`../../data/lmdb/${process.env.LMDB_FOLDER}-reduced-${process.env.TIME_SCALE.toString().replace('.', '-')}`),
+    2.0, process.env.LMDB_DBNAME);
 
 lmdbOut.on('done', () => {
     console.log(lmdbOut.stats);
@@ -35,10 +36,11 @@ lmdbIn.on('error', (err) => {
     process.exit(err.code);
 });
 
-const outputUuid = lmdbOut.createOutput('20151208_15h59m12s_nanobrain'),
-    inputUuid = lmdbIn.createInput({
-        '20151208_15h59m12s_nanobrain': lmdbOut.meta.DataSet.DataChannels['20151208_15h59m12s_nanobrain']
-    }, true);
+const conf = {};
+conf[process.env.LMDB_DBNAME] = lmdbOut.meta.DataSet.DataChannels[process.env.LMDB_DBNAME];
+
+const outputUuid = lmdbOut.createOutput(process.env.LMDB_DBNAME),
+    inputUuid = lmdbIn.createInput(conf, true);
 
 lmdbOut.outputs[outputUuid]
     .stream.pipe(quantize.stream)

@@ -22,8 +22,8 @@ describe('cl.composition.Sonify', () => {
         const scaleValues = parseFloat(process.env.SCALE_VALUES) || 1.0,
             baseCachePath = path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME),
             cacheBasePaths = {
-                lmdb: path.join(__dirname, '..', '..', 'data', 'lmdb'),
-                spiketrains: path.join(__dirname, '..', '..', 'data', 'spiketrains')
+                lmdb: path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME),
+                spiketrains: path.join(__dirname, '..', '..', 'data', process.env.OUTPUT_BASENAME)
             };
 
         let _stats, _channelSpikes, _flattenedSpikes, _evaluate, _title = ['spikes', process.env.OUTPUT_BASENAME];
@@ -31,7 +31,7 @@ describe('cl.composition.Sonify', () => {
         return Promise.resolve()
             .then(() => {
                 if (process.env.SPIKETRAIN_FILE) {
-                    return CompositionHelper.readCache(cacheBasePaths['spiketrains']);
+                    return CompositionHelper.readCache(cacheBasePaths['spiketrains'], process.env.OUTPUT_BASENAME);
                 }
             })
             .then(res => {
@@ -157,9 +157,9 @@ describe('cl.composition.Sonify', () => {
                 const startOctave = 2,
                     cos = new cl.harmonics.CircleOfScales(startOctave),
                     defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
-                    lowThreshold = '0.005 mV',
-                    syncThreshold = '0.4 mV',
-                    degModeThreshold = '0.45 mV',
+                    lowThreshold = '0.01 mV',
+                    syncThreshold = '0.2 mV',
+                    degModeThreshold = '0.25 mV',
                     chordList = ['Cmaj7', 'Fmaj7#11', 'Gdom7', 'Dm7', 'Am7', 'Em7', 'Bm7b5'],
                     noteIndexMap = {
                         '0.10': 0,
