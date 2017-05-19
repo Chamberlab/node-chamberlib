@@ -149,7 +149,8 @@ describe('cl.composition.Sonify', () => {
                             (`Extracted Cluster at approx. ${cluster[0].spike.peak.time} with ${cluster.length} items`);
                     });
                 }
-                let tonalEvents = new Array(Math.ceil(64 / (process.env.CHANNEL_GROUPING || 1))).fill(null);
+                let tonalEvents = new Array(process.env.CHANNEL_GROUPING ?
+                    cl.data.lut.ChannelMatrix[process.env.CHANNEL_GROUPING]['CHANNEL_COUNT'] : 64).fill(null);
                 const startOctave = 2,
                     cos = new cl.harmonics.CircleOfScales(startOctave),
                     defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
@@ -269,7 +270,8 @@ describe('cl.composition.Sonify', () => {
                                 string: stringVal,
                                 peak: new cl.events.DataEvent(evt.spike.peak.time,
                                     Qty(evt.spike.peak.value.scalar * scaleValues, 'mV')),
-                                channel: Math.floor(evt.channel / (process.env.CHANNEL_GROUPING || 1)),
+                                channel: process.env.CHANNEL_GROUPING ?
+                                        cl.data.lut.ChannelMatrix[process.env.CHANNEL_GROUPING][i.toString()] : evt.channel,
                                 index: i,
                                 sign: sign
                             };
