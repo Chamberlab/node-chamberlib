@@ -20,6 +20,10 @@ var _jsQuantities = require('js-quantities');
 
 var _jsQuantities2 = _interopRequireDefault(_jsQuantities);
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -93,6 +97,10 @@ class BaseGraph {
                 }).then(() => {
                     return drawContent(d3env, layerData, g).then(() => {
                         cb(null, d3env.window.d3.select('.container').html());
+                    }).catch(err => {
+                        (0, _debug2.default)('cl:graph')(`Graph failed with error: ${err.message}`);
+                        // TODO: handle this properly
+                        cb(null, '');
                     });
                 });
             }

@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import jsdom from 'jsdom/lib/old-api';
 import Promise from 'bluebird';
 import Qty from 'js-quantities';
+import Debug from 'debug';
 
 // FIXME: update this to use d3 4.x
 // FIXME: update to new jsdom api
@@ -93,6 +94,11 @@ class BaseGraph {
                         return drawContent(d3env, layerData, g)
                             .then(() => {
                                 cb(null, d3env.window.d3.select('.container').html());
+                            })
+                            .catch(err => {
+                                Debug('cl:graph')(`Graph failed with error: ${err.message}`);
+                                // TODO: handle this properly
+                                cb(null, '');
                             });
                     });
             }

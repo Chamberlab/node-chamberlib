@@ -43,7 +43,8 @@ describe('cl.composition.Sonify', () => {
                 if (!_stats || !_channelSpikes) {
                     if (process.env.SPIKETRAIN_FILE) {
                         const spikeTrainFile = path.join(__dirname, '..', '..', 'data', process.env.SPIKETRAIN_FILE);
-                        return cl.composition.DataParsing.parseSpiketrains(spikeTrainFile, _evaluate, 0.1);
+                        return cl.composition.DataParsing.parseSpiketrains(
+                            spikeTrainFile, _evaluate, parseFloat(process.env.SPIKE_THRESHOLD) || 0.01);
                     }
                 }
             })
@@ -79,7 +80,9 @@ describe('cl.composition.Sonify', () => {
                             fs.exists(dbpath, exists => {
                                 if (exists) {
                                     return resolve(
-                                        cl.composition.DataParsing.parseLMDBFrames(dbname, dbpath, _evaluate, 0.01)
+                                        cl.composition.DataParsing.parseLMDBFrames(
+                                            dbname, dbpath, _evaluate, parseFloat(process.env.SPIKE_THRESHOLD) || 0.01,
+                                            parseFloat(process.env.SPIKE_MAX) || undefined)
                                     );
                                 }
                                 debug('No Nanobrains DB in data, skipping...');
@@ -154,19 +157,30 @@ describe('cl.composition.Sonify', () => {
                 const startOctave = 2,
                     cos = new cl.harmonics.CircleOfScales(startOctave),
                     defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
-                    lowThreshold = '0.01 mV',
-                    syncThreshold = '0.2 mV',
+                    lowThreshold = '0.005 mV',
+                    syncThreshold = '0.4 mV',
                     degModeThreshold = '0.45 mV',
                     chordList = ['Cmaj7', 'Fmaj7#11', 'Gdom7', 'Dm7', 'Am7', 'Em7', 'Bm7b5'],
                     noteIndexMap = {
-                        '-0.10': 0,
+                        '0.10': 0,
+                        '0.15': 1,
+                        '0.20': 2,
+                        '0.25': 3,
+                        '0.30': 4,
+                        '0.35': 5,
+                        '0.40': 6
+                    },
+                    /*
+                    noteIndexMap = {
+                        '0.05': 0,
                         '0.10': 1,
                         '0.15': 2,
                         '0.20': 3,
                         '0.25': 4,
                         '0.30': 5,
-                        '0.40': 6
+                        '0.35': 6
                     },
+                    */
                     rootNoteIndexMap = {
                         '0.60': -1,
                         '0.65': 1,
@@ -201,7 +215,41 @@ describe('cl.composition.Sonify', () => {
                         '2.15': 5,
                         '2.20': 6
                     };
-                    /*
+                /*
+                    rootNoteIndexMap = {
+                        '0.30': -1,
+                        '0.35': 1,
+                        '0.40': 2,
+                        '0.45': 3,
+                        '0.50': 4,
+                        '0.55': 4,
+                        '0.60': 4,
+                        '0.65': 4,
+                        '0.90': -3,
+                        '0.95': -3,
+                        '1.00': -3,
+                        '1.05': -3,
+                        '1.10': -3,
+                        '1.15': -3,
+                        '1.30': -3,
+                        '1.35': -3,
+                        '1.40': -4,
+                        '1.45': -4,
+                        '1.50': -4,
+                        '1.55': -4,
+                        '1.60': -4,
+                        '1.65': -4,
+                        '1.75': -4,
+                        '1.80': 5,
+                        '1.85': 5,
+                        '1.90': 5,
+                        '1.95': 5,
+                        '2.00': 5,
+                        '2.05': 5,
+                        '2.10': 5,
+                        '2.15': 5,
+                        '2.20': 6
+                    };
                     rootNoteIndexMap = {
                         '0.60': 'F',
                         '0.65': 'G',
@@ -254,18 +302,26 @@ describe('cl.composition.Sonify', () => {
                         spikes_neg: []
                     };
                     cluster.forEach((evt, i) => {
+                        if (process.env.MAX_CLUSTER_SIZE && i >= parseInt(process.env.MAX_CLUSTER_SIZE)) {
+                            return;
+                        }
                         const mapVal = Math.abs(evt.spike.peak.value.scalar * scaleValues),
                             sign = Math.sign(evt.spike.peak.value.scalar);
 
-                        if (evt.spike.peak.value.gte(Qty(syncThreshold))) {
+                        if (evt.spike.peak.value.scalar * scaleValues >= Qty(syncThreshold).scalar) {
                             clusterStats.synchronous_pos += 1;
-                        } else if (evt.spike.peak.value.lte(Qty(Qty(syncThreshold).scalar * sign, 'mV'))) {
+                        } else if (evt.spike.peak.value.scalar * scaleValues <= Qty(syncThreshold).scalar * sign) {
                             clusterStats.synchronous_neg += 1;
                         }
 
+                        clusterStats.synchronous_pos = process.env.MAX_CLUSTER_SIZE ? Math.min(parseInt(process.env.MAX_CLUSTER_SIZE),
+                            clusterStats.synchronous_pos) : clusterStats.synchronous_pos;
+
+                        clusterStats.synchronous_neg = process.env.MAX_CLUSTER_SIZE ? Math.min(parseInt(process.env.MAX_CLUSTER_SIZE),
+                            clusterStats.synchronous_neg) : clusterStats.synchronous_neg;
+
                         if (mapVal >= Qty(lowThreshold).scalar) {
-                            const stringVal = (parseFloat((evt.spike.peak.value.scalar * 2.0 * scaleValues).toFixed(1)) * 0.5)
-                                .toFixed(2);
+                            const stringVal = (parseFloat((mapVal * 2.0).toFixed(1)) * 0.5).toFixed(2);
                             const spike = {
                                 string: stringVal,
                                 peak: new cl.events.DataEvent(evt.spike.peak.time,
@@ -295,26 +351,35 @@ describe('cl.composition.Sonify', () => {
                     }
 
                     const sortAbs = (a, b) => {
-                        if (Math.abs(a.peak.value.scalar * scaleValues) < Math.abs(b.peak.value.scalar * scaleValues)) {
+                        if (Math.abs(a.peak.value.scalar) < Math.abs(b.peak.value.scalar)) {
                             return 1;
-                        } else if (Math.abs(a.peak.value.scalar * scaleValues) > Math.abs(b.peak.value.scalar * scaleValues)) {
+                        } else if (Math.abs(a.peak.value.scalar) > Math.abs(b.peak.value.scalar)) {
                             return -1;
                         }
                         return 0;
                     };
 
                     clusterStats.spikes_pos.sort(sortAbs);
+                    if (process.env.MAX_CLUSTER_SIZE && clusterStats.spikes_pos.length >= parseInt(process.env.MAX_CLUSTER_SIZE)) {
+                        clusterStats.spikes_pos = clusterStats.spikes_pos.splice(0,
+                            Math.min(clusterStats.spikes_pos.length, process.env.MAX_CLUSTER_SIZE));
+                    }
+
                     clusterStats.spikes_neg.sort(sortAbs);
+                    if (process.env.MAX_CLUSTER_SIZE && clusterStats.spikes_neg.length >= parseInt(process.env.MAX_CLUSTER_SIZE)) {
+                        clusterStats.spikes_neg = clusterStats.spikes_neg.splice(0,
+                            Math.min(clusterStats.spikes_neg.length, process.env.MAX_CLUSTER_SIZE));
+                    }
 
                     let peakPos = clusterStats.spikes_pos.length > 0 ?
-                            clusterStats.spikes_pos[0].peak.value : Qty(0.0, 'mV'),
+                            Qty(Math.abs(clusterStats.spikes_pos[0].peak.value.scalar), 'mV') : Qty(0.0, 'mV'),
                         peakNeg = clusterStats.spikes_neg.length > 0 ?
-                            clusterStats.spikes_neg[0].peak.value : Qty(0.0, 'mV');
+                            Qty(Math.abs(clusterStats.spikes_neg[0].peak.value.scalar), 'mV') : Qty(0.0, 'mV');
 
                     if (clusterStats.spikes_pos.length > 0) {
                         clusterStats.time = clusterStats.spikes_pos[0].peak.time;
                     } else if (clusterStats.spikes_neg.length > 0 &&
-                        Math.abs(peakNeg.scalar * scaleValues) > Math.abs(peakPos.scalar * scaleValues)) {
+                        Math.abs(peakNeg.scalar) > Math.abs(peakPos.scalar)) {
                         clusterStats.time = clusterStats.spikes_neg[0].peak.time;
                     }
 
@@ -330,9 +395,9 @@ describe('cl.composition.Sonify', () => {
                         });
                     };
 
-                    const makeNote = (spike) => {
-                        if (noteIndexMap[spike.string] && cos.scale.notes[noteIndexMap[spike.string]]) {
-                            let cof = new cl.harmonics.CircleOfFifths(rootNoteCos.tonic.key, startOctave);
+                    const makeNote = (spike, key = undefined) => {
+                        if (key || (typeof noteIndexMap[spike.string] === 'number' && cos.scale.notes[noteIndexMap[spike.string]])) {
+                            let cof = new cl.harmonics.CircleOfFifths(key || rootNoteCos.tonic.key, startOctave);
                             cof.rotate(noteIndexMap[spike.string]);
                             if (cof.note) {
                                 let tonalEvent = new cl.events.TonalEvent(
@@ -354,14 +419,15 @@ describe('cl.composition.Sonify', () => {
                     }
 
                     if (peakPos.gte(Qty(degModeThreshold)) && peakPos.gt(peakNeg)) {
-                        chordDegree = Math.min(Math.floor(clusterStats.synchronous_pos * 0.5), 6);
+                        chordDegree = Math.min(Math.ceil(clusterStats.synchronous_pos), 6);
                         Debug(`cluster:${cn}`)(`Setting degree to ${chordDegree}`);
-                        makeChord(clusterStats.spikes_pos.splice(0, 1)[0]);
+                        makeChord(clusterStats.spikes_pos.splice(0, 1)[0])
                     } else if (peakNeg.gte(Qty(degModeThreshold)) && peakNeg.gt(peakPos)) {
-                        let rotationSteps = Math.floor(clusterStats.synchronous_neg * 0.5);
+                        let rotationSteps = Math.ceil(clusterStats.synchronous_neg);
                         Debug(`cluster:${cn}`)(`Rotating mode ${rotationSteps} steps counterclockwise`);
                         cos.rotate(rotationSteps * -1.0);
-                        makeNote(clusterStats.spikes_neg.splice(0, 1)[0]);
+                        let key = cos.tonic.key;
+                        makeNote(clusterStats.spikes_neg.splice(0, 1)[0], key);
                     } else {
                         /*
                         if (peakPos.gt(peakNeg)) {
