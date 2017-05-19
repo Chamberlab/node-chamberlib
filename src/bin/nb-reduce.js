@@ -10,7 +10,7 @@ memwatch.on('leak', function(info) {
 
 const lmdbOut = new cl.nodes.storage.LMDBNode(),
     lmdbIn = new cl.nodes.storage.LMDBNode(),
-    quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(parseFLoat(process.env.TIME_SCALE), 's') });
+    quantize = new cl.nodes.transform.QuantizeTime({ steps: Qty(parseFloat(process.env.TIME_SCALE), 's') });
 
 lmdbOut.openDataSet(path.resolve(`../../data/lmdb/${process.env.LMDB_FOLDER}`), process.env.LMDB_DBNAME);
 lmdbIn.createDataSet(
