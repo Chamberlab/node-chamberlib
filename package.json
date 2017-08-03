@@ -36,7 +36,7 @@
     "jshint": "^2.9.4",
     "jshint-stylish": "^2.2.1",
     "mocha": "^3.3.0",
-    "sinon": "^2.0.0"
+    "sinon": "^3.0.0"
   },
   "dependencies": {
     "bluebird": "^3.4.6",
