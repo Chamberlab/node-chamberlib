@@ -35,15 +35,17 @@ class DataManipulation {
     }
 
     static makeClusters(flattenedSpikes, maxTimeDifference = '1 ms') {
-        let lastTime = (0, _jsQuantities2.default)('0s'),
+        let lastTime = (0, _jsQuantities2.default)('0 s'),
             spikeClusters = [],
             currentCluster = [];
 
         if (Array.isArray(flattenedSpikes)) {
             flattenedSpikes.forEach(data => {
-                if (currentCluster.length > 0 && data.spike.peak.time.sub(lastTime) >= (0, _jsQuantities2.default)(maxTimeDifference)) {
-                    spikeClusters.push(currentCluster);
-                    currentCluster = [];
+                if (data.spike.peak.time.sub(lastTime) >= (0, _jsQuantities2.default)(maxTimeDifference)) {
+                    if (currentCluster.length > 0) {
+                        spikeClusters.push(currentCluster);
+                        currentCluster = [];
+                    }
                 }
                 currentCluster.push(data);
                 lastTime = data.spike.peak.time;
