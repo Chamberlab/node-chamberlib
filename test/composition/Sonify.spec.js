@@ -157,9 +157,9 @@ describe('cl.composition.Sonify', () => {
                 const startOctave = 2,
                     cos = new cl.harmonics.CircleOfScales(startOctave),
                     defaultNoteLength = process.env.DEFAULT_NOTE_LENGTH || '0.25 s',
-                    lowThreshold = '0.01 mV',
-                    syncThreshold = '0.2 mV',
-                    degModeThreshold = '0.25 mV',
+                    lowThreshold = '0.001 mV',
+                    syncThreshold = '0.02 mV',
+                    degModeThreshold = '0.025 mV',
                     chordList = ['Cmaj7', 'Fmaj7#11', 'Gdom7', 'Dm7', 'Am7', 'Em7', 'Bm7b5'],
                     noteIndexMap = {
                         '0.10': 0,
