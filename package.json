@@ -1,10 +1,10 @@
 {
   "name": "chamberlib",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Lib for lab.",
   "main": "dist/index.js",
   "engines": {
-    "node": ">=7.7.0"
+    "node": ">=8.6.0"
   },
   "engineStrict": true,
   "scripts": {
@@ -24,28 +24,29 @@
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
     "babel-preset-env": "^1.4.0",
-    "chai": "^3.5.0",
-    "del": "^2.2.2",
-    "eslint": "^3.14.1",
+    "chai": "^4.1.2",
+    "del": "^3.0.0",
+    "eslint": "^4.7.2",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
+    "gulp-babel": "^7.0.0",
     "gulp-concat": "^2.6.1",
-    "gulp-eslint": "^3.0.1",
+    "gulp-eslint": "^4.0.0",
     "gulp-jshint": "^2.0.4",
     "gulp-sourcemaps": "^2.6.0",
     "jshint": "^2.9.4",
     "jshint-stylish": "^2.2.1",
     "mocha": "^3.3.0",
-    "sinon": "^2.0.0"
+    "sinon": "^4.0.0",
+    "webpack": "^3.6.0"
   },
   "dependencies": {
     "bluebird": "^3.4.6",
     "chance": "^1.0.8",
     "csv-parse": "^1.1.7",
     "d3": "^3.5.17",
-    "debug": "^2.6.6",
+    "debug": "^3.1.0",
     "js-quantities": "^1.6.6",
-    "jsdom": "^10.0.0",
+    "jsdom": "^11.2.0",
     "jsmidgen": "^0.1.5",
     "levenshtein": "^1.0.5",
     "mathjs": "^3.12.2",
@@ -59,9 +60,8 @@
     "svg2png": "^4.1.1",
     "through": "^2.3.8",
     "tiny-emitter": "^2.0.0",
-    "tonal": "^0.69.5",
+    "tonal": "^1.0.0-0",
     "uuid-validate": "0.0.2",
-    "uuid4": "^1.0.0",
-    "webpack": "^2.4.1"
+    "uuid4": "^1.0.0"
   }
 }
