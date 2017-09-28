@@ -1,6 +1,6 @@
 {
   "name": "chamberlib",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Lib for lab.",
   "main": "dist/index.js",
   "engines": {
@@ -60,7 +60,7 @@
     "svg2png": "^4.1.1",
     "through": "^2.3.8",
     "tiny-emitter": "^2.0.0",
-    "tonal": "^1.0.0-0",
+    "tonal": "^0.69.6",
     "uuid-validate": "0.0.2",
     "uuid4": "^1.0.0"
   }
